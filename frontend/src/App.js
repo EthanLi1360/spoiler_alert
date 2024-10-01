@@ -1,16 +1,20 @@
 import logo from './logo.svg';
 import './App.css';
-import React from "react"
+import { useState } from 'react';
 
 function App() {
-  const [recipeText, setRecipeText] = React.useState("Recipe goes here!");
+  const [recipeTitle, setRecipeTitle] = useState("Recipe goes here!");
+  const [recipeIngredients, setRecipeIngredients] = useState([]);
+  const [recipeDirections, setRecipeDirections] = useState([]);
+  const [recipeNotes, setRecipeNotes] = useState("Recipe goes here!");
+  const [recipeText, setRecipeText] = useState("Recipe goes here!");
 
   async function run() {
     const {
       GoogleGenerativeAI
     } = require("@google/generative-ai");
   
-    const apiKey = "ask Ethan for the api key";
+    const apiKey = "ask Ethan for API key";
     const genAI = new GoogleGenerativeAI(apiKey);
   
     const model = genAI.getGenerativeModel({
@@ -22,7 +26,53 @@ function App() {
       topP: 0.95,
       topK: 64,
       maxOutputTokens: 8192,
-      responseMimeType: "text/plain",
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "object",
+        properties: {
+          recipe_name: {
+            type: "string"
+          },
+          ingredients: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                ingredient_name: {
+                  type: "string"
+                },
+                ingredient_quantity: {
+                  type: "number"
+                },
+                notes: {
+                  type: "string"
+                },
+                units: {
+                  type: "string"
+                }
+              },
+              required: [
+                "ingredient_name",
+                "ingredient_quantity"
+              ]
+            }
+          },
+          directions: {
+            type: "array",
+            items: {
+              type: "string"
+            }
+          },
+          notes: {
+            type: "string"
+          }
+        },
+        required: [
+          "recipe_name",
+          "ingredients",
+          "directions"
+        ]
+      },
     };
 
     const chatSession = model.startChat({
@@ -35,6 +85,11 @@ function App() {
 
     const result = await chatSession.sendMessage("Please give me a random recipe!");
     console.log(result.response.text());
+    const json_obj = JSON.parse(result.response.text());
+    setRecipeTitle(json_obj.recipe_name);
+    setRecipeIngredients(json_obj.ingredients);
+    setRecipeDirections(json_obj.directions);
+    setRecipeNotes(json_obj.notes);
     setRecipeText(result.response.text());
   }
 
@@ -42,21 +97,18 @@ function App() {
     <div className="App">
       <h1>AI sandbox</h1>
       <button onClick={run}>Click me!</button>
+      <h1>{recipeTitle}</h1>
+      {recipeIngredients.map(ingredient =>
+        <p>{ingredient.ingredient_name} {ingredient.ingredient_quantity} {ingredient.units}</p>
+      )}
+      <h2>Directions</h2>
+      {recipeDirections.map(direction =>
+        <p>{direction}</p>
+      )}
+      <h2>Notes</h2>
+      <p>{recipeNotes}</p>
+      <h2>Raw JSON</h2>
       <p>{recipeText}</p>
-      {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header> */}
     </div>
   );
 }
