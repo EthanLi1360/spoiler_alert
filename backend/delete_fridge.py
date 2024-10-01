@@ -4,7 +4,6 @@ def delete_fridge(fridge_id):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     
-    # Check if the fridge exists before trying to delete it
     cursor.execute('SELECT * FROM fridges WHERE fridgeID = ?', (fridge_id,))
     fridge = cursor.fetchone()
     
