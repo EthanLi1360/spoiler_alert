@@ -1,19 +1,11 @@
 from . import *
+from Tables import *
 
 def hash_password(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
 def chech_password(hashed_password, user_input_password):
    return bcrypt.checkpw(user_input_password.encode('utf-8'), hashed_password)
-
-# Define the User model
-class User(db.Model):
-    __tablename__ = 'test1'
-    UserId = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(100), nullable=False, unique=True)
-    password=db.Column(db.String(100),nullable=False,unique=True)
-    email = db.Column(db.String(100), nullable=False)
-    CreateAt = db.Column(db.DateTime, nullable=False)
 
 @app.route('/',methods=['POST','GET'])
 def index(consoleInfo=""):
