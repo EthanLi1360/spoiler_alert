@@ -1,21 +1,17 @@
-from flask import Flask, render_template, url_for,request
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-from config import credentials
-# config is the python file used to store credentials.
+from . import *
 
+def hash_password(password):
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI']= credentials
-# mysql://username:password@localhost/dbname
-db=SQLAlchemy(app)
+def chech_password(hashed_password, user_input_password):
+   return bcrypt.checkpw(user_input_password.encode('utf-8'), hashed_password)
 
 # Define the User model
 class User(db.Model):
     __tablename__ = 'test1'
     UserId = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(100), nullable=False, unique=True)
-    password_hash=db.Column(db.String(100),nullable=False,unique=True)
+    password=db.Column(db.String(100),nullable=False,unique=True)
     email = db.Column(db.String(100), nullable=False)
     CreateAt = db.Column(db.DateTime, nullable=False)
 
@@ -27,7 +23,7 @@ def index(consoleInfo=""):
 @app.route('/submit',methods=['POST'])
 def submit():
   username=request.form['username']
-  password_hash=request.form['password_hash']
+  password_hash=hash_password(request.form['password'])
   email=request.form['email']
 
   current_time = datetime.now()
