@@ -1,11 +1,10 @@
 from . import *
-from Tables import *
+from Models import *
 
 def hash_password(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-def chech_password(hashed_password, user_input_password):
-   return bcrypt.checkpw(user_input_password.encode('utf-8'), hashed_password)
+
 
 @app.route('/',methods=['POST','GET'])
 def index(consoleInfo=""):
