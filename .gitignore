@@ -1,0 +1,7 @@
+/.venv
+venv
+/__pycache__
+backend/.DS_Store
+static/.DS_Store
+.DS_Store
+config.py
