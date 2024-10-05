@@ -98,6 +98,7 @@ th {
 
 th, td {
   border-bottom: 1px solid #555;
+
 }
 
 /* Console Info Block */
@@ -105,4 +106,6 @@ th {% block console %}{
   color: #0ff; /* Console information in neon cyan */
   font-size: 16px;
   text-shadow: 0 0 10px #0ff;
+  align-self: center;
+  
 }
