@@ -4,6 +4,7 @@ import { app } from './firebaseConfig';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import LoginPage from './LoginPage';
 import FridgePage from './FridgePage'; // Import the fridge page
+import Wishlist from './Wishlist'
 
 function App() {
   
@@ -11,6 +12,7 @@ function App() {
     <div className="App">
       <FridgePage />
       < LoginPage />
+      <Wishlist userID={1} />
     </div>
   );
 }
