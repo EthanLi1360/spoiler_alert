@@ -10,8 +10,8 @@ function App() {
   
   return (
     <div className="App">
+      <LoginPage />
       <FridgePage />
-      < LoginPage />
       <Wishlist userID={1} />
     </div>
   );
