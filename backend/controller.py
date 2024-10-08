@@ -24,4 +24,4 @@ def user_fridges(user_id):
 @app.route('/fridge/<int:fridge_id>', methods=['GET'])
 def return_food(fridge_id):
     food = get_food(fridge_id)
-    return jsontify(food), 200
+    return jsonify(food), 200
