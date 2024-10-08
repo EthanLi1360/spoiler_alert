@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import {getUserSavedRecipes, getRecipe, getRecipeIngredients, getFoodItem, getFridgeContents, getUserFridgeAccess, getFridge} from "./Util";
 import IngredientSelect from './Components/IngredientSelect';
 import ListRecipes from './Components/ListRecipes';
+import ShoppingList from './Components/ShoppingList';
 //Add ingredients directly to fridge once purchased
 //Organize wishlist by recipes
 
@@ -9,20 +10,34 @@ function Wishlist({userID}) {
     const [savedRecipes, setSavedRecipes] = useState([]);
     const [fridgeContents, setFridgeContents] = useState([]);
     const [selectedRecipe, setSelectedRecipe] = useState();
+    const [shoppingList, setShoppingList] = useState([]);
     
     const handleClick = (item) => {
         setSelectedRecipe(item);
     }
+    const addToList = (item, quantity, recipe) => {
+        setShoppingList((old) => [...old, {...item, "quantity" : quantity, "recipeName" : recipe}]);
+        console.log(shoppingList);
+    }
+    const addToFridge = (item) => {
+        console.log("Adding to fridge...");
+        console.log(item);
+    }
+    const saveList = () => {
+        console.log("Saving shopping list...");
+        console.log(shoppingList);
+    }
     useEffect(() => {
         setSavedRecipes(getFormattedSavedRecipes(userID));
         setFridgeContents(getFormattedFridgeContents(userID));
-    }, []);
+    }, [userID]);
     // console.log(fridgeContents);
     // console.log(savedRecipes);
     return (
         <div>
-            <ListRecipes savedRecipes={savedRecipes} callback={handleClick}/>
-            <IngredientSelect recipe={selectedRecipe} fridgeContents={fridgeContents}/>
+            <ListRecipes savedRecipes={savedRecipes} callback={handleClick} />
+            <IngredientSelect recipe={selectedRecipe} fridgeContents={fridgeContents} addToList={addToList} />
+            <ShoppingList list={shoppingList} itemAdded={addToFridge} saveList={saveList}/>
         </div>
     )
 }

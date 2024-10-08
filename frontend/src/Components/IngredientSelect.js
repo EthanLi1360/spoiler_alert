@@ -1,4 +1,4 @@
-function IngredientSelect({recipe, fridgeContents}) {
+function IngredientSelect({recipe, fridgeContents, addToList}) {
     const searchFridge = (itemID) => {
         let val = 0;
         fridgeContents.forEach(element => {
@@ -8,9 +8,10 @@ function IngredientSelect({recipe, fridgeContents}) {
         });
         return val
     };
-    const addToShoppingList = (item, needed) => {
-        console.log("item: " + item);
-        console.log("needed: " + needed);
+    const addToShoppingList = (item, needed, recipeName) => {
+        if (needed > 0) {
+            addToList(item, needed, recipeName);
+        }
     }
     if(recipe){
         return (
@@ -34,7 +35,7 @@ function IngredientSelect({recipe, fridgeContents}) {
                                 <td>{item.quantity} {item.unit}s</td>
                                 <td>{fridgeQuantity}</td>
                                 <td>{needed}</td>
-                                <td><button onClick={() => addToShoppingList(item, needed)}>ADD</button></td>
+                                <td><button onClick={() => addToShoppingList(item, needed, recipe.name)}>ADD</button></td>
                             </tr>
                         );
                     })}
