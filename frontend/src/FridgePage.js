@@ -21,7 +21,7 @@ const FridgePage = () => {
   //get suggested info after finish typing
   const typingDelay = 1500;         // Time in milliseconds (1 second)
   useEffect(() => {
-    const API_KEY = "AIzaSyAfMibENQ8SWNYIxgIqN2-9NvKtaqdRvQ4"
+    const API_KEY = "api key"
     async function run() {
       const {
         GoogleGenerativeAI
