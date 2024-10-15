@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import {getUserSavedRecipes, getRecipe, getRecipeIngredients, getFoodItem, getFridgeContents, getUserFridgeAccess, getFridge} from "./Util";
-import IngredientSelect from './Components/IngredientSelect';
-import ListRecipes from './Components/ListRecipes';
-import ShoppingList from './Components/ShoppingList';
+import IngredientSelect from './IngredientSelect';
+import ListRecipes from './ListRecipes';
+import ShoppingList from './ShoppingList';
 //Add ingredients directly to fridge once purchased
 //Organize wishlist by recipes
 
