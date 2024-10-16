@@ -8,8 +8,13 @@ import {
 import LoginPage from './Login/LoginPage';
 import FridgePage from './Fridge/FridgePage';
 import Wishlist from './Wishlist/Wishlist';
+import Home from './Home/Home';
 
 const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
   {
     path: "/login",
     element: <LoginPage />,
