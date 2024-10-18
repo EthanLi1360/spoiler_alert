@@ -1,0 +1,35 @@
+.padding {
+    padding-top: 40px;
+    padding-bottom: 80px;
+}
+
+.container {
+    display: flex;
+    padding-left: 40px;
+    padding-right: 40px;
+    /* border: 3px solid green; */
+}
+
+.image {
+    flex: 4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 40%;
+}
+
+.image img {
+    width: 100%;
+}
+
+.descdiv {
+    flex: 8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.description {
+    text-align: center;
+    padding: 40px;
+}
