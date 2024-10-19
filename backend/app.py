@@ -1,7 +1,12 @@
-from flask import Flask, render_template, url_for,request
+from flask import Flask, render_template, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS, cross_origin
 from datetime import datetime
 from config import credentials
+from get_data import view_data
+from add_to_table import insert_data
+from remove_from_table import delete_data
+import bcrypt
 # config is the python file used to store credentials.
 
 
@@ -17,6 +22,51 @@ class User(db.Model):
     password_hash=db.Column(db.String(100),nullable=False,unique=True)
     email = db.Column(db.String(100), nullable=False)
     CreateAt = db.Column(db.DateTime, nullable=False)
+
+
+@app.route('/get_credentials', methods=['POST'])
+@cross_origin()
+def login_credentials():
+    print("Data endpoint hit")
+    data = request.get_json()
+    table_data = view_data('Credentials')
+    stored_p = None
+    for entry in table_data:
+        u, p = entry['username'], entry['password']
+        print("=======Username=======")
+        print(u)
+        print(p)
+        if u == data['username']:
+            stored_p = p.encode()
+            break
+    if stored_p == None:
+        return jsonify({
+            "success": False,
+        })
+    return jsonify({
+        "success": bcrypt.checkpw(data['password'].encode(), stored_p), 
+    })
+
+
+@app.route('/add_credentials', methods=['POST'])
+@cross_origin()
+def add_account():
+    print("Data endpoint hit")
+    data = request.get_json()
+    table_data = view_data('Credentials')
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(data['password'].encode(), salt)
+
+    for u, p in table_data:
+        if u == data['username']:
+            return jsonify("Username is not available")
+    try:
+        insert_data('Credentials', {"username": data['username'], "password" : hashed_password})
+        return jsonify("Successfully Added")
+    except:
+        return jsonify("Something went wrong.")
+
+
 
 @app.route('/',methods=['POST','GET'])
 def index(consoleInfo=""):
