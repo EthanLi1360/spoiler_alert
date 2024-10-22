@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import {getUserSavedRecipes, getRecipe, getRecipeIngredients, getFoodItem, getFridgeContents, getUserFridgeAccess, getFridge} from "./Util";
+import {getUserSavedRecipes, getRecipe, getRecipeIngredients, getFoodItem, getFridgeContents, getUserFridgeAccess, getFridge} from "../Util";
 import IngredientSelect from './IngredientSelect';
 import ListRecipes from './ListRecipes';
 import ShoppingList from './ShoppingList';
+import Navbar from '../Navbar/Navbar';
+import "./Wishlist.css"
 //Add ingredients directly to fridge once purchased
 //Organize wishlist by recipes
 
@@ -34,10 +36,13 @@ function Wishlist({userID}) {
     // console.log(fridgeContents);
     // console.log(savedRecipes);
     return (
-        <div>
-            <ListRecipes savedRecipes={savedRecipes} callback={handleClick} />
-            <IngredientSelect recipe={selectedRecipe} fridgeContents={fridgeContents} addToList={addToList} />
-            <ShoppingList list={shoppingList} itemAdded={addToFridge} saveList={saveList}/>
+        <div className='container'>
+            <Navbar />
+            <div>
+                <ListRecipes savedRecipes={savedRecipes} callback={handleClick} />
+                <IngredientSelect recipe={selectedRecipe} fridgeContents={fridgeContents} addToList={addToList} />
+                <ShoppingList list={shoppingList} itemAdded={addToFridge} saveList={saveList}/>
+            </div>
         </div>
     )
 }

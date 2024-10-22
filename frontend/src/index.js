@@ -6,14 +6,20 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import LoginPage from './Login/LoginPage';
+import SignupPage from './Signup/SignupPage';
 import FridgePage from './Fridge/FridgePage';
 import Wishlist from './Wishlist/Wishlist';
 import Home from './Home/Home';
+import Recipes from './Recipes/Recipes';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
+  },
+  {
+    path: "/signup",
+    element: <SignupPage />,
   },
   {
     path: "/login",
@@ -26,6 +32,10 @@ const router = createBrowserRouter([
   {
     path: "/wishlist",
     element: <Wishlist userID={1} />,
+  },
+  {
+    path: "/recipes",
+    element: <Recipes />,
   }
 ]);
 

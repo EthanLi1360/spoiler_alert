@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Navbar from '../Navbar/Navbar';
+import './FridgePage.css'
 
 const FridgePage = () => {
   const [foods, setFoods] = useState([]);
@@ -35,41 +37,44 @@ const FridgePage = () => {
   };
 
   return (
-    <div>
-      <h1>Fridge Page</h1>
-      
-      {/* Add food item form */}
+    <div className='container'>
+      <Navbar />
       <div>
-        <input 
-          type="text" 
-          placeholder="Food Name" 
-          value={name} 
-          onChange={(e) => setName(e.target.value)} 
-        />
-        <input 
-          type="date" 
-          value={expirationDate} 
-          onChange={(e) => setExpirationDate(e.target.value)} 
-        />
-        <input 
-          type="number" 
-          placeholder="Quantity (grams)" 
-          value={quantity} 
-          onChange={(e) => setQuantity(e.target.value)} 
-        />
-        <button onClick={addFoodItem}>Add Food Item</button>
-      </div>
+        <h1>Fridge Page</h1>
+        
+        {/* Add food item form */}
+        <div>
+          <input 
+            type="text" 
+            placeholder="Food Name" 
+            value={name} 
+            onChange={(e) => setName(e.target.value)} 
+          />
+          <input 
+            type="date" 
+            value={expirationDate} 
+            onChange={(e) => setExpirationDate(e.target.value)} 
+          />
+          <input 
+            type="number" 
+            placeholder="Quantity (grams)" 
+            value={quantity} 
+            onChange={(e) => setQuantity(e.target.value)} 
+          />
+          <button onClick={addFoodItem}>Add Food Item</button>
+        </div>
 
-      {/* display */}
-      <ul>
-        {foods.map((food) => (
-          <li key={food.id}>
-            <span>{food.name} - {food.quantity} grams (Expires on: {food.expirationDate})</span>
-            <button onClick={() => removeFoodItem(food.id)}>Remove</button>
-            {isNearExpiration(food.expirationDate) && <span>⚠️ Expiring Soon!</span>}
-          </li>
-        ))}
-      </ul>
+        {/* display */}
+        <ul>
+          {foods.map((food) => (
+            <li key={food.id}>
+              <span>{food.name} - {food.quantity} grams (Expires on: {food.expirationDate})</span>
+              <button onClick={() => removeFoodItem(food.id)}>Remove</button>
+              {isNearExpiration(food.expirationDate) && <span>⚠️ Expiring Soon!</span>}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

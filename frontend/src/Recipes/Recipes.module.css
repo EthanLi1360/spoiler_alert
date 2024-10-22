@@ -1,0 +1,18 @@
+.page {
+    height: 100%;
+    width: 100%;
+    background-color: black;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+}
+
+.container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10%;
+}
