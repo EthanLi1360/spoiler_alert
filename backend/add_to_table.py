@@ -1,4 +1,6 @@
 import pymysql
+from datetime import datetime
+
 timeout = 10000
 conn = pymysql.connect(
   charset="utf8mb4",
@@ -29,3 +31,10 @@ def insert_data(table_name, data, conn=conn):
     print(values)
     cursor.close()
 
+# user_data = {
+#     'username': 'Test',
+#     'password': 'Test123',
+#     'fridgeIDs': ','.join([]),
+#     'createdAt': datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+# }
+# insert_data('User', user_data)
