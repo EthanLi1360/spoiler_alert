@@ -81,6 +81,7 @@ def add_fridge():
     data = request.get_json()
     try:
         fridgeIDs = []
+        date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
         table_data = view_data('User')
         for entry in table_data:
             if entry['username'] == data['username']:
@@ -90,13 +91,13 @@ def add_fridge():
             'itemIDs': ','.join([]),
             'username': data['username'],
             'name': data['name'],
-            'createdAt': datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+            'createdAt': date
         })
 
         table_data = view_data('Fridge')
         fridgeID = None
         for entry in table_data:
-            if entry['username'] == data['username'] and entry['name'] == data['name']:
+            if entry['username'] == data['username'] and entry['name'] == data['name'] and entry['createdAt'] == date:
                 fridgeID = entry['fridgeID']
         
         update_data('User', {
@@ -118,8 +119,13 @@ def add_fridge_content():
     print("Data endpoint hit")
     data = request.get_json()
     try:
+        fridgeID = None
+        table_data = view_data('User')
+        for entry in table_data:
+            if data.username == entry['username']:
+                fridgeID = entry['fridgeIDs'].split(',')[0]
         insert_data('FridgeContent', {
-            'fridgeID': data.fridgeID,
+            'fridgeID': fridgeID,
             'quantity': data.quantity,
             'unit': data.unit,
             'expirationDate': data.expirationDate,
