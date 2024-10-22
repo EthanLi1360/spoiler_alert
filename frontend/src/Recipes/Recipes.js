@@ -4,7 +4,7 @@ import FridgeNav from "./FridgeNav";
 import RecipeBanners from "./RecipeBanners";
 import styles from "./Recipes.module.css";
 import { generate } from "./GeminiRecipes";
-import { getFoodItem, getFridgeContents } from "../Wishlist/Util";
+import { getFoodItem, getFridgeContents } from "../Util";
 
 function Recipes() {
     const [generatedRecipes, setGeneratedRecipes] = useState([]);
@@ -22,9 +22,13 @@ function Recipes() {
         }
         let temp = [];
         setAILoading(true);
-        temp.push(await generate(prompt));
-        temp.push(await generate(prompt));
-        temp.push(await generate(prompt));
+        for (let i = 0; i < 10 && temp.length < 3; i++) {
+            await generate(prompt).then((result) => {
+                if (result != null) {
+                    temp.push(result);
+                }
+            });
+        }
         setGeneratedRecipes(temp);
         setAILoading(false);
     }
@@ -34,7 +38,14 @@ function Recipes() {
             <Navbar />
             <div className={styles.container}>
                 <FridgeNav setActiveFridge={(e) => setCurrentFridge(e)}/>
-                {generatedRecipes.length > 0 && !AIloading ? <RecipeBanners recipes={generatedRecipes}/> : (currentFridge != null ? <button onClick={onButtonClick}>Generate Recipes</button> : "")}
+                {generatedRecipes.length > 0 && !AIloading ?
+                    <RecipeBanners recipes={generatedRecipes}/> :
+                    (
+                        currentFridge != null ?
+                        <button onClick={onButtonClick}>{AIloading ? "Generating..." : "Generate Recipes"}</button> :
+                        ""
+                    )
+                }
             </div>
         </div>
     )

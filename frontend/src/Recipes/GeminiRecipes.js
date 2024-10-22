@@ -3,7 +3,7 @@ export async function generate(prompt) {
       GoogleGenerativeAI
     } = require("@google/generative-ai");
   
-    const apiKey = "GENERATEKEY";
+    const apiKey = "AIzaSyBdWGJbElVGJdovFYym4c_WEuTVvr0HQmo";
     const genAI = new GoogleGenerativeAI(apiKey);
   
     const model = genAI.getGenerativeModel({
@@ -11,7 +11,7 @@ export async function generate(prompt) {
     });
   
     const generationConfig = {
-      temperature: 1,
+      temperature: 1.2,
       topP: 0.95,
       topK: 64,
       maxOutputTokens: 8192,
@@ -72,7 +72,15 @@ export async function generate(prompt) {
       ],
     });
 
-    const result = await chatSession.sendMessage(prompt);
-    const json_obj = JSON.parse(result.response.text());
-    return json_obj;
+    let returnValue = null;
+    await chatSession.sendMessage(prompt)
+      .then((result) => {
+        const resultText = result.response.text();
+        const json = JSON.parse(resultText);
+        returnValue = json;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    return returnValue;
   }

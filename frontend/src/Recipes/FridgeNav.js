@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getFridge, getUserFridgeAccess } from "../Wishlist/Util";
+import { getFridge, getUserFridgeAccess } from "../Util";
 import styles from "./FridgeNav.module.css";
 
 function FridgeNav({setActiveFridge}) {

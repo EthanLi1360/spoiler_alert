@@ -7,7 +7,10 @@ function RecipeBanners({recipes}) {
                 recipes.map((value, index) => {
                     return(
                         <div key={index} onClick={() => console.log(value)} className={styles.banner}>
-                            <h3>{value.recipe_name}</h3>
+                            <h3 className={styles.banner_text}>{value.recipe_name}</h3>
+                            {value.ingredients.map((ingredient) => 
+                                <p className={styles.banner_text}>{ingredient.ingredient_name}</p>
+                            )}
                         </div>
                     );
                 })

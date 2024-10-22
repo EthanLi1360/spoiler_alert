@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import {getUserSavedRecipes, getRecipe, getRecipeIngredients, getFoodItem, getFridgeContents, getUserFridgeAccess, getFridge} from "./Util";
+import {getUserSavedRecipes, getRecipe, getRecipeIngredients, getFoodItem, getFridgeContents, getUserFridgeAccess, getFridge} from "../Util";
 import IngredientSelect from './IngredientSelect';
 import ListRecipes from './ListRecipes';
 import ShoppingList from './ShoppingList';
