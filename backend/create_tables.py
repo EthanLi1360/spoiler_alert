@@ -42,30 +42,34 @@ def create_table(table_name, columns, conn=conn):
 user = {
     'username': 'VARCHAR(75) PRIMARY KEY',
     'password': 'VARCHAR(75)',
-    'email': 'VARCHAR(120)',
+    # 'email': 'VARCHAR(120)',
+    'fridgeIDs': 'TEXT',
     'createdAt': 'DATE'
 }
 
 fridge = {
     'fridgeID': 'INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT',
+    'itemIDs': 'TEXT',
+    'username': 'VARCHAR(75)',
     'name': 'VARCHAR(75)',
     'createdAt': 'DATE'
 }
 
 fridge_content = {
-    'contentID': 'INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT',
+    'itemID': 'INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY',
     'fridgeID': 'INT(10) UNSIGNED',
-    'itemID': 'INT(10) UNSIGNED',
     'quantity': 'FLOAT NOT NULL',
     'unit': 'VARCHAR(20) NOT NULL',
     'expirationDate': 'DATE NOT NULL',
     'addedBy': 'INT(10) UNSIGNED',
-    'addedAt': 'DATE'
+    'addedAt': 'DATE',
+    'name': 'VARCHAR(30)'
 }
 
 recipe = {
     'recipeID': 'INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT',
     'name': 'VARCHAR(50) NOT NULL',
+    'ingredients': 'TEXT NOT NULL',
     'instructions': 'TEXT NOT NULL',
     'cuisine': 'VARCHAR(50)',
     'dietaryRestrictions': 'VARCHAR(100)',
@@ -84,10 +88,10 @@ def remove_table(table_name, conn=conn):
     cursor.close()
 
 def reset():
-    remove_table('user')
-    remove_table('fridge')
-    remove_table('fridge_content')
-    remove_table('recipe')
+    remove_table('User')
+    remove_table('Fridge')
+    remove_table('FridgeContent')
+    remove_table('Recipe')
 
     create_table('User', user)
     create_table('Fridge', fridge)
@@ -96,4 +100,4 @@ def reset():
 
 
 # if False:
-reset()
+# reset()
