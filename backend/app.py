@@ -2,7 +2,7 @@ from flask import Flask, render_template, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
 from datetime import datetime
-from config import credentials
+# from config import credentials
 from get_data import view_data
 from add_to_table import insert_data
 from remove_from_table import delete_data

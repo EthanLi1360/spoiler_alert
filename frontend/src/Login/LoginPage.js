@@ -2,9 +2,14 @@ import React, { useState } from 'react';
 import './LoginPage.css';
 import { app } from './firebaseConfig';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
   let auth = getAuth();
+  let navigate = useNavigate();
+  const routeChange = (path) => {
+    navigate(path);
+  }
   let googleAuthProvider = new GoogleAuthProvider();
 
   const [username, setUsername] = useState('');
@@ -13,7 +18,6 @@ function LoginPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
 
     // Dummy login validation (Replace with actual validation logic)
     if (username === 'admin' && password === 'password123') {
@@ -59,9 +63,9 @@ function LoginPage() {
           />
         </div>
         <button type="submit" class='submit'>Login</button>
-        <button onClick={handleClick} class="google-login">Login with Google</button>
         {errorMessage && <p className="error">{errorMessage}</p>}
       </form>
+      <button onClick={routeChange("/")} class="back">Back</button>
     </div>
   );
 }
