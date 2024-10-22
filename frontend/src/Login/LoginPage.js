@@ -25,13 +25,14 @@ function LoginPage() {
   };
 
   const handleClick = () => {
-    signInWithPopup(auth, googleAuthProvider)
-    .then((response) => {
-      console.log(response.user);
-    })
-    .catch((err) => {
-      alert(err.message);
-    })
+    // signInWithPopup(auth, googleAuthProvider)
+    // .then((response) => {
+    //   console.log(response.user);
+    // })
+    // .catch((err) => {
+    //   alert(err.message);
+    // })
+    
   }
 
   return (
