@@ -111,6 +111,33 @@ def add_fridge():
             'success': False
         })
 
+@app.route('/remove_fridge', methods=['DELETE'])
+@cross_origin()
+def delete_fridge():
+    print("Data endpoint hit")
+    data = request.get_json()
+    try:
+        fridgeIDs = []
+        table_data = view_data('User')
+        for entry in table_data:
+            if entry['username'] == data['username']:
+                fridgeIDs = entry['fridgeIDs']
+                fridgeIDs.remove(data['fridgeID'])
+                
+        delete_data('Fridge' , data['fridgeID'], 'fridgeID')
+
+        update_data('User', {
+            'fridgeIDs': fridgeIDs
+        }, 'username=' + data['username'])
+
+        return jsonify({
+            'success': True
+        })
+    except:
+        return jsonify({
+            'success': False
+        })
+
 
 @app.route('/add_fridge_content', methods=['POST'])
 @cross_origin()
