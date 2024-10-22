@@ -66,7 +66,7 @@ def add_account():
         insert_data('User', {
             "username": data['username'],
             "password" : hashed_password,
-            "fridgeIDs": [],
+            "fridgeIDs": ','.join([]),
             "createdAt": datetime.today().strftime('%Y-%m-%d %H:%M:%S')
         })
         return jsonify("Successfully Added")
@@ -87,7 +87,7 @@ def add_fridge():
                 fridgeIDs = data['fridgeIDs']
 
         insert_data('Fridge', {
-            'itemIDs': [],
+            'itemIDs': ','.join([]),
             'username': data['username'],
             'name': data['name'],
             'createdAt': datetime.today().strftime('%Y-%m-%d %H:%M:%S')
@@ -100,9 +100,9 @@ def add_fridge():
                 fridgeID = entry['fridgeID']
         
         update_data('User', {
-            'fridgeIDs': fridgeIDs.append(fridgeID)
-        }, 'username=' + data['username'])
-
+            'fridgeIDs': ','.join(fridgeIDs.append(fridgeID))
+        }, 'username', data['username'])
+        
         return jsonify({
             'success': True
         })

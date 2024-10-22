@@ -88,10 +88,10 @@ def remove_table(table_name, conn=conn):
     cursor.close()
 
 def reset():
-    remove_table('user')
-    remove_table('fridge')
-    remove_table('fridge_content')
-    remove_table('recipe')
+    remove_table('User')
+    remove_table('Fridge')
+    remove_table('FridgeContent')
+    remove_table('Recipe')
 
     create_table('User', user)
     create_table('Fridge', fridge)
