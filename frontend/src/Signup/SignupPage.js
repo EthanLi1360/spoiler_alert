@@ -24,17 +24,19 @@ function SignupPage() {
       return;
     }
 
-    await axios.post('http://127.0.0.1:5000/add_credentials', {
-      username: username,
-      password: password
-    }).then((response) => {
-      setSuccessMessage("Signup successful! Welcome, " + username);
-      setErrorMessage("");
-    })
-    .catch((error) => {
-      setErrorMessage(error.message);
-      setSuccessMessage("");
-    });
+    await axios
+      .post("http://127.0.0.1:5000/add_credentials", {
+        username: username,
+        password: password,
+      })
+      .then((response) => {
+        setSuccessMessage("Signup successful! Welcome, " + username);
+        setErrorMessage("");
+      })
+      .catch((error) => {
+        setErrorMessage(error.message);
+        setSuccessMessage("");
+      });
     // Firebase authentication - Create user with email and password
     // createUserWithEmailAndPassword(auth, email, password)
     //   .then((userCredential) => {
@@ -50,6 +52,7 @@ function SignupPage() {
 
   return (
     <div className="signup-container">
+      <div className="background-images"></div>
       <h2>Signup</h2>
       <form onSubmit={handleSignup}>
         <div className="form-group">

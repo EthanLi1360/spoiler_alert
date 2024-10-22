@@ -2,8 +2,20 @@
 body {
   font-family: "times new romans", sans-serif;
   background-color: #000; /* Pure black background */
+  font-weight: 600;
   margin: 0;
   padding: 0;
+}
+
+.background-images {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("./background.jpg") no-repeat center center;
+  background-size: cover;
+  z-index: -1;
 }
 
 .signup-container {
@@ -11,7 +23,7 @@ body {
   margin: 100px auto;
   padding: 20px;
   border-radius: 8px;
-  background-color: #1b1b1b; /* Dark background */
+  background-color: #1b1b1b94; /* Dark background */
   box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1); /* Premium shadow */
   border: 1px solid #444; /* Subtle border */
 }
@@ -34,12 +46,12 @@ label {
 }
 
 input {
-  width: 100%;
+  width: 91%;
   padding: 8px;
   margin: 5px 0 10px;
   border: 1px solid #333; /* Dark border */
   border-radius: 5px;
-  background-color: #2c2c2c; /* Dark input background */
+  background-color: #2c2c2c4d; /* Dark input background */
   color: #fff;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
