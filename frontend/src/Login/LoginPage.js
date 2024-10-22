@@ -22,12 +22,6 @@ function LoginPage() {
     e.preventDefault();
 
     // Dummy login validation (Replace with actual validation logic)
-    await axios.post('http://127.0.0.1:5000/add_credentials', {
-      username: "amongus",
-      password: "potion"
-    }).then((response) => {
-      alert(response.status)
-    });
     await axios.post('http://127.0.0.1:5000/get_credentials', {
       username: username,
       password: password
@@ -38,6 +32,9 @@ function LoginPage() {
       } else {
         setErrorMessage('Invalid username or password');
       }
+    })
+    .catch((error) => {
+      setErrorMessage(error.message);
     });
   };
 
