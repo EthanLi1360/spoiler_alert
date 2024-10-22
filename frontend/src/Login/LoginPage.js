@@ -1,31 +1,44 @@
 import React, { useState } from 'react';
 import './LoginPage.css';
-import { app } from './firebaseConfig';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+// import { app } from './firebaseConfig';
+// import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'
 
 function LoginPage() {
-  let auth = getAuth();
+  // let auth = getAuth();
   let navigate = useNavigate();
+
   const routeChange = (path) => {
     navigate(path);
   }
-  let googleAuthProvider = new GoogleAuthProvider();
+  // let googleAuthProvider = new GoogleAuthProvider();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Dummy login validation (Replace with actual validation logic)
-    if (username === 'admin' && password === 'password123') {
-      alert('Login successful!');
-      setErrorMessage('');
-    } else {
-      setErrorMessage('Invalid username or password');
-    }
+    await axios.post('http://127.0.0.1:5000/add_credentials', {
+      username: "amongus",
+      password: "potion"
+    }).then((response) => {
+      alert(response.status)
+    });
+    await axios.post('http://127.0.0.1:5000/get_credentials', {
+      username: username,
+      password: password
+    }).then((response) => {
+      if (response.data.success) {
+        alert('Login successful!');
+        navigate("/")
+      } else {
+        setErrorMessage('Invalid username or password');
+      }
+    });
   };
 
   const handleClick = () => {
@@ -43,6 +56,7 @@ function LoginPage() {
     <div className="login-container">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
+        {errorMessage && <p className="error-container">{errorMessage}</p>}
         <div className="form-group">
           <label htmlFor="username">Username</label>
           <input
@@ -64,9 +78,7 @@ function LoginPage() {
           />
         </div>
         <button type="submit" class='submit'>Login</button>
-        {errorMessage && <p className="error">{errorMessage}</p>}
       </form>
-      <button onClick={routeChange("/")} class="back">Back</button>
     </div>
   );
 }

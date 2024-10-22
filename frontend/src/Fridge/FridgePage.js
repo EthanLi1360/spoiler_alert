@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from '../Navbar/Navbar';
+import './FridgePage.css'
 
 const FridgePage = () => {
   const [foods, setFoods] = useState([]);
@@ -36,7 +37,7 @@ const FridgePage = () => {
   };
 
   return (
-    <>
+    <div className='container'>
       <Navbar />
       <div>
         <h1>Fridge Page</h1>
@@ -74,7 +75,7 @@ const FridgePage = () => {
           ))}
         </ul>
       </div>
-    </>
+    </div>
   );
 };
 
