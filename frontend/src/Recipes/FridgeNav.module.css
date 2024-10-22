@@ -1,0 +1,9 @@
+.list {
+    list-style: none;
+    cursor: pointer;
+}
+
+.list p {
+    font-size: 30px;
+    white-space: nowrap;
+}

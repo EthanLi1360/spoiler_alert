@@ -1,0 +1,17 @@
+.bannerContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.banner {
+    cursor: pointer;
+    background-image:  url("./RecipeBorder.png");
+    background-size: contain;
+    min-height: 487px;
+    background-repeat: no-repeat;
+}
+
+.banner h3 {
+    color: black;
+}
