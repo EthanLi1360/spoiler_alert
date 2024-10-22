@@ -9,6 +9,7 @@ import LoginPage from './Login/LoginPage';
 import FridgePage from './Fridge/FridgePage';
 import Wishlist from './Wishlist/Wishlist';
 import Home from './Home/Home';
+import Recipes from './Recipes/Recipes';
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
   {
     path: "/wishlist",
     element: <Wishlist userID={1} />,
+  },
+  {
+    path: "/recipes",
+    element: <Recipes />,
   }
 ]);
 
