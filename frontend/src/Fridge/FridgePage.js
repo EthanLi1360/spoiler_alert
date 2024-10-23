@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
 import Navbar from '../Navbar/Navbar';
-import './FridgePage.css'
+import './FridgePage.css';
+import closedFridge from './closed_fridge.png';
+import openFridge from './open_fridge.png';
 
 const FridgePage = () => {
   const [foods, setFoods] = useState([]);
   const [name, setName] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [isFridgeOpen, setIsFridgeOpen] = useState(false); // tracking if fridge is open or closed
 
-  // add functionality
+  // Toggle fridge state
+  const toggleFridge = () => {
+    setIsFridgeOpen(!isFridgeOpen);
+  };
+
+  // add food functionality
   const addFoodItem = () => {
     const newItem = {
       name,
@@ -22,7 +30,7 @@ const FridgePage = () => {
     setQuantity('');
   };
 
-  // remove functioncality
+  // remove food item functionality
   const removeFoodItem = (id) => {
     setFoods(foods.filter(food => food.id !== id));
   };
@@ -40,40 +48,55 @@ const FridgePage = () => {
     <div className='container'>
       <Navbar />
       <div>
-        <h1>Fridge Page</h1>
-        
-        {/* Add food item form */}
-        <div>
-          <input 
-            type="text" 
-            placeholder="Food Name" 
-            value={name} 
-            onChange={(e) => setName(e.target.value)} 
+        <h1>My Fridge</h1>
+
+        {/* Toggle between closed and open fridge */}
+        <div className="fridge-container">
+          <img
+            src={isFridgeOpen ? openFridge : closedFridge}
+            alt="Fridge"
+            className="fridge-image"
+            onClick={toggleFridge}
           />
-          <input 
-            type="date" 
-            value={expirationDate} 
-            onChange={(e) => setExpirationDate(e.target.value)} 
-          />
-          <input 
-            type="number" 
-            placeholder="Quantity (grams)" 
-            value={quantity} 
-            onChange={(e) => setQuantity(e.target.value)} 
-          />
-          <button onClick={addFoodItem}>Add Food Item</button>
+
+          {/* If the fridge is open, show the grid of food items */}
+          {isFridgeOpen && (
+            <div className="food-items">
+              {foods.map((food) => (
+                <div key={food.id} className="food-item">
+                  <span>{food.name}</span>
+                  <span>{food.quantity} grams</span>
+                  <span>Expires on: {food.expirationDate}</span>
+                  {isNearExpiration(food.expirationDate) && <span>⚠️ Expiring Soon!</span>}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* display */}
-        <ul>
-          {foods.map((food) => (
-            <li key={food.id}>
-              <span>{food.name} - {food.quantity} grams (Expires on: {food.expirationDate})</span>
-              <button onClick={() => removeFoodItem(food.id)}>Remove</button>
-              {isNearExpiration(food.expirationDate) && <span>⚠️ Expiring Soon!</span>}
-            </li>
-          ))}
-        </ul>
+        {/* Show the form only when the fridge is open */}
+        {isFridgeOpen && (
+          <div>
+            <input
+              type="text"
+              placeholder="Food Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <input
+              type="date"
+              value={expirationDate}
+              onChange={(e) => setExpirationDate(e.target.value)}
+            />
+            <input
+              type="number"
+              placeholder="Quantity (grams)"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+            />
+            <button onClick={addFoodItem}>Add Food Item</button>
+          </div>
+        )}
       </div>
     </div>
   );
