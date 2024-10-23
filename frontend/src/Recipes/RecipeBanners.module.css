@@ -1,0 +1,25 @@
+.bannerContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-right: 5%;
+}
+
+.banner {
+    flex: 1;
+    cursor: pointer;
+    background-image:  url("./RecipeBorder.png");
+    background-size: 100% 100%;
+    min-height: 487px;
+    background-repeat: no-repeat;
+    text-wrap: wrap;
+    text-align: center;
+    margin-left: 30px;
+    margin-right: 30px;
+    padding: 5px;
+}
+
+.banner_text {
+    color: black;
+}

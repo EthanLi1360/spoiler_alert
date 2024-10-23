@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -10,4 +13,28 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+h1, h3, p, li, td {
+  color: white;
+  font-family: "Montserrat", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  margin-bottom: 5px;
+  font-family: "Russo One";
+  font-size: min(150px, max(80px, 10vw));
+  font-weight: 400;
+  font-style: normal;
+}
+
+h3 {
+  margin-bottom: 5px;
+  font-size: 35px;
+}
+
+p, li {
+  font-size: 20px;
 }

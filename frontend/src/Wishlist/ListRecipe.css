@@ -1,0 +1,10 @@
+ul.navbar-items li /* Important part */
+{
+    display:inline;
+}
+
+ul.navbar-items /* Extra part, to style spaces between each item */
+{
+    min-width: 696px;
+	padding-top: 20px;
+}
