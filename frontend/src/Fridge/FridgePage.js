@@ -7,15 +7,21 @@ const FridgePage = () => {
   const [name, setName] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [category, setCategory] = useState('')
   const [suggestedExpirationTime, setSuggestedExpirationTime] = useState('');
   const [suggestedType, setsuggestedType] = useState('');
-  const Category = {
-    fruit: "fruit",
-    vegetables: "Vegetables",
-    meat: "meat",
-    dairy: "dairy",
-    beverage: "beverage",
-  };
+  const FridgeCategories = Object.freeze({
+    DAIRY: "Dairy Products",
+    FRUITS: "Fruits",
+    VEGETABLES: "Vegetables",
+    MEATS: "Meats, Poultry, and Fish",
+    EGGS: "Eggs and Egg Products",
+    CONDIMENTS_AND_SPREADS: "Condiments, Sauces and Spreads",
+    BEVERAGES: "Beverages",
+    LEFTOVERS_AND_PREPARED: "Leftovers and Pre-Cooked Meals",
+    OTHERS: "Other Items"
+  });
+  
 
   // add functionality
   const addFoodItem = () => {
@@ -57,6 +63,23 @@ const FridgePage = () => {
         topK: 64,
         maxOutputTokens: 8192,
         responseMimeType: "application/json",
+        responseSchema: {
+          type: "object",
+          properties: {
+            fridge_category: {
+              type: "string",
+              enum: Object.values(FridgeCategories),
+              description: "Select one value from the list"
+            },
+            expiration_date: {
+              type: "integer"
+            }
+          },
+          required: [
+            "fridge_category",
+            "expiration_date"
+          ]
+        }
       };
       const chatSession = model.startChat({
         generationConfig,
@@ -65,15 +88,11 @@ const FridgePage = () => {
         history: [
         ],
       });
-      const result = await chatSession.sendMessage("Give me the category of " + name + " as a kind of food, and the number of days (give a single definitive number, as a string) before it expires when stored in a regular fridge");
+      const result = await chatSession.sendMessage("Give me the category of " + name + " as a kind of food, and the number of days before it expires when stored in a regular fridge");
       console.log(result.response.text());
       const json = JSON.parse(result.response.text());
-      const values = [];
-      for (let key in json) {
-          values.push(json[key]);
-      }
-      setsuggestedType(values[0]);
-      setSuggestedExpirationTime(values[1]);
+      setsuggestedType(json["fridge_category"]);
+      setSuggestedExpirationTime(json["expiration_date"]);
     }
 
     if (name) {
@@ -114,17 +133,9 @@ function displayExpirationDate(food) {
   }
 }
 
-function parseSuggestedDays() {
+function dateAfterSuggested() {
   let date = new Date();
-  const re = new RegExp("^.+-.+$");
-  let suggestedDays = 0;
-  console.log(re.test(suggestedExpirationTime));
-  if (re.test(suggestedExpirationTime)) {
-    suggestedDays = (Number(suggestedExpirationTime[0]) + Number(suggestedExpirationTime[2]))/2;
-  } else {
-    suggestedDays = Number(suggestedExpirationTime);
-  }
-  date.setDate(date.getDate() + suggestedDays);
+  date.setDate(date.getDate() + Number(suggestedExpirationTime));
   return formatDateToYYYYMMDD(date);
 }
 
@@ -140,7 +151,7 @@ function parseSuggestedDays() {
             type="text" 
             placeholder="Food Name" 
             value={name} 
-            onChange={(e) => setName(e.target.value)} 
+            onChange={(e) => setName(e.target.value)}
           />
           <input 
             type="date" 
@@ -153,13 +164,23 @@ function parseSuggestedDays() {
             value={quantity} 
             onChange={(e) => setQuantity(e.target.value)} 
           />
+          <select name="category" id="category" onChange={(e) => setCategory(e.target.value)} value={category}>
+          <option value="" disabled>Select an option</option>
+          {Object.values(FridgeCategories).map((option) => (
+            <option value={option}>{option}</option>
+          ))}
+          </select>
+          <br></br>
           <button onClick={addFoodItem}>Add Food Item</button>
         </div>
 
         <div>
         <p>Suggested expiration time in days: {suggestedExpirationTime}</p>
-        <button onClick={() => setExpirationDate(parseSuggestedDays())}>confirm</button>
         <p>Suggested category: {suggestedType}</p>
+        <button onClick={() => {
+          setExpirationDate(dateAfterSuggested())
+          setCategory(suggestedType)
+        }}>confirm</button>
       </div>
 
         {/* display */}
