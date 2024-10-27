@@ -8,8 +8,9 @@ const FridgePage = () => {
   const [expirationDate, setExpirationDate] = useState('');
   const [quantity, setQuantity] = useState('');
   const [category, setCategory] = useState('')
+  const [isInFreezer, setIsInFreezer] = useState(false)
   const [suggestedExpirationTime, setSuggestedExpirationTime] = useState('');
-  const [suggestedType, setsuggestedType] = useState('');
+  const [suggestedCategory, setsuggestedCategory] = useState('');
   const FridgeCategories = Object.freeze({
     DAIRY: "Dairy Products",
     FRUITS: "Fruits",
@@ -29,18 +30,29 @@ const FridgePage = () => {
       name,
       expirationDate,
       quantity,
+      category,
+      isInFreezer,
       id: Date.now() // unique id for each item
     };
     setFoods([...foods, newItem]);
     setName('');
     setExpirationDate('');
     setQuantity('');
+    setCategory('');
+    setIsInFreezer(false);
   };
 
   // remove functioncality
   const removeFoodItem = (id) => {
     setFoods(foods.filter(food => food.id !== id));
   };
+
+  //take food in or out of the freezer
+  const toogleFreezer = (id) => {
+    const food = foods.find(food => food.id == id);
+    food.isInFreezer = !food.isInFreezer;
+    setFoods(foods.filter(food => true));
+  }
 
   //get suggested info after finish typing
   const typingDelay = 1500;         // Time in milliseconds (1 second)
@@ -91,7 +103,7 @@ const FridgePage = () => {
       const result = await chatSession.sendMessage("Give me the category of " + name + " as a kind of food, and the number of days before it expires when stored in a regular fridge");
       console.log(result.response.text());
       const json = JSON.parse(result.response.text());
-      setsuggestedType(json["fridge_category"]);
+      setsuggestedCategory(json["fridge_category"]);
       setSuggestedExpirationTime(json["expiration_date"]);
     }
 
@@ -113,7 +125,7 @@ const isNearExpiration = (date, threshold = 3) => {
   return differenceInDays <= threshold;
 };
 
-//time-date related helper method
+//followings are some time-date related helper methods
 function formatDateToYYYYMMDD(date) {
   // Extract the year, month, and day from the Date object
   const year = date.getFullYear();
@@ -123,13 +135,17 @@ function formatDateToYYYYMMDD(date) {
 }
 
 function displayExpirationDate(food) {
-  const today = new Date();
-  const expirationDate = new Date(food.expirationDate);
-  if (isNearExpiration(food.expirationDate, 7)) {
-    return "in " + Math.round((expirationDate.getTime() - today.getTime())/(1000 * 3600 * 24)) + " days";
+  if (food.isInFreezer) {
+    return "In Freezer";
   } else {
-    let date = formatDateToYYYYMMDD(expirationDate);
-    return "on " + String(date.slice(0,4) == today.getFullYear() ? date.slice(5) : date);
+    const today = new Date();
+    const expirationDate = new Date(food.expirationDate);
+    if (isNearExpiration(food.expirationDate, 7)) {
+      return "Expires in " + Math.round((expirationDate.getTime() - today.getTime())/(1000 * 3600 * 24)) + " days";
+    } else {
+      let date = formatDateToYYYYMMDD(expirationDate);
+      return "Expires on: " + String(date.slice(0,4) == today.getFullYear() ? date.slice(5) : date);
+    }
   }
 }
 
@@ -153,43 +169,52 @@ function dateAfterSuggested() {
             value={name} 
             onChange={(e) => setName(e.target.value)}
           />
-          <input 
-            type="date" 
-            value={expirationDate} 
-            onChange={(e) => setExpirationDate(e.target.value)} 
-          />
+          <div class='inputbox'>
+            <input 
+              type="date" 
+              value={expirationDate} 
+              onChange={(e) => setExpirationDate(e.target.value)}
+              disabled={isInFreezer}
+            />
+            <span>Suggested expiration time in days: {suggestedExpirationTime}</span>
+            <input
+              type="checkbox"
+              checked={isInFreezer}
+              onClick={() => setIsInFreezer(!isInFreezer)}
+            />
+            Put in Freezer
+          </div>
           <input 
             type="number" 
             placeholder="Quantity (grams)" 
             value={quantity} 
             onChange={(e) => setQuantity(e.target.value)} 
           />
-          <select name="category" id="category" onChange={(e) => setCategory(e.target.value)} value={category}>
-          <option value="" disabled>Select an option</option>
-          {Object.values(FridgeCategories).map((option) => (
-            <option value={option}>{option}</option>
-          ))}
-          </select>
+          <div class='inputbox'>
+            <select name="category" id="category" onChange={(e) => setCategory(e.target.value)} value={category}>
+            <option value="" disabled>Select an option</option>
+            {Object.values(FridgeCategories).map((option) => (
+              <option value={option}>{option}</option>
+            ))}
+            </select>
+            <span>Suggested category: {suggestedCategory}</span>
+          </div>
           <br></br>
+          <button onClick={() => {
+          setExpirationDate(dateAfterSuggested())
+          setCategory(suggestedCategory)
+          }}>Confirm Suggestion</button>
           <button onClick={addFoodItem}>Add Food Item</button>
         </div>
-
-        <div>
-        <p>Suggested expiration time in days: {suggestedExpirationTime}</p>
-        <p>Suggested category: {suggestedType}</p>
-        <button onClick={() => {
-          setExpirationDate(dateAfterSuggested())
-          setCategory(suggestedType)
-        }}>confirm</button>
-      </div>
 
         {/* display */}
         <ul>
           {foods.map((food) => (
             <li key={food.id}>
-              <span>{food.name} - {food.quantity} grams (Expires on: {displayExpirationDate(food)})</span>
+              <span>{food.name} - {food.quantity} grams ({displayExpirationDate(food)})</span>
               <button onClick={() => removeFoodItem(food.id)}>Remove</button>
-              {isNearExpiration(food.expirationDate) && <span>⚠️ Expiring Soon!</span>}
+              <button onClick={() => toogleFreezer(food.id)}>{food.isInFreezer ? "Take out of Freezer" : "Put in Freezer"}</button>
+              {!food.isInFreezer && isNearExpiration(food.expirationDate) && <span>⚠️ Expiring Soon!</span>}
             </li>
           ))}
         </ul>

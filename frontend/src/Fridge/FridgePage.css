@@ -4,3 +4,10 @@
     background-color: black;
     border: 3px solid green;
 }
+
+.inputbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+}
