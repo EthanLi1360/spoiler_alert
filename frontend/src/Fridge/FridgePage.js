@@ -11,6 +11,7 @@ const FridgePage = () => {
   const [isInFreezer, setIsInFreezer] = useState(false)
   const [suggestedExpirationTime, setSuggestedExpirationTime] = useState('');
   const [suggestedCategory, setsuggestedCategory] = useState('');
+  const [queryOption, setqueryOption] = useState('');
   const FridgeCategories = Object.freeze({
     DAIRY: "Dairy Products",
     FRUITS: "Fruits",
@@ -22,6 +23,7 @@ const FridgePage = () => {
     LEFTOVERS_AND_PREPARED: "Leftovers and Pre-Cooked Meals",
     OTHERS: "Other Items"
   });
+  const food_attribute = ['name', 'expirationDate', 'quantity', 'category', 'isInFreezer', 'id']
   
 
   // add functionality
@@ -39,6 +41,8 @@ const FridgePage = () => {
     setExpirationDate('');
     setQuantity('');
     setCategory('');
+    setSuggestedExpirationTime('');
+    setsuggestedCategory('');
     setIsInFreezer(false);
   };
 
@@ -162,7 +166,7 @@ function dateAfterSuggested() {
         <h1>Fridge Page</h1>
         
         {/* Add food item form */}
-        <div>
+        <div class="user_input">
           <input 
             type="text" 
             placeholder="Food Name" 
@@ -181,8 +185,7 @@ function dateAfterSuggested() {
               type="checkbox"
               checked={isInFreezer}
               onClick={() => setIsInFreezer(!isInFreezer)}
-            />
-            Put in Freezer
+            />Put in Freezer
           </div>
           <input 
             type="number" 
@@ -208,6 +211,21 @@ function dateAfterSuggested() {
         </div>
 
         {/* display */}
+        <div class='search_bar'>
+          <span style={{color: "white"}}>Display fridge according to</span>
+          <select name="sort_foods" id="sort_foods" value={queryOption} onChange={(e) => {setqueryOption(e.target.value)}} >
+              <option value="" disabled>Select an option</option>
+              {food_attribute.map((option) => (
+                <option value={option}>{option}</option>
+              ))}
+          </select>
+          <button onClick={() => {
+            foods.sort((a,b) => String(a[queryOption]).localeCompare(String(b[queryOption])));
+            setFoods(foods.filter(food => true));
+            }}>Sort</button>
+          <button >Search</button>
+        </div>
+        
         <ul>
           {foods.map((food) => (
             <li key={food.id}>
