@@ -7,9 +7,11 @@ const FridgePage = () => {
   const [name, setName] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
   const [quantity, setQuantity] = useState('');
+  const username = 'username';
 
   // add functionality
   const addFoodItem = () => {
+
     const newItem = {
       name,
       expirationDate,
@@ -27,6 +29,7 @@ const FridgePage = () => {
     setFoods(foods.filter(food => food.id !== id));
   };
 
+
   // Check if the food is close to expiration (3 days or less)
   const isNearExpiration = (date) => {
     const expiration = new Date(date);
@@ -40,7 +43,7 @@ const FridgePage = () => {
     <div className='container'>
       <Navbar />
       <div>
-        <h1>Fridge Page</h1>
+        <h1>Fridge Page of {username}</h1>
         
         {/* Add food item form */}
         <div>
