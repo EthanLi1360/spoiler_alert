@@ -1,46 +1,156 @@
-.container {
-    width: 50%;
-    height: 100vh;
-    background-color: black;
-    border: 3px solid green;
-}
-/* Input Fields */
-input {
-    width: 70%;
-    padding: 12px;
-    margin: 10px 0;
-    background-color: #333333; /* Dark input background */
-    border: 1px solid #555555;
+/* General Styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #000;
+    color: #f4f4f4;
+  }
+  
+  .container {
+    max-width: 1600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #1a1a1a;
     border-radius: 8px;
-    color: #f2f2f2;
-    font-size: 16px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
   }
   
-  input::placeholder {
-    color: #b3b3b3; /* Placeholder text color */
+  h1 {
+    text-align: center;
+    color: #f4f4f4;
   }
   
-  input:focus {
-    outline: none;
-    border-color: #00ccff;
-    box-shadow: 0 0 8px rgba(0, 204, 255, 0.5);
+  /* Form and Search Sections */
+  .add-and-search-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .add-item,
+  .modifyItems {
+    width: 48%;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+  }
+  
+  
+  /* Form Styles */
+  .add-item > input[type="text"],
+  .add-item > input[type="date"],
+  .add-item > input[type="number"],
+  .modifyItems > input[type="text"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 1px solid #666;
+    background-color: #222;
+    color: #f4f4f4;
+  }
+  
+  .add-item > button,
+  .modifyItems > button {
+    padding: 10px 20px;
+    margin: 5px 0;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .add-item > button:hover,
+  .modifyItems > button:hover,
+  button.addfood:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+  }
+  
+  .modifyItems > button {
+    background-color: #007bff;
+  }
+  
+  .modifyItems > button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* List Styles */
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  ul.li {
+    background-color: #333;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #666;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+  }
+  
+  ul.li span {
+    display: block;
+    color: #f4f4f4;
+    margin: 5px 0;
+  }
+  
+  ul.li button {
+    padding: 5px 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  ul.li button:hover {
+    background-color: #c82333;
   }
 
-  /* Button Styles */
-button {
-    width: 100%;
-    padding: 14px;
-    margin-top: 10px;
-    background-color: #00ccff; /* Primary button color */
-    color: #0d0d0d; /* Black text for buttons */
-    font-size: 18px;
+  ul.li button {
+    padding: 10px 20px;
+    background-color: #e74c3c;
+    color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 25px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   }
   
-  button:hover {
-    background-color: #0099cc;
+
+
+  ul.li button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
   }
+  
+  /* Specific Styles for Food Search */
+  .foodSearch {
+    background-color: #444;
+  }
+  
+  .foodSearch p {
+    font-weight: bold;
+    color: #ff6666;
+  }
+  
+  .foodSearch span {
+    color: #ccc;
+  }
+  
+  /* Near Expiration Warning */
+  span.warning {
+    color: #ff6666;
+    font-weight: bold;
+  } 
   
