@@ -20,7 +20,7 @@ body {
   width: 300px;
   margin: 100px auto;
   padding: 20px;
-  background-color: #1b1b1b; /* Dark gray background for form */
+  background-color: #1b1b1b94; /* Dark gray background for form */
   box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1); /* Premium glow effect */
   border-radius: 10px;
   border: 1px solid #444; /* Subtle border */
