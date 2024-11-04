@@ -69,6 +69,17 @@ const FridgePage = () => {
     setFoods(foods.filter((food) => food.name == name));
   };
 
+  // Check if the food is close to expiration (3 days or less)
+  const isNearExpiration = (date) => {
+    const expiration = new Date(date);
+    const today = new Date();
+    const differenceInTime = expiration.getTime() - today.getTime();
+    const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+    return differenceInDays <= 3;
+  };
+
+
+  // Search the food item in foods and store it in the foodSearched
   const SearchFoodItem = () => {
     let temp = foods.find((food) => food.name === foodSearchedName);
     console.log(temp);
@@ -82,17 +93,8 @@ const FridgePage = () => {
     }
   };
 
-  // Check if the food is close to expiration (3 days or less)
-  const isNearExpiration = (date) => {
-    const expiration = new Date(date);
-    const today = new Date();
-    const differenceInTime = expiration.getTime() - today.getTime();
-    const differenceInDays = differenceInTime / (1000 * 3600 * 24);
-    return differenceInDays <= 3;
-  };
-
   return (
-    <div className='container'>
+    <div className="container">
       <Navbar />
       <div>
         <h1>My Fridge</h1>

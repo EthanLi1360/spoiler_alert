@@ -40,16 +40,6 @@ function LoginPage() {
       });
   };
 
-  const handleClick = () => {
-    // signInWithPopup(auth, googleAuthProvider)
-    // .then((response) => {
-    //   console.log(response.user);
-    // })
-    // .catch((err) => {
-    //   alert(err.message);
-    // })
-  };
-
   return (
     <div className="login-container">
       <div className="background-images"></div>
@@ -83,5 +73,4 @@ function LoginPage() {
     </div>
   );
 }
-
 export default LoginPage;
