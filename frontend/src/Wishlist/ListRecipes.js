@@ -1,18 +1,18 @@
-import './ListRecipe.css';
+import styles from './ListRecipe.module.css'
 
 function ListRecipes({savedRecipes, callback}) {
     return(
         <div id="menu">
-                <ul>
-                    {
-                        savedRecipes.map((item, index) => {
-                            return(
-                                <li key={index} onClick={() => callback(item)}>{item.name}</li>
-                            );
-                        })
-                    }
-                </ul>
-            </div>
+            <ul>
+                {
+                    savedRecipes.map((item, index) => {
+                        return(
+                            <li key={index} onClick={() => callback(item)}>{item.name}</li>
+                        );
+                    })
+                }
+            </ul>
+        </div>
     );
 }
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./SignupPage.css"; // CSS for styling the component
+import styles from "./SignupPage.module.css"; // CSS for styling the component
 import axios from "axios";
 // Integrating with Ethan's database username/password storage instead of Firebase
 // sorry!!!! we can (and maybe should) pivot back later
@@ -51,11 +51,11 @@ function SignupPage() {
   };
 
   return (
-    <div className="signup-container">
-      <div className="background-images"></div>
+    <div className={styles.signupContainer}>
+      <div className={styles.backgroundImages}></div>
       <h2>Signup</h2>
       <form onSubmit={handleSignup}>
-        <div className="form-group">
+        <div className={styles.formGroup}>
           <label htmlFor="username">Username</label>
           <input
             type="username"
@@ -65,7 +65,7 @@ function SignupPage() {
             required
           />
         </div>
-        <div className="form-group">
+        <div className={styles.formGroup}>
           <label htmlFor="password">Password</label>
           <input
             type="password"
@@ -75,7 +75,7 @@ function SignupPage() {
             required
           />
         </div>
-        <div className="form-group">
+        <div className={styles.formGroup}>
           <label htmlFor="confirmPassword">Confirm Password</label>
           <input
             type="password"
@@ -85,11 +85,11 @@ function SignupPage() {
             required
           />
         </div>
-        <button type="submit" className="submit">
+        <button type="submit" className={styles.submit}>
           Signup
         </button>
-        {errorMessage && <p className="error">{errorMessage}</p>}
-        {successMessage && <p className="success">{successMessage}</p>}
+        {errorMessage && <p className={styles.error}>{errorMessage}</p>}
+        {successMessage && <p className={styles.success}>{successMessage}</p>}
       </form>
     </div>
   );

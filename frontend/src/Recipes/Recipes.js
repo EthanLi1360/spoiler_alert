@@ -5,11 +5,13 @@ import RecipeBanners from "./RecipeBanners";
 import styles from "./Recipes.module.css";
 import { generate } from "./GeminiRecipes";
 import { getFoodItem, getFridgeContents } from "../Util";
+import RecipeDetails from "./RecipeDetails";
 
 function Recipes() {
     const [generatedRecipes, setGeneratedRecipes] = useState([]);
     const [currentFridge, setCurrentFridge] = useState(null);
     const [AIloading, setAILoading] = useState(false);
+    const [recipeSelected, setRecipeSelected] = useState(null);
 
     const onButtonClick = async () => {
         let ingredients = getFridgeContents(currentFridge.fridgeID);
@@ -33,20 +35,35 @@ function Recipes() {
         setAILoading(false);
     }
 
+    const recipeClicked = (recipe) => {
+        setRecipeSelected(recipe);
+    }
+
+    const closeRecipe = () => {
+        setRecipeSelected(null);
+    }
+
     return(
         <div className={styles.page}>
             <Navbar />
-            <div className={styles.container}>
-                <FridgeNav setActiveFridge={(e) => setCurrentFridge(e)}/>
-                {generatedRecipes.length > 0 && !AIloading ?
-                    <RecipeBanners recipes={generatedRecipes}/> :
-                    (
-                        currentFridge != null ?
-                        <button onClick={onButtonClick}>{AIloading ? "Generating..." : "Generate Recipes"}</button> :
-                        ""
-                    )
-                }
-            </div>
+            {
+                recipeSelected == null ? 
+                (
+                    <div className={styles.container}>
+                        <FridgeNav setActiveFridge={(e) => setCurrentFridge(e)}/>
+                        {generatedRecipes.length > 0 && !AIloading ?
+                            <RecipeBanners recipes={generatedRecipes} recipeClicked={recipeClicked}/> :
+                            (
+                                currentFridge != null ?
+                                <button onClick={onButtonClick}>{AIloading ? "Generating..." : "Generate Recipes"}</button> :
+                                ""
+                            )
+                        }
+                    </div>
+                ) : (
+                    <RecipeDetails recipe={recipeSelected} closeRecipe={closeRecipe}/>
+                )
+            }
         </div>
     )
 }

@@ -1,13 +1,4 @@
-/* Premium Black Theme for Signup */
-body {
-  font-family: "times new romans", sans-serif;
-  background-color: #000; /* Pure black background */
-  font-weight: 600;
-  margin: 0;
-  padding: 0;
-}
-
-.background-images {
+.backgroundImages {
   position: fixed;
   top: 0;
   left: 0;
@@ -18,7 +9,7 @@ body {
   z-index: -1;
 }
 
-.signup-container {
+.signupContainer {
   width: 300px;
   margin: 100px auto;
   padding: 20px;
@@ -35,7 +26,7 @@ h2 {
   font-weight: 300;
 }
 
-.form-group {
+.formGroup {
   margin-bottom: 15px;
 }
 
