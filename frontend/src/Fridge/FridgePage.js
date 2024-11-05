@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Navbar from '../Navbar/Navbar';
-import './FridgePage.css';
-import closedFridge from './closed_fridge.png';
+import styles from './FridgePage.module.css';
+import closedFridge from '../closed_fridge.png';
 import openFridge from './open_fridge.png';
 
 const FridgePage = () => {
@@ -94,98 +94,100 @@ const FridgePage = () => {
   };
 
   return (
-    <div className="container">
+    <>
       <Navbar />
-      <div>
-        <h1>My Fridge</h1>
+      <div className={styles.container}>
+        <div>
+          <h1>My Fridge</h1>
 
-        {/* Toggle between closed and open fridge */}
-        <div className="fridge-container">
-          <img
-            src={isFridgeOpen ? openFridge : closedFridge}
-            alt="Fridge"
-            className="fridge-image"
-            onClick={toggleFridge}
-          />
+          {/* Toggle between closed and open fridge */}
+          <div className={styles.fridgeContainer}>
+            <img
+              src={isFridgeOpen ? openFridge : closedFridge}
+              alt="Fridge"
+              className={`${styles.fridgeImage} ${isFridgeOpen ? "open" : ""}`}
+              onClick={toggleFridge}
+            />
 
-          {/* If the fridge is open, show the grid of food items */}
+            {/* If the fridge is open, show the grid of food items */}
+            {isFridgeOpen && (
+              <div className={styles.foodItems}>
+                {foods.map((food) => (
+                  <div key={food.id} className={styles.foodItem}>
+                    <span>{food.name}</span>
+                    <span>{food.quantity} grams</span>
+                    <span>Expires on: {food.expirationDate}</span>
+                    {isNearExpiration(food.expirationDate) && <span>⚠️ Expiring Soon!</span>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Show the form only when the fridge is open */}
           {isFridgeOpen && (
-            <div className="food-items">
-              {foods.map((food) => (
-                <div key={food.id} className="food-item">
-                  <span>{food.name}</span>
-                  <span>{food.quantity} grams</span>
-                  <span>Expires on: {food.expirationDate}</span>
-                  {isNearExpiration(food.expirationDate) && <span>⚠️ Expiring Soon!</span>}
-                </div>
-              ))}
-            </div>
+            <>
+              <div>
+                <input
+                  type="text"
+                  placeholder="Food Name"
+                  value={food.name}
+                  onChange={(e) => setFood({ ...food, name: e.target.value })}
+                />
+                <input
+                  type="date"
+                  value={food.expirationDate}
+                  onChange={(e) =>
+                    setFood({ ...food, expirationDate: e.target.value })
+                  }
+                />
+                <input
+                  type="number"
+                  placeholder="Quantity (grams)"
+                  value={food.quantity}
+                  onChange={(e) => setFood({ ...food, quantity: e.target.value })}
+                />
+                <button onClick={addFoodItem}>Add Food Item</button>
+              </div>
+
+              <div className={styles.modifyItems}>
+                <h3>Search the name of an item to modify</h3>
+                <input
+                  type="text"
+                  onChange={(e) => setfoodSearchedName(e.target.value)}
+                />
+                <button onClick={SearchFoodItem}> Search</button>
+                {/*pop up the foodSearched*/}
+                <ul>
+                  {foodsSearched.map((foodSearched) => (
+                    <li key={foodSearched.CreateDate} className={styles.foodSearch}>
+                      <p>Information of {foodSearched.name}</p>
+                      <span>
+                        {foodSearched.name} -- {foodSearched.quantity} grams
+                      </span>
+                      <span>
+                        {foodSearched.name} -- Created at {foodSearched.CreateDate}
+                      </span>
+                      <span>
+                        {foodSearched.name} -- Expires on:{" "}
+                        {foodSearched.expirationDate}
+                      </span>
+                      <button
+                        onClick={() =>
+                          removeFoodItemByCreateDate(foodSearched.CreateDate)
+                        }
+                      >
+                        Delete this food item
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
           )}
         </div>
-
-        {/* Show the form only when the fridge is open */}
-        {isFridgeOpen && (
-          <>
-            <div>
-              <input
-                type="text"
-                placeholder="Food Name"
-                value={food.name}
-                onChange={(e) => setFood({ ...food, name: e.target.value })}
-              />
-              <input
-                type="date"
-                value={food.expirationDate}
-                onChange={(e) =>
-                  setFood({ ...food, expirationDate: e.target.value })
-                }
-              />
-              <input
-                type="number"
-                placeholder="Quantity (grams)"
-                value={food.quantity}
-                onChange={(e) => setFood({ ...food, quantity: e.target.value })}
-              />
-              <button onClick={addFoodItem}>Add Food Item</button>
-            </div>
-
-            <div className="modifyItems">
-              <h3>Search the name of an item to modify</h3>
-              <input
-                type="text"
-                onChange={(e) => setfoodSearchedName(e.target.value)}
-              />
-              <button onClick={SearchFoodItem}> Search</button>
-              {/*pop up the foodSearched*/}
-              <ul>
-                {foodsSearched.map((foodSearched) => (
-                  <li key={foodSearched.CreateDate} className="foodSearch">
-                    <p>Information of {foodSearched.name}</p>
-                    <span>
-                      {foodSearched.name} -- {foodSearched.quantity} grams
-                    </span>
-                    <span>
-                      {foodSearched.name} -- Created at {foodSearched.CreateDate}
-                    </span>
-                    <span>
-                      {foodSearched.name} -- Expires on:{" "}
-                      {foodSearched.expirationDate}
-                    </span>
-                    <button
-                      onClick={() =>
-                        removeFoodItemByCreateDate(foodSearched.CreateDate)
-                      }
-                    >
-                      Delete this food item
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </>
-        )}
       </div>
-    </div>
+    </>
   );
 };
 

@@ -1,0 +1,8 @@
+.ul li /* Important part */ {
+  display: inline;
+}
+
+.ul /* Extra part, to style spaces between each item */ {
+  min-width: 696px;
+  padding-top: 20px;
+}

@@ -1,11 +1,4 @@
-/* Premium Black Theme */
-body {
-  font-family: "times new roman", sans-serif;
-  background-color: #000; /* Pure black background */
-  margin: 0;
-  padding: 0;
-}
-.background-images {
+.backgroundImages {
   position: fixed;
   top: 0;
   left: 0;
@@ -16,7 +9,7 @@ body {
   z-index: -1;
 }
 
-.login-container {
+.loginContainer {
   width: 300px;
   margin: 100px auto;
   padding: 20px;
@@ -33,11 +26,11 @@ h2 {
   font-weight: 300;
 }
 
-.form-group {
+.formGroup {
   margin-bottom: 15px;
 }
 
-label {
+.label {
   display: block;
   margin-bottom: 5px;
   color: #ccc; /* Light gray labels */
@@ -78,28 +71,6 @@ input:focus {
 .submit:hover {
   background-color: #555;
   transform: scale(1.02); /* Slight hover effect */
-}
-
-.google-login {
-  margin-top: 3%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #db4437; /* Google red */
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  width: 100%;
-  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
-}
-
-.google-login:hover {
-  background-color: #c53728;
-  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
 }
 
 .error {

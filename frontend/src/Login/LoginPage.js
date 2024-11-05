@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./LoginPage.css";
+import styles from "./LoginPage.module.css"
 // import { app } from './firebaseConfig';
 // import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useNavigate } from "react-router-dom";
@@ -41,12 +41,12 @@ function LoginPage() {
   };
 
   return (
-    <div className="login-container">
-      <div className="background-images"></div>
+    <div className={styles.loginContainer}>
+      <div className={styles.backgroundImages}></div>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        {errorMessage && <p className="error-container">{errorMessage}</p>}
-        <div className="form-group">
+        {errorMessage && <p>{errorMessage}</p>}
+        <div className={styles.formGroup}>
           <label htmlFor="username">Username</label>
           <input
             type="text"
@@ -56,7 +56,7 @@ function LoginPage() {
             required
           />
         </div>
-        <div className="form-group">
+        <div className={styles.formGroup}>
           <label htmlFor="password">Password</label>
           <input
             type="password"

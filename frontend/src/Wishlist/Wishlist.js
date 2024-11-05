@@ -4,7 +4,7 @@ import IngredientSelect from './IngredientSelect';
 import ListRecipes from './ListRecipes';
 import ShoppingList from './ShoppingList';
 import Navbar from '../Navbar/Navbar';
-import "./Wishlist.css"
+import styles from "./Wishlist.module.css"
 //Add ingredients directly to fridge once purchased
 //Organize wishlist by recipes
 
@@ -36,7 +36,7 @@ function Wishlist({userID}) {
     // console.log(fridgeContents);
     // console.log(savedRecipes);
     return (
-        <div className='container'>
+        <div className={styles.container}>
             <Navbar />
             <div>
                 <ListRecipes savedRecipes={savedRecipes} callback={handleClick} />
