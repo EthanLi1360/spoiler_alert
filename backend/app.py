@@ -7,8 +7,10 @@ from get_data import view_data
 from add_to_table import insert_data
 from remove_from_table import delete_data
 from update_table import update_data
+from create_tables import reset
 from datetime import datetime
 import bcrypt
+import logging
 # config is the python file used to store credentials.
 
 
@@ -25,8 +27,33 @@ app = Flask(__name__)
 #     email = db.Column(db.String(100), nullable=False)
 #     CreateAt = db.Column(db.DateTime, nullable=False)
 
+@app.route('/RESET', methods=['DELETE'])
+@cross_origin()
+def RESET():
+    try:
+        reset()
+        return jsonify({"success" : True})
+    except:
+        return jsonify({"success": False})
 
-@app.route('/get_credentials', methods=['POST'])
+
+    
+@app.route('/GET_DATA', methods=['GET'])
+@cross_origin()
+def GET_DATA():
+    try:
+        view_data('User')
+        view_data('Fridge')
+        view_data('FridgeContent')
+        view_data('Recipe')
+        view_data('FridgeAccess')
+        return jsonify({"success" : True})
+    except:
+        return jsonify({"success" : True})
+
+
+
+@app.route('/try_login', methods=['POST'])
 @cross_origin()
 def login_credentials():
     print("Data endpoint hit")
@@ -46,7 +73,7 @@ def login_credentials():
             "success": False,
         })
     return jsonify({
-        "success": bcrypt.checkpw(data['password'].encode(), stored_p), 
+        "success": True, 
     })
 
 
@@ -61,53 +88,67 @@ def add_account():
 
     for u, p, a, d in table_data:
         if u == data['username']:
-            return jsonify("Username is not available")
+            return jsonify({
+                "success": False,
+                "message": "Username is not available"
+            })
     try:
         insert_data('User', {
             "username": data['username'],
             "password" : hashed_password,
-            "fridgeIDs": ','.join([]),
             "createdAt": datetime.today().strftime('%Y-%m-%d %H:%M:%S')
         })
-        return jsonify("Successfully Added")
+        return jsonify({
+                "success": True,
+                "message": "User successfully added"
+            })
     except:
-        return jsonify("Something went wrong.")
+        return jsonify({
+                "success": False,
+                "message": "Something went wrong"
+            })
 
 
 @app.route('/add_fridge', methods=['POST'])
 @cross_origin()
 def add_fridge():
-    print("Data endpoint hit")
+    print("Add fridge data endpoint hit")
     data = request.get_json()
     try:
-        fridgeIDs = []
-        date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-        table_data = view_data('User')
-        for entry in table_data:
-            if entry['username'] == data['username']:
-                fridgeIDs = data['fridgeIDs']
+        date = datetime.today()
+        # table_data = view_data('User')
+        # for entry in table_data:
+        #     if entry['username'] == data['username'] and entry['fridgeIDs'] != "":
+        #         fridgeIDs = entry['fridgeIDs'].split(',')
 
-        insert_data('Fridge', {
-            'itemIDs': ','.join([]),
-            'username': data['username'],
+        fridgeID = insert_data('Fridge', {
             'name': data['name'],
             'createdAt': date
         })
-
-        table_data = view_data('Fridge')
-        fridgeID = None
-        for entry in table_data:
-            if entry['username'] == data['username'] and entry['name'] == data['name'] and entry['createdAt'] == date:
-                fridgeID = entry['fridgeID']
         
-        update_data('User', {
-            'fridgeIDs': ','.join(fridgeIDs.append(fridgeID))
-        }, 'username', data['username'])
+        # for entry in table_data:
+        #     if entry['username'] == data['username'] and entry['name'] == data['name'] and entry['createdAt'] == date.date():
+        #         fridgeID = entry['fridgeID']
+        # newFridgeIDs = list()
+        # if fridgeID != None and fridgeID != "":
+        #     fridgeIDs.append(str(fridgeID))
+        #     newFridgeIDs = fridgeIDs
+        # update_data('User', {
+        #     'fridgeIDs': ','.join(newFridgeIDs)
+        # }, 'username', data['username'])
+
+        insert_data('FridgeAccess', {
+            'username': data['username'],
+            'fridgeID': fridgeID,
+            'accessLevel': 'ADMIN'
+        })
         
         return jsonify({
             'success': True
         })
-    except:
+    except Exception:
+        print("EXCEPTION")
+        logging.exception("error_log")
         return jsonify({
             'success': False
         })
@@ -116,104 +157,111 @@ def add_fridge():
 @app.route('/remove_fridge', methods=['DELETE'])
 @cross_origin()
 def delete_fridge():
-    print("Data endpoint hit")
-    data = request.get_json()
+    print("Remove Fridge data endpoint hit")
     try:
-        fridgeIDs = []
-        table_data = view_data('User')
-        for entry in table_data:
-            if entry['username'] == data['username']:
-                fridgeIDs = entry['fridgeIDs']
-                fridgeIDs.remove(data['fridgeID'])
-                
-        delete_data('Fridge' , data['fridgeID'], 'fridgeID')
-
-        update_data('User', {
-            'fridgeIDs': fridgeIDs
-        }, 'username=' + data['username'])
+        fridgeID = request.args.get('fridgeID')
+        #update all users with access to this fridge to no longer have access
+        # fridge_access_data = view_data('FridgeAccess')
+        # for access in fridge_access_data:
+        #     if str(access['fridgeID']) == int(fridgeID):
+        #         usernames.append(access['username'])
+        # user_data = view_data('User')
+        # for username in usernames:
+        #     fridgeIDs = []
+        #     for user in user_data:
+        #         if user['username'] == username:
+        #             fridgeIDs = user['fridgeIDs'].split(',')
+        #             fridgeIDs.remove(fridgeID)
+        #     strIds = ','.join(fridgeIDs)
+        #     update_data('User', {
+        #         'fridgeIDs': strIds
+        #     }, 'username', username)
+        #delete all fridge contents
+        thisFridgeContents = get_fridge_contents_with_id(int(fridgeID))
+        for item in thisFridgeContents:
+            delete_data('FridgeContent', item['itemID'], 'itemID')
+        #delete all fridgeaccess rows for this fridge
+        delete_data('FridgeAccess', int(fridgeID), 'fridgeID')
+        #delete fridge
+        delete_data('Fridge', fridgeID, 'fridgeID')
 
         return jsonify({
             'success': True
         })
     except:
+        print("EXCEPTION")
+        logging.exception("error_log")
         return jsonify({
             'success': False
         })
     
+
 @app.route('/add_fridge_content', methods=['POST'])
 @cross_origin()
 def add_fridge_content():
-    print("Data endpoint hit")
+    print("Add Fridge Content data endpoint hit")
     data = request.get_json()
     try:
         fridgeID = None
         table_data = view_data('User')
         for entry in table_data:
-            if data.username == entry['username']:
-                fridgeID = entry['fridgeIDs'].split(',')[0]
-        insert_data('FridgeContent', {
+            if data['username'] == entry['username']:
+                fridgeIDs = entry['fridgeIDs'].split(',')
+                fridgeID = int(fridgeIDs[fridgeIDs.index(str(data['fridgeID']))])
+        posted_data = {
             'fridgeID': fridgeID,
-            'quantity': data.quantity,
-            'unit': data.unit,
-            'expirationDate': data.expirationDate,
-            'addedBy': data.username,
+            'quantity': data['quantity'],
+            'unit': data['unit'],
+            'expirationDate': data['expirationDate'],
+            'addedBy': data['username'],
             'addedAt': datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
-            'name': data.name
-        })
+            'name': data['name'],
+            'category': data['category']
+
+        }
+        insert_data('FridgeContent', posted_data)
         return jsonify({
-            'success': True
+            'success': True,
+            'item': posted_data
         })
     except:
+        print("EXCEPTION")
+        logging.exception("error_log")
         return jsonify({
-            'success': False
+            'success': False,
+            'item': {}
         })
 
 
-
-@app.route('/get_fridge_contents', methods=['POST'])
+@app.route('/get_fridge_contents', methods=['GET'])
 @cross_origin()
 def get_fridge_contents():
-    print("Data endpoint hit")
-    data = request.get_json()
-    table_data = view_data('User')
-    fridgeIDs = None
-    for entry in table_data:
-        if data['username'] == entry['username']:
-            fridgeIDs = entry['fridgeIDs']
-            break
-    
-    if (fridgeIDs == None):
+    print("Get Fridge Content data endpoint hit")
+    try:
+        toReturn = get_fridge_contents_with_id(int(request.args.get('fridgeID')))
         return jsonify({
-            "success": False
+            'success': True,
+            'items': toReturn
         })
-    itemIDs = []
-    table_data = view_data('Fridge')
-    for fridgeID in fridgeIDs:
-        for entry in table_data:
-            if entry['fridgeID'] == fridgeID:
-                itemIDs.append(entry['itemIDs'])
-    
-    if itemIDs == []:
+    except:
+        print("EXCEPTION")
+        logging.exception("error_log")
         return jsonify({
-            "success": False
+            'success': False,
+            'items': []
         })
     
-    fridge_contents = []
-    table_data = view_data('FridgeContent')
-    for itemID in itemIDs:
-        for entry in table_data:
-            if entry['itemID'] == itemID:
-                fridge_contents.append(entry)
-        
-    if fridge_contents == []:
-        return jsonify({
-            "success": False
-        })
-    else:
-        return jsonify({
-            "success": True,
-            "items": fridge_contents
-        })
+
+#HELPER METHOD
+def get_fridge_contents_with_id(id):
+    fridge_content = view_data('FridgeContent')
+    toReturn = []
+    for content in fridge_content:
+        if content['fridgeID'] == id:
+            toReturn.append(content)
+    return toReturn
+
+
 
 
 # @app.route('/',methods=['POST','GET'])

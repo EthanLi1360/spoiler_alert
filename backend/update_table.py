@@ -23,7 +23,7 @@ def update_data(table_name, set_values, key_column, key_value, conn=conn):
 
     insert_query = f"UPDATE {table_name} SET {set_clause} WHERE {key_column} = %s"
     print("insert query")
-    print(insert_query)
+    print(insert_query.format())
     print(set_values.values())
     cursor.execute(insert_query, list(set_values.values()) + [key_value])
     conn.commit()
