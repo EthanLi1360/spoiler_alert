@@ -1,6 +1,10 @@
 from collections import defaultdict
-
+from dotenv import load_dotenv
+import os
 import pymysql
+#load environment variables from .env to OS
+load_dotenv()
+
 timeout = 10000
 conn = pymysql.connect(
   charset="utf8mb4",
@@ -11,6 +15,7 @@ conn = pymysql.connect(
   read_timeout=timeout,
   port=24887,
   user="avnadmin",
+  password=os.environ['AIVEN_PASS'],
   write_timeout=timeout,
 )
 
