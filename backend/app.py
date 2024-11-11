@@ -11,22 +11,11 @@ from create_tables import reset
 from datetime import datetime
 import bcrypt
 import logging
-# config is the python file used to store credentials.
 
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI']= credentials
-# db=SQLAlchemy(app)
 
-# Define the User model
-# class User(db.Model):
-#     __tablename__ = 'test1'
-#     UserId = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     username = db.Column(db.String(100), nullable=False, unique=True)
-#     password_hash=db.Column(db.String(100),nullable=False,unique=True)
-#     email = db.Column(db.String(100), nullable=False)
-#     CreateAt = db.Column(db.DateTime, nullable=False)
-
+#resets all db values when endpoint is reached
 @app.route('/RESET', methods=['DELETE'])
 @cross_origin()
 def RESET():
@@ -36,8 +25,7 @@ def RESET():
     except:
         return jsonify({"success": False})
 
-
-    
+#prints all db values to console when endpoint is reached
 @app.route('/GET_DATA', methods=['GET'])
 @cross_origin()
 def GET_DATA():
@@ -52,23 +40,21 @@ def GET_DATA():
         return jsonify({"success" : True})
 
 
-
 @app.route('/try_login', methods=['POST'])
 @cross_origin()
 def login_credentials():
-    print("Data endpoint hit")
+    print("Try login endpoint endpoint hit")
     data = request.get_json()
     table_data = view_data('User')
-    stored_p = None
+    user_p = None
+    matching_p = False
     for entry in table_data:
-        u, p = entry['username'], entry['password']
-        print("=======Username=======")
-        print(u)
-        print(p)
+        u, p, s = entry['username'], entry['password'], entry['salt']
         if u == data['username']:
-            stored_p = p.encode()
+            user_p = bcrypt.hashpw(data['password'].encode(), s.encode())
+            matching_p = user_p == p.encode()
             break
-    if stored_p == None:
+    if user_p == None or not matching_p:
         return jsonify({
             "success": False,
         })
@@ -86,7 +72,7 @@ def add_account():
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(data['password'].encode(), salt)
 
-    for u, p, a, d in table_data:
+    for u, p, d in table_data:
         if u == data['username']:
             return jsonify({
                 "success": False,
@@ -96,7 +82,8 @@ def add_account():
         insert_data('User', {
             "username": data['username'],
             "password" : hashed_password,
-            "createdAt": datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+            "createdAt": datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
+            "salt": salt
         })
         return jsonify({
                 "success": True,
@@ -116,27 +103,10 @@ def add_fridge():
     data = request.get_json()
     try:
         date = datetime.today()
-        # table_data = view_data('User')
-        # for entry in table_data:
-        #     if entry['username'] == data['username'] and entry['fridgeIDs'] != "":
-        #         fridgeIDs = entry['fridgeIDs'].split(',')
-
         fridgeID = insert_data('Fridge', {
             'name': data['name'],
             'createdAt': date
         })
-        
-        # for entry in table_data:
-        #     if entry['username'] == data['username'] and entry['name'] == data['name'] and entry['createdAt'] == date.date():
-        #         fridgeID = entry['fridgeID']
-        # newFridgeIDs = list()
-        # if fridgeID != None and fridgeID != "":
-        #     fridgeIDs.append(str(fridgeID))
-        #     newFridgeIDs = fridgeIDs
-        # update_data('User', {
-        #     'fridgeIDs': ','.join(newFridgeIDs)
-        # }, 'username', data['username'])
-
         insert_data('FridgeAccess', {
             'username': data['username'],
             'fridgeID': fridgeID,

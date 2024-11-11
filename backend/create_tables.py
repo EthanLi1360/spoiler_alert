@@ -47,9 +47,8 @@ def create_table(table_name, columns, conn=conn):
 user = {
     'username': 'VARCHAR(75) PRIMARY KEY',
     'password': 'VARCHAR(75)',
-    # 'email': 'VARCHAR(120)',
-    #'fridgeIDs': 'TEXT',
-    'createdAt': 'DATE'
+    'createdAt': 'DATE',
+    'salt': 'VARCHAR(75)'
 }
 
 fridge = {
