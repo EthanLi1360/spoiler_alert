@@ -62,11 +62,12 @@ fridge_content = {
     'fridgeID': 'INT(10) UNSIGNED',
     'quantity': 'FLOAT NOT NULL',
     'unit': 'VARCHAR(20) NOT NULL',
-    'expirationDate': 'DATE NOT NULL',
+    'expirationDate': 'DATE',
     'addedBy': 'VARCHAR(75)',
     'addedAt': 'DATE',
     'name': 'VARCHAR(30)',
-    'category': 'VARCHAR(30)'
+    'category': 'VARCHAR(30)',
+    'isInFreezer': 'BOOLEAN DEFAULT 0'
 
 }
 
