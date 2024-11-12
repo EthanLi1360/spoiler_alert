@@ -1,6 +1,6 @@
 from collections import defaultdict
-
 import pymysql
+
 timeout = 10000
 conn = pymysql.connect(
   charset="utf8mb4",
@@ -42,15 +42,12 @@ def create_table(table_name, columns, conn=conn):
 user = {
     'username': 'VARCHAR(75) PRIMARY KEY',
     'password': 'VARCHAR(75)',
-    # 'email': 'VARCHAR(120)',
-    'fridgeIDs': 'TEXT',
-    'createdAt': 'DATE'
+    'createdAt': 'DATE',
+    'salt': 'VARCHAR(75)'
 }
 
 fridge = {
     'fridgeID': 'INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT',
-    'itemIDs': 'TEXT',
-    'username': 'VARCHAR(75)',
     'name': 'VARCHAR(75)',
     'createdAt': 'DATE'
 }
@@ -60,10 +57,13 @@ fridge_content = {
     'fridgeID': 'INT(10) UNSIGNED',
     'quantity': 'FLOAT NOT NULL',
     'unit': 'VARCHAR(20) NOT NULL',
-    'expirationDate': 'DATE NOT NULL',
-    'addedBy': 'INT(10) UNSIGNED',
+    'expirationDate': 'DATE',
+    'addedBy': 'VARCHAR(75)',
     'addedAt': 'DATE',
-    'name': 'VARCHAR(30)'
+    'name': 'VARCHAR(30)',
+    'category': 'VARCHAR(30)',
+    'isInFreezer': 'BOOLEAN DEFAULT 0'
+
 }
 
 recipe = {
@@ -75,6 +75,13 @@ recipe = {
     'dietaryRestrictions': 'VARCHAR(100)',
     'createdBy': 'INT(10) UNSIGNED',
     'createdAt': 'DATE'
+}
+
+fridge_access = {
+    'username': 'VARCHAR(75) NOT NULL',
+    'fridgeID': 'INT(10) UNSIGNED NOT NULL',
+    'accessLevel': 'VARCHAR(30) NOT NULL',
+    'CONSTRAINT': 'PK_Access PRIMARY KEY (username,fridgeID)'
 }
 
 
@@ -92,11 +99,13 @@ def reset():
     remove_table('Fridge')
     remove_table('FridgeContent')
     remove_table('Recipe')
+    remove_table('FridgeAccess')
 
     create_table('User', user)
     create_table('Fridge', fridge)
     create_table('FridgeContent', fridge_content)
     create_table('Recipe', recipe)
+    create_table('FridgeAccess', fridge_access)
 
 
 # if False:

@@ -1,4 +1,5 @@
 import pymysql
+
 timeout = 10000
 conn = pymysql.connect(
   charset="utf8mb4",
@@ -43,9 +44,11 @@ def view_data(table_name, conn=conn):
     cursor.close()
     print("=====rows=====")
     print(rows)
+    print()
     return rows
 
 view_data('User')
 view_data('Fridge')
 view_data('FridgeContent')
 view_data('Recipe')
+view_data('FridgeAccess')

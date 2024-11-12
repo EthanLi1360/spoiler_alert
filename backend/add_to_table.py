@@ -29,7 +29,13 @@ def insert_data(table_name, data, conn=conn):
     conn.commit()
     print("Values")
     print(values)
-    cursor.close()
+    try:
+        return cursor.lastrowid
+    except Exception as e:
+        raise(e)
+    finally:
+      cursor.close()
+        
 
 # user_data = {
 #     'username': 'Test',

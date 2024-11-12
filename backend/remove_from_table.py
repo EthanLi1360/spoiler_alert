@@ -1,4 +1,5 @@
 import pymysql
+
 timeout = 10000
 conn = pymysql.connect(
   charset="utf8mb4",
@@ -26,4 +27,15 @@ def delete_data(table_name, key, key_column, conn=conn):
     conn.commit()
 
     print(f"Deleted rows with {key_column} = {key}")
+    cursor.close()
+
+def delete_data_multiple_columns(table_name, keys, key_columns, conn=conn):
+    cursor = conn.cursor()
+    equals_arr = []
+    for i in range(len(key_columns)):
+        equals_arr.append(f"{key_columns[i]} = %s ")
+    where_clause = f"WHERE " + 'AND '.join(equals_arr)
+    delete_query = f"DELETE FROM {table_name} {where_clause}"
+    cursor.execute(delete_query, keys)
+    conn.commit()
     cursor.close()
