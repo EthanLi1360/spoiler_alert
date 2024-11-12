@@ -5,8 +5,8 @@ from datetime import datetime
 # from config import credentials
 from get_data import view_data
 from add_to_table import insert_data
-from remove_from_table import delete_data
-from update_table import update_data
+from remove_from_table import delete_data, delete_data_multiple_columns
+from update_table import update_data, update_data_multiple_columns
 from create_tables import reset
 from datetime import datetime
 import bcrypt
@@ -305,6 +305,8 @@ def delete_fridge_content():
         for content in content_data:
             if content['itemID'] == data['itemID']:
                 item_ID = data['itemID']
+                if content['fridgeID'] != fridge_ID:
+                    raise Exception('Content not in Fridge with inputted Fridge ID')
         if item_ID == None:
             raise Exception('No Fridge Content with inputted ID')
         delete_data('FridgeContent', item_ID, 'ItemID')
@@ -317,7 +319,80 @@ def delete_fridge_content():
         return jsonify({
             'success': False
         })
+    
+@app.route('/update_fridge_access', methods=['PATCH'])
+@cross_origin()
+def update_fridge_access():
+    print("Update fridge access data endpoint hit")
+    try:
+        data = request.get_json()
+        access_data = view_data('FridgeAccess')
+        access_to_edit = {}
+        for access in access_data:
+            if access['username'] == data['username'] and access['fridgeID'] == data['fridgeID']:
+                access_to_edit = access
+        access_to_edit['accessLevel'] = data['accessLevel']
+        update_data_multiple_columns('FridgeAccess', access_to_edit, ['username', 'fridgeID'], [data['username'], data['fridgeID']])
+        return jsonify({
+                'success': True
+            })
+    except:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False
+        })
+ 
 
+@app.route('/remove_fridge_access', methods=['DELETE'])
+@cross_origin()
+def remove_fridge_access():
+    print("Remove fridge access data endpoint hit")
+    try:
+        data = request.get_json()
+        username, fridgeID = data['username'], data['fridgeID']
+        delete_data_multiple_columns('FridgeAccess', [username, fridgeID], ['username', 'fridgeID'])
+        return jsonify({
+                'success': True
+            })
+    except:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False
+        })
+    
+
+@app.route('/add_fridge_access', methods=['POST'])
+@cross_origin()
+def add_fridge_access():
+    print("Add fridge access data endpoint hit")
+    try:
+        data = request.get_json()
+        username, fridgeID, accessLevel = data['username'], data['fridgeID'], data['accessLevel']
+        fridges_data = view_data('Fridge')
+        fridge_found = False
+        for fridge in fridges_data:
+            if fridge['fridgeID'] == fridgeID:
+                fridge_found = True
+                break
+        if not fridge_found:
+            raise Exception("No fridge with inputted ID")
+        insert_data('FridgeAccess', {
+            'username': username,
+            'fridgeID': fridgeID,
+            'accessLevel': accessLevel
+        })
+        return jsonify({
+                'success': True
+            })
+    except:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False
+        })
+        
 #HELPER METHOD
 def get_fridge_contents_with_id(id):
     fridge_content = view_data('FridgeContent')
