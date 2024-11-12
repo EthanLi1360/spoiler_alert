@@ -77,6 +77,7 @@ export async function generate(prompt) {
       .then((result) => {
         const resultText = result.response.text();
         const json = JSON.parse(resultText);
+        json.id = Date.now()
         returnValue = json;
       })
       .catch((error) => {
