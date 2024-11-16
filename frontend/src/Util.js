@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export function getUserSavedRecipes(userId){
     let userSavedRecipes = [{userId : 1, recipeID : 1, savedAt : Date.now()}]; //api call to return user_saved_recipes objects with matching userID
     return userSavedRecipes;
@@ -96,4 +98,19 @@ export function getFridgeContents(fridgeID){
 
 export function getFridge(fridgeID){
     return {"fridgeID" : 1, "name" : "John's Fridge", "createdAt" : Date.now()}; //api call
+}
+
+export async function addFridgeAccess(username, fridgeID, accessLevel) {
+    return axios
+      .post("http://127.0.0.1:5000/add_fridge_access", {
+        username: username,
+        fridgeID: fridgeID,
+        accessLevel: accessLevel
+      })
+      .then((response) => {
+        return response.data;
+      })
+      .catch((error) => {
+        console.error("There was an error adding a fridge access row\n" + error);
+      });
 }
