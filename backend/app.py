@@ -93,7 +93,7 @@ def login_credentials():
     new_token = uuid4()
     timestamp = current_time_millis()
     print(timestamp)
-    update_data('User', {"token": new_token, "tokenTimestamp": timestamp}, "username", data["username"])
+    update_data('User', {"token": new_token}, "username", data["username"])
     return jsonify({
         "success": True,
         "token": new_token,
