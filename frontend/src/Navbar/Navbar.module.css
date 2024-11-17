@@ -12,7 +12,7 @@
     float: right;
 }
   
-.navbar li a {
+.navbar li a, li p {
     /* font-family: "Roboto", sans-serif; */
     display: block;
     color: white;
@@ -21,6 +21,7 @@
     text-decoration: none;
 }
   
-.navbar li a:hover:not(.active) {
+.navbar li a:hover:not(.active), .logout:hover:not(.active) {
     color: lightgrey;
+    cursor: pointer;
 }

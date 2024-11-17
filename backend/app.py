@@ -12,6 +12,8 @@ from datetime import datetime
 import bcrypt
 import logging
 import json
+import time
+from uuid import uuid4
 
 reset()
 app = Flask(__name__)
@@ -41,6 +43,30 @@ def GET_DATA():
         return jsonify({"success" : True})
 
 
+def current_time_millis():
+    return round(time.time() * 1000)
+
+
+@app.route('/try_token', methods=['GET'])
+@cross_origin()
+def try_token():
+    for entry in view_data('User'):
+        if entry['username'] == request.args.get("username"):
+            if entry['token'] == request.args.get("token") and \
+            current_time_millis() - 4.32e+7 < int(entry['tokenTimestamp']):
+                return jsonify({
+                    "success": True,
+                    "username": entry['username']
+                })
+            else:
+                return jsonify({
+                    "success": False
+                })
+    return jsonify({
+        "success": False
+    })
+
+
 @app.route('/try_login', methods=['POST'])
 @cross_origin()
 def login_credentials():
@@ -62,8 +88,17 @@ def login_credentials():
         return jsonify({
             "success": False,
         })
+
+    # generate token
+    # TODO generate new token if timestamp is too old, NOT always!
+    new_token = uuid4()
+    timestamp = current_time_millis()
+    print(timestamp)
+    update_data('User', {"token": new_token, "tokenTimestamp": timestamp}, "username", data["username"])
     return jsonify({
-        "success": True, 
+        "success": True,
+        "token": new_token,
+        "timestamp": timestamp
     })
 
 
