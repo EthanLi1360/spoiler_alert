@@ -1,0 +1,77 @@
+.container {
+    height: fit-content;
+    width: fit-content;
+    padding: 0;
+}
+
+.container > button {
+    background-color: rgba(0, 0, 0, 0);
+    height: fit-content;
+    width: fit-content;
+    margin: 0;
+    padding: 0;
+}
+
+.container button img {
+    height: 30px;
+    width: 30px;
+}
+
+.modalBase {
+    height: fit-content;
+    width: fit-content;
+    position: absolute;
+    top: 0px;
+    left: 40px;
+    border-radius: 10px;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.modalBase * {
+    visibility: inherit;
+    opacity: inherit;
+}
+
+@keyframes grow {
+    0% {opacity: 0; visibility: hidden;}
+    1% {opacity: 0.1; visibility: visible;}
+    100% {opacity: 1; visibility: visible;}
+}
+
+@keyframes shrink {
+    0% {opacity: 1; visibility: visible;}
+    99% {opacity: 0.1; visibility: hidden;}
+    100% {opacity: 0; visibility: hidden;}
+}
+
+.animateToActive {
+    animation-name: grow;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+.animateToHidden {
+    animation-name: shrink;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+.modalContainer {
+    display: flex;
+    height: 30px;
+    width: 300px;
+    justify-content: space-around;
+    gap: 20px;
+    align-items: center;
+}
+
+.input {
+    background-color: rgba(0, 0, 0, 0);
+    color: black;
+    margin: 0;
+}
+
+.submitButton {
+    margin: 0;
+}
