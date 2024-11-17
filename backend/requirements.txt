@@ -3,4 +3,4 @@ flask_sqlalchemy
 pymysql
 flask_cors
 bcrypt
-dotenv
+python-dotenv
