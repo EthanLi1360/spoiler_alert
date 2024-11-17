@@ -1,4 +1,8 @@
 import pymysql
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 timeout = 10000
 conn = pymysql.connect(
@@ -10,6 +14,7 @@ conn = pymysql.connect(
   read_timeout=timeout,
   port=24887,
   user="avnadmin",
+  password= os.getenv("AIVEN_PASS"),
   write_timeout=timeout,
 )
 
@@ -24,6 +29,7 @@ def view_data(table_name, conn=conn):
         read_timeout=timeout,
         port=24887,
         user="avnadmin",
+        password= os.getenv("AIVEN_PASS"),
         write_timeout=timeout,
     )
     cursor = conn.cursor()

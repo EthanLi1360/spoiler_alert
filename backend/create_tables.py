@@ -1,5 +1,9 @@
 from collections import defaultdict
 import pymysql
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 timeout = 10000
 conn = pymysql.connect(
@@ -11,6 +15,7 @@ conn = pymysql.connect(
   read_timeout=timeout,
   port=24887,
   user="avnadmin",
+  password=os.getenv("AIVEN_PASS"),
   write_timeout=timeout,
 )
 
@@ -43,9 +48,7 @@ user = {
     'username': 'VARCHAR(75) PRIMARY KEY',
     'password': 'VARCHAR(75)',
     'createdAt': 'DATE',
-    'salt': 'VARCHAR(75)',
-    'token': 'VARCHAR(75)',
-    'tokenTimestamp': 'BIGINT(20) UNSIGNED'
+    'salt': 'VARCHAR(75)'
 }
 
 fridge = {
@@ -65,18 +68,18 @@ fridge_content = {
     'name': 'VARCHAR(30)',
     'category': 'VARCHAR(30)',
     'isInFreezer': 'BOOLEAN DEFAULT 0'
+
 }
 
 recipe = {
     'recipeID': 'INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT',
-    'fridgeID': 'INT(10) UNSIGNED',
     'name': 'VARCHAR(50) NOT NULL',
+    'ingredients': 'TEXT NOT NULL',
     'instructions': 'TEXT NOT NULL',
-    'cuisine': 'VARCHAR (50)',
-    'dietaryRestrictions': 'TEXT',
+    'cuisine': 'VARCHAR(50)',
+    'dietaryRestrictions': 'VARCHAR(100)',
     'createdBy': 'INT(10) UNSIGNED',
-    'createdAt': 'DATE',
-    'ingredients': 'TEXT NOT NULL'
+    'createdAt': 'DATE'
 }
 
 fridge_access = {
@@ -86,20 +89,6 @@ fridge_access = {
     'CONSTRAINT': 'PK_Access PRIMARY KEY (username,fridgeID)'
 }
 
-wishlist = {
-    'wishlistID': 'INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT',
-    'fridgeID': 'INT(10) UNSIGNED',
-    'name': 'VARCHAR(50) NOT NULL',
-    'createdAt': 'DATE'
-}
-
-wishlist_items = {
-    'wishlistID': 'INT(10) UNSIGNED',
-    'itemID': 'INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT',
-    'name': 'VARCHAR(50) NOT NULL',
-    'quantity': 'FLOAT NOT NULL',
-    'unit': 'VARCHAR(20) NOT NULL'
-}
 
 def remove_table(table_name, conn=conn):
     cursor = conn.cursor()
@@ -116,18 +105,12 @@ def reset():
     remove_table('FridgeContent')
     remove_table('Recipe')
     remove_table('FridgeAccess')
-    remove_table('Wishlist')
-    remove_table('WishlistItems')
-
-
 
     create_table('User', user)
     create_table('Fridge', fridge)
     create_table('FridgeContent', fridge_content)
     create_table('Recipe', recipe)
     create_table('FridgeAccess', fridge_access)
-    create_table('Wishlist', wishlist)
-    create_table('WishlistItems', wishlist_items)
 
 
 # if False:

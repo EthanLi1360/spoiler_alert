@@ -15,7 +15,6 @@ import json
 import time
 from uuid import uuid4
 
-reset()
 app = Flask(__name__)
 
 #resets all db values when endpoint is reached
