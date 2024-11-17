@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useState } from "react";
 
 export function getUserSavedRecipes(userId){
     let userSavedRecipes = [{userId : 1, recipeID : 1, savedAt : Date.now()}]; //api call to return user_saved_recipes objects with matching userID
@@ -113,4 +114,49 @@ export async function addFridgeAccess(username, fridgeID, accessLevel) {
       .catch((error) => {
         console.error("There was an error adding a fridge access row\n" + error);
       });
+}
+
+// taken from
+// https://www.digitalocean.com/community/tutorials/how-to-add-login-authentication-to-react-applications
+export default function useToken() {
+    const timestamp = localStorage.getItem("timestamp");
+    if (Date.now() - timestamp > 43200000) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+    }
+
+    const getToken = () => {
+        const username = localStorage.getItem("username");
+        let token = localStorage.getItem("token");
+        if (token == null || username == null) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("username");
+            token = null;
+        }
+        return token;
+    };
+    
+    const [token, setToken] = useState(getToken());
+    
+    const saveToken = (username, token) => {
+        if (username == null) {
+            localStorage.removeItem("username");
+        } else {
+            localStorage.setItem('username', username);
+        }
+        if (token == null) {
+            localStorage.removeItem("token");
+        } else {
+            localStorage.setItem('token', token);
+        }
+        if (username != null && token != null) {
+            localStorage.setItem('timestamp', Date.now());
+        }
+        setToken(token);
+    };
+    
+    return {
+        setToken: saveToken,
+        token
+    }
 }

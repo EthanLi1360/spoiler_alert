@@ -4,10 +4,12 @@ import styles from "./LoginPage.module.css"
 // import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import useToken from "../Util";
 
 function LoginPage() {
   // let auth = getAuth();
   let navigate = useNavigate();
+  const {token, setToken} = useToken();
 
   const routeChange = (path) => {
     navigate(path);
@@ -23,13 +25,14 @@ function LoginPage() {
 
     // Dummy login validation (Replace with actual validation logic)
     await axios
-      .post("http://127.0.0.1:5000/get_credentials", {
+      .post("http://127.0.0.1:5000/try_login", {
         username: username,
         password: password,
       })
       .then((response) => {
         if (response.data.success) {
           alert("Login successful!");
+          setToken(username, response.data.token);
           navigate("/");
         } else {
           setErrorMessage("Invalid username or password");

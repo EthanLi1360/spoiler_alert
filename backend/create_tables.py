@@ -43,7 +43,9 @@ user = {
     'username': 'VARCHAR(75) PRIMARY KEY',
     'password': 'VARCHAR(75)',
     'createdAt': 'DATE',
-    'salt': 'VARCHAR(75)'
+    'salt': 'VARCHAR(75)',
+    'token': 'VARCHAR(75)',
+    'tokenTimestamp': 'BIGINT(20) UNSIGNED'
 }
 
 fridge = {
