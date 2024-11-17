@@ -2,6 +2,7 @@ import styles from "./Home.module.css";
 import Navbar from "../Navbar/Navbar";
 import Title from "./Title";
 import Features from "./Feature"
+import Footer from "../Footer/Footer"
 
 function Home(){
     return(
@@ -9,6 +10,7 @@ function Home(){
             <Navbar />
             <Title />
             <Features />
+            <Footer />
         </div>
     )
 }

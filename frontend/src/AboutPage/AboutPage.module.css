@@ -1,0 +1,44 @@
+    .bg {
+        background-color: #111111;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 50px 20px;
+        background-color: #111111;
+        height: 100%;
+        width: 100%;
+    }
+
+    .container h1 {
+        font-size: 48px;
+        text-align: center;
+        margin-bottom: 40px;
+        font-weight: 500;
+    }
+
+    .aboutSection {
+        background-color: #181818;
+        padding: 25px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        border: 1px solid rgb(164, 213, 255);
+    } 
+
+    .aboutSection h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .aboutSection p, .aboutSection li {
+        color: #ccc;
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+
+    .aboutSection li {
+        list-style-type: disc;
+        padding-left: 20px;
+    }

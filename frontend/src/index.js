@@ -11,6 +11,8 @@ import FridgePage from './Fridge/FridgePage';
 import Wishlist from './Wishlist/Wishlist';
 import Home from './Home/Home';
 import Recipes from './Recipes/Recipes';
+import AboutPage from './AboutPage/AboutPage';
+import TeamPage from './TeamPage/TeamPage';
 
 const router = createBrowserRouter([
   {
@@ -36,6 +38,14 @@ const router = createBrowserRouter([
   {
     path: "/recipes",
     element: <Recipes />,
+  },
+  {
+    path: "/about",
+    element: <AboutPage />,
+  },
+  {
+    path: "/team",
+    element: <TeamPage />,
   }
 ]);
 
