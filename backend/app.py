@@ -11,8 +11,9 @@ from create_tables import reset
 from datetime import datetime
 import bcrypt
 import logging
+import json
 
-
+reset()
 app = Flask(__name__)
 
 #resets all db values when endpoint is reached
@@ -404,6 +405,332 @@ def get_fridge_contents_with_id(id):
 
 
 
+@app.route('/save_recipe', methods=['POST'])
+@cross_origin()
+def save_recipe():
+    print("Save Recipe data endpoint hit")
+    try:
+        data = request.get_json()
+        fridgeID = data['fridgeID']
+        recipe_data = data['recipe']
+        date = datetime.today()
+        recipe_data['ingredients'] = json.dumps(recipe_data['ingredients'])
+        recipe_data['dietaryRestrictions'] = json.dumps(recipe_data['dietaryRestrictions'])
+        recipeID = insert_data('Recipe', {
+            'fridgeID': fridgeID,
+            'name': recipe_data['name'],
+            'instructions': recipe_data['instructions'],
+            'cuisine': recipe_data['cuisine'],
+            'dietaryRestrictions': recipe_data['dietaryRestrictions'],
+            'createdBy': recipe_data['createdBy'],
+            'createdAt': date,
+            'ingredients': recipe_data['ingredients']      
+        })
+        return jsonify({
+            'recipeID': recipeID,
+            'success': True
+        })
+    except Exception:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False
+        })
+
+@app.route('/view_saved_recipes', methods=['GET'])
+@cross_origin()
+def view_saved_recipes():
+    print("View saved recipes data endpoint hit")
+    try:
+        fridgeID = request.args.get('fridgeID')
+        recipes = get_table_content_with_key('Recipe', 'fridgeID', int(fridgeID))
+        formatted_recipes = []
+        for recipe in recipes:
+            formatted_recipe = {
+                "name": recipe["name"],
+                "instructions": recipe["instructions"],
+                "cuisine": recipe["cuisine"],
+                "dietaryRestrictions": json.loads(recipe["dietaryRestrictions"]),
+                "createdBy": recipe["createdBy"],
+                "createdAt": recipe["createdAt"],
+                "ingredients": json.loads(recipe["ingredients"])
+            }
+            formatted_recipes.append(formatted_recipe)
+        return jsonify({
+            'success': True,
+            'recipes': formatted_recipes
+        })
+    except:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False,
+            'recipes': []
+        })   
+
+
+@app.route('/delete_recipe', methods=['DELETE'])
+@cross_origin()
+def delete_recipe():
+    try:
+        fridgeID = request.args.get('fridgeID')
+        recipeID = request.args.get('recipeID')
+        delete_data_multiple_columns('Recipe', [fridgeID, recipeID], ['fridgeID', 'recipeID'])
+        return jsonify({
+                'success': True
+            })
+    except:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False
+        })
+
+@app.route('/create_wishlist', methods=['POST'])
+@cross_origin()
+def create_wishlist():
+    try:
+        date = datetime.today()
+        data = request.get_json()
+        fridgeID = data['fridgeID']
+        name = data['name']
+        wishlistID = insert_data('Wishlist', {
+            'fridgeID': fridgeID,
+            'name': name,
+            'createdAt': date
+        })
+        return jsonify({
+            'success': True,
+            'wishlistID': wishlistID
+        })
+    except Exception:
+        logging.exception("error_log")
+        return jsonify({
+            'success': False
+        })
+@app.route('/get_wishlists', methods=['GET'])
+@cross_origin()
+def get_wishlists():
+    try:
+        fridgeID = request.args.get('fridgeID')
+        wishlists = get_table_content_with_key('Wishlist', 'fridgeID', int(fridgeID))
+        wishlistIDs = []
+        for wishlist in wishlists:
+            wishlistIDs.append(wishlist["wishlistID"])
+        return jsonify({
+            'success': True,
+            'wishlistIDs': wishlistIDs
+        })
+    except Exception:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False,
+            'recipes': []
+        }) 
+    
+@app.route('/delete_wishlist', methods=['DELETE'])
+@cross_origin()
+def delete_wishlist():
+    try:
+        fridgeID = request.args.get('fridgeID')
+        wishlistID = request.args.get('wishlistID')
+        delete_data_multiple_columns('Wishlist', [fridgeID, wishlistID], ['fridgeID', 'wishlistID'])
+        return jsonify({
+            'success': True
+        })
+    except:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False
+        })
+
+@app.route('/add_wishlist_item', methods=['POST'])
+@cross_origin()
+def add_wishlist_item():
+    try:
+        data = request.get_json()
+        wishlistID = data['wishlistID']
+        name = data['name']
+        quantity = data['quantity']
+        unit = data['unit']
+        itemID = insert_data('WishlistItems', {
+            'wishlistID': wishlistID,
+            'name': name,
+            'quantity': quantity,
+            'unit': unit
+        })
+        itemToReturn = {
+            'name': name,
+            'quantity': quantity,
+            'unit': unit,
+            'itemID': itemID
+        }
+        return jsonify({
+            'success': True,
+            'item': itemToReturn
+        })
+    except Exception:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False,
+            'item': {}
+        })   
+
+@app.route('/get_wishlist_items', methods=['GET'])
+@cross_origin()
+def get_wishlist_item():
+    try:
+        wishlistID = request.args.get('wishlistID')
+        items = get_table_content_with_key('WishlistItems','wishlistID',int(wishlistID))
+        formatted_items = []
+        for item in items:
+            formatted_item = {
+                'name': item['name'],
+                'quantity': item['quantity'],
+                'unit': item['unit'],
+                'itemID': item['itemID']
+            }
+            formatted_items.append(formatted_item)
+        return jsonify({
+            'success': True,
+            'items': formatted_items
+        })
+    except:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False,
+            'items': []
+        })   
+
+@app.route('/update_wishlist_item', methods=['PATCH'])
+@cross_origin()
+def update_wishlist_item():
+    print("Update wishlist item endpoint hit")
+    try:
+        data = request.get_json()
+        wishlistID = None
+        wishlist_data = view_data('Wishlist')
+        for wishlist in wishlist_data:
+            if wishlist['wishlistID'] == data['wishlistID']:
+                wishlistID = data['wishlistID']
+                break
+        if wishlistID == None:
+            raise Exception("No Wishlist with inputted ID")
+        itemID = None
+        content_data = view_data('WishlistItems')
+        content_to_edit = None
+        for content in content_data:
+            if content['itemID'] == data['itemID']:
+                itemID = data['itemID']
+                content_to_edit = content
+                break
+        if itemID == None or content_to_edit['wishlistID'] != wishlistID:
+            raise Exception('No item in the wishlist with the inputted ID')
+        if 'name' in data:
+            content_to_edit['name'] = data['name']
+        if 'quantity' in data:
+            content_to_edit['quantity'] = data['quantity']
+        if 'unit' in data:
+            content_to_edit['unit'] = data['unit']
+        update_data('WishlistItems', content_to_edit, 'itemID', itemID)
+        return jsonify({
+            'success': True,
+            'item': content_to_edit
+        })  
+    except:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False,
+            'item': {}
+        })
+    
+@app.route('/delete_wishlist_item', methods=['DELETE'])
+@cross_origin()
+def delete_wishlist_item():
+    try:
+        wishlistID = request.args.get('wishlistID')
+        itemID = request.args.get('itemID')
+        delete_data_multiple_columns('WishlistItems', [wishlistID, itemID], ['wishlistID', 'itemID'])
+        return jsonify({
+                'success': True
+            })
+    except:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False
+        })
+@app.route('/add_all_recipe_ingredients_to_wishlist', methods=['POST'])
+@cross_origin()
+def add_all_recipe_ingredients_to_wishlist():
+    try:
+        data = request.get_json()
+        recipeID = data['recipeID']
+        wishlistID = None
+        recipe_data = view_data('Recipe')
+        ingredients = None
+        wishlist_data = view_data('Wishlist')
+        for wishlist in wishlist_data:
+            if wishlist['wishlistID'] == data['wishlistID']:
+                wishlistID = data['wishlistID']
+                break
+        if wishlistID == None:
+            raise Exception("No Wishlist with inputted ID")
+        for recipe in recipe_data:
+            if recipe['recipeID'] == recipeID:
+                ingredients = recipe['ingredients']
+                break
+        if ingredients == None:
+            raise Exception("No ingredients found with the inputted recipe id")
+        ingredients = json.loads(ingredients)
+
+        for ingredient in ingredients:
+            item = add_wishlist_item_helper(wishlistID,ingredient['name'],ingredient['quantity'],ingredient['unit'])
+
+        return jsonify({
+                'success': True,
+                'wishlistID': wishlistID
+            })
+    except:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        return jsonify({
+            'success': False
+        })
+    
+#HELPER METHOD FOR ADD ITEM TO WISHLIST
+def add_wishlist_item_helper(wishlistID, name, quantity, unit):
+    try:
+        itemID = insert_data('WishlistItems', {
+            'wishlistID': wishlistID,
+            'name': name,
+            'quantity': quantity,
+            'unit': unit
+        })
+        return {
+            'name': name,
+            'quantity': quantity,
+            'unit': unit,
+            'itemID': itemID
+        }
+    except Exception as e:
+        print("EXCEPTION")
+        logging.exception("error_log")
+        raise e
+#HELPER METHOD
+def get_table_content_with_key(table, key, id):
+    contents = view_data(table)
+    toReturn = []
+    for content in contents:
+        if content[key] == id:
+            toReturn.append(content)
+    return toReturn
+          
 
 # @app.route('/',methods=['POST','GET'])
 # def index(consoleInfo=""):
