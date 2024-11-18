@@ -255,13 +255,20 @@ def get_user_fridges():
     try:
         username = request.args.get('username')
         fridge_access_data = view_data('FridgeAccess')
-        fridge_ids = []
+        fridge_ids = set()
         for access in fridge_access_data:
             if access['username'] == username:
-                fridge_ids.append(access['fridgeID'])
+                fridge_ids.add(access['fridgeID'])
+
+        fridge_data = view_data('Fridge')
+        fridges = []
+        for fridge in fridge_data:
+            if fridge['fridgeID'] in fridge_ids:
+                fridges.append(fridge)
+
         return jsonify({
             'success': True,
-            'fridgeIDs': fridge_ids
+            'fridges': fridges
         })
     except:
         print("EXCEPTION")
