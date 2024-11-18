@@ -1,0 +1,197 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #1a1a1a;
+  color: white;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background-color: #1a1a1a;
+  border-bottom: 1px solid #333;
+}
+
+.logo a {
+  color: white;
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.navLinks {
+  display: flex;
+  gap: 40px;
+}
+
+.navLinks a {
+  color: #888;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.2s;
+}
+
+.navLinks a:hover,
+.navLinks a.active {
+  color: white;
+}
+
+.content {
+  display: flex;
+  padding: 20px;
+  height: calc(100vh - 80px);
+  gap: 20px;
+}
+
+.fridgeList {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fridgeItem {
+  padding: 12px 16px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.fridgeItem:hover,
+.fridgeItem.selected {
+  color: white;
+}
+
+.wishlistContainer {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+}
+
+.wishlist {
+  flex: 0 0 400px;
+  background-color: #262626;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 140px);
+}
+
+.wishlistHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.wishlistHeader h2 {
+  font-size: 24px;
+  font-weight: normal;
+  margin: 0;
+}
+
+.deleteButton {
+  background-color: #333;
+  color: #ff4444;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.deleteButton:hover {
+  background-color: #ff4444;
+  color: white;
+}
+
+.itemList {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  gap: 12px;
+  color: #888;
+}
+
+.listItem.checked {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.itemNumber {
+  min-width: 24px;
+}
+
+.itemName {
+  flex: 1;
+  cursor: text;
+}
+
+.itemInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #444;
+  color: white;
+  font-size: 14px;
+  padding: 4px 0;
+}
+
+.itemInput:focus {
+  outline: none;
+  border-bottom-color: #666;
+}
+
+.quantity {
+  color: #888;
+}
+
+.addItemButton {
+  color: #888;
+  padding: 12px 0;
+  cursor: pointer;
+  text-align: center;
+  border-top: 1px solid #333;
+  margin-top: 12px;
+}
+
+.addItemButton:hover {
+  color: white;
+}
+
+.importButton {
+  width: 100%;
+  padding: 12px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.importButton:hover {
+  background-color: #444;
+}
+
+.loadingContainer {
+  display: flex;
+}
