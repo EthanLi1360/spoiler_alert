@@ -5,7 +5,7 @@ import styles from "./LoginPage.module.css"
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import useToken from "../Util";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function LoginPage() {
   // let auth = getAuth();
@@ -32,7 +32,6 @@ function LoginPage() {
       })
       .then((response) => {
         if (response.data.success) {
-          alert("Login successful!");
           setToken(username, response.data.token);
           navigate("/");
         } else {
@@ -70,9 +69,12 @@ function LoginPage() {
             required
           />
         </div>
-        <button type="submit" class="submit">
-          Login
-        </button>
+        <div className={styles.buttonContainer}>
+          <button type="submit" className={styles.submit}>
+            Login
+          </button>
+          <Link to={"/"} style={{width: "100%", flex: 1}}><button className={styles.back}>Back</button></Link>
+        </div>
       </form>
     </div>
   );

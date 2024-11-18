@@ -5,6 +5,7 @@ import axios from "axios";
 // sorry!!!! we can (and maybe should) pivot back later
 // TODO check for duplicate username
 // import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { Link } from "react-router-dom";
 
 function SignupPage() {
   // const auth = getAuth();
@@ -30,8 +31,13 @@ function SignupPage() {
         password: password,
       })
       .then((response) => {
-        setSuccessMessage("Signup successful! Welcome, " + username);
-        setErrorMessage("");
+        if (response.data.success) {
+          setSuccessMessage("Signup successful! Welcome, " + username);
+          setErrorMessage("");
+        } else {
+          setSuccessMessage("");
+          setErrorMessage("Signup failed. Duplicate username");
+        }
       })
       .catch((error) => {
         setErrorMessage(error.message);
@@ -85,9 +91,12 @@ function SignupPage() {
             required
           />
         </div>
-        <button type="submit" className={styles.submit}>
-          Signup
-        </button>
+        <div className={styles.buttonContainer}>
+          <button type="submit" className={styles.submit}>
+            Signup
+          </button>
+          <Link to={"/"} style={{width: "100%", flex: 1}}><button className={styles.back}>Back</button></Link>
+        </div>
         {errorMessage && <p className={styles.error}>{errorMessage}</p>}
         {successMessage && <p className={styles.success}>{successMessage}</p>}
       </form>
