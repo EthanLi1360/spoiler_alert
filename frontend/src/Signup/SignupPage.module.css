@@ -57,10 +57,9 @@ input:focus {
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.2); /* Glow on focus */
 }
 
-button.submit {
+.submit, .back {
   width: 100%;
   padding: 10px;
-  background-color: #444; /* Dark button */
   color: white;
   border: none;
   border-radius: 5px;
@@ -69,9 +68,24 @@ button.submit {
   font-weight: 500;
 }
 
-button.submit:hover {
-  background-color: #555; /* Lighter on hover */
-  transform: scale(1.02); /* Slight scale effect */
+.submit {
+  background-color: #55e; /* Dark button */
+  flex: 2;
+  margin-right: 10px;
+}
+
+.back {
+  background-color: #444; /* Dark button */
+}
+
+.submit:hover {
+  background-color: #66f;
+  transform: scale(1.02); /* Slight hover effect */
+}
+
+.back:hover {
+  background-color: #555;
+  transform: scale(1.02); /* Slight hover effect */
 }
 
 .error {
@@ -84,4 +98,8 @@ button.submit:hover {
   color: #4caf50; /* Green for success */
   text-align: center;
   margin-top: 10px;
+}
+
+.buttonContainer {
+  display: flex;
 }

@@ -38,7 +38,7 @@ h2 {
 
 input[type="text"],
 input[type="password"] {
-  width: 90%;
+  width: 92.5%;
   padding: 10px;
   border: 1px solid #333;
   border-radius: 5px;
@@ -56,10 +56,9 @@ input:focus {
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.2); /* Soft glow on focus */
 }
 
-.submit {
+.submit, .back {
   width: 100%;
   padding: 10px;
-  background-color: #444; /* Dark button */
   color: white;
   border: none;
   border-radius: 5px;
@@ -68,7 +67,22 @@ input:focus {
   font-weight: 500;
 }
 
+.submit {
+  background-color: #55e; /* Dark button */
+  flex: 2;
+  margin-right: 10px;
+}
+
+.back {
+  background-color: #444; /* Dark button */
+}
+
 .submit:hover {
+  background-color: #66f;
+  transform: scale(1.02); /* Slight hover effect */
+}
+
+.back:hover {
   background-color: #555;
   transform: scale(1.02); /* Slight hover effect */
 }
@@ -78,3 +92,8 @@ input:focus {
   text-align: center;
   margin-top: 10px;
 }
+
+.buttonContainer {
+  display: flex;
+}
+

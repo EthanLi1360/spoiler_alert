@@ -1,9 +1,5 @@
-.container {
-    width: 100%;
-    background-color: black;
-  }
 .title {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://s3-alpha-sig.figma.com/img/e74d/3231/1b67e536cfaf2c385819665d85227132?Expires=1730073600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=QVeaT7p7-Y6viQpQMxAVeinFLy8lsmrpLdBYWmJmeWkgUdcu0uuatDL71YYQzR9D~-tw15YNiqrM6GToghT7oH0IA5laS08yDt6TsyaNJyyNwNZ8eFpmEwQ4BNv1WuPXjH4CMN-Amdv-x64Gvsz5iG52VikHsF4gyTrsz4AvlKRw87PRmV8DEWgt7dDVPOC58GYSvW8JjpD5zSvUb6PIgMn2kJtPPwGOSa4-y76CeR7zmLhx58zkUsV4ziNN9~NI-yDCTzt-gAtPOKRnll6UNRxuq-dZ0WCal95xlgc6HyId6i4k9FFyRmpnEascwGqIqZHeAVhXKCCjy0C8LKwslA__");
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("../closed_fridge.png");
     background-repeat: no-repeat;
     background-position: center;
     background-size: 40%;
