@@ -4,7 +4,11 @@ import styles from './FridgePage.module.css';
 import closedFridge from '../closed_fridge.png';
 import openFridge from './open_fridge.png';
 
+import axios from 'axios';
+
 const FridgePage = () => {
+  const [fridge, setFridge] = useState('');
+
   const [foods, setFoods] = useState([]);
   const [name, setName] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
@@ -18,6 +22,33 @@ const FridgePage = () => {
   const [foodSearchedName, setFoodSearchedName] = useState('');
   const [foodsSearched, setFoodsSearched] = useState([]);
 
+  useEffect(() => {
+    const username = localStorage.getItem("username");
+    axios.get("http://127.0.0.1:5000/get_fridges?username="+username)
+      .then((response) => {
+        if (response.data.success) {
+          const fridges = response.data.fridges;
+          if (fridges.length == 0) {
+            axios.post("http://127.0.0.1:5000/add_fridge", {
+              username: localStorage.getItem("username"),
+              name: "My first fridge"
+            }).then(
+              axios.get("http://127.0.0.1:5000/get_fridges?username="+username)
+              .then((response) => {
+                if (response.data.success) {
+                  const fridges = response.data.fridges;
+                  setFridge(fridges[0]);
+                }
+              })
+              .catch((error) => alert(error))
+            );
+            } else {
+              setFridge(fridges[0]);
+            }
+        }
+      })
+  }, []);
+
   const FridgeCategories = {
     DAIRY: 'Dairy Products',
     FRUITS: 'Fruits',
@@ -30,27 +61,49 @@ const FridgePage = () => {
     OTHERS: 'Other Items',
   };
 
-  const toggleFridge = () => {
+  const toggleFridge = async () => {
+    if (!isFridgeOpen) {
+      await axios.get("http://127.0.0.1:5000/get_fridge_contents?fridgeID="+fridge.fridgeID)
+        .then((response) => {
+          if (response.data.success) {
+            setFoods(response.data.items);
+          } else {
+            alert(fridge.name);
+          }
+        })
+    }
     setIsFridgeOpen(!isFridgeOpen);
   };
 
-  const addFoodItem = () => {
-    const newItem = {
-      name,
-      expirationDate,
-      quantity,
-      category,
-      isInFreezer,
-      id: Date.now(),
-    };
-    setFoods([...foods, newItem]);
-    setName('');
-    setExpirationDate('');
-    setQuantity('');
-    setCategory('');
-    setSuggestedExpirationTime('');
-    setSuggestedCategory('');
-    setIsInFreezer(false);
+  const addFoodItem = async () => {
+    const response = await axios
+      .post("http://127.0.0.1:5000/add_fridge_content", {
+        username: localStorage.getItem("username"),
+        fridgeID: fridge.fridgeID,
+        quantity: quantity,
+        unit: "Other",
+        expirationDate: expirationDate,
+        name: name,
+        category: category,
+        isInFreezer: isInFreezer ? 1 : 0
+      });
+      
+    if (response.data.success) {
+      axios.get("http://127.0.0.1:5000/get_fridge_contents?fridgeID="+fridge.fridgeID)
+        .then((response) => {
+          if (response.data.success) {
+            setFoods(response.data.items);
+          }
+        });
+
+      setName('');
+      setExpirationDate('');
+      setQuantity('');
+      setCategory('');
+      setSuggestedExpirationTime('');
+      setSuggestedCategory('');
+      setIsInFreezer(false);
+    }
   };
 
   const confirmSuggestion = () => {
@@ -127,10 +180,30 @@ const FridgePage = () => {
     setFoodsSearched(results);
   };
 
-  const deleteFoodItem = (id) => {
-    const updatedFoods = foods.filter(food => food.id !== id);
-    setFoods(updatedFoods);
-    setFoodsSearched(foodsSearched.filter(food => food.id !== id));
+  const deleteFoodItem = async (id) => {
+    alert(id);
+    const response = await axios
+      .delete("http://127.0.0.1:5000/delete_fridge_content", {
+        data: {
+          fridgeID: fridge.fridgeID,
+          itemID: id
+        }
+      })
+      .catch((error) => {
+        alert(error.message);
+        return;
+      });
+      
+    if (response.data.success) {
+      axios.get("http://127.0.0.1:5000/get_fridge_contents?fridgeID="+fridge.fridgeID)
+        .then((response) => {
+          if (response.data.success) {
+            setFoods(response.data.items);
+          } else {
+            alert("oops, items bugged");
+          }
+        });
+    }
   };
 
   const formatDate = (date) => {
@@ -141,7 +214,7 @@ const FridgePage = () => {
   return (
     <div className={styles.container}>
       <Navbar />
-      <h2 className={styles.header}>My Fridge</h2>
+      <h2 className={styles.header}>{fridge.name}</h2>
 
       <div className={styles.sortSection}>
         <span>Sort by:</span>
@@ -175,7 +248,7 @@ const FridgePage = () => {
         {isFridgeOpen && (
           <div className={styles.foodGrid}>
             {foods.map((food) => (
-              <div key={food.id} className={styles.foodItem}>
+              <div key={food.itemID} className={styles.foodItem}>
                 <span>{`${food.name} - ${food.quantity} grams, ${formatDate(food.expirationDate)}`}</span>
               </div>
             ))}
@@ -243,12 +316,12 @@ const FridgePage = () => {
         <button onClick={searchFoodItem}>Search</button>
         <ul>
           {foodsSearched.map((food) => (
-            <li key={food.id} className={styles.foodSearch}>
+            <li key={food.itemID} className={styles.foodSearch}>
               <p>Information of {food.name}</p>
               <span>{food.name} -- {food.quantity} grams</span>
               <span>Created at {food.creationDate}</span>
               <span>Expires on: {formatDate(food.expirationDate)}</span>
-              <button onClick={() => deleteFoodItem(food.id)}>Delete this food item</button>
+              <button onClick={() => deleteFoodItem(food.itemID)}>Delete this food item</button>
             </li>
           ))}
         </ul>
