@@ -7,6 +7,7 @@
   gap: 20px;
   height:auto;
   position: relative;
+  margin-left: 50px;
 }
 
 /* Slider window (visible area) */
@@ -17,6 +18,9 @@
   display: flex;
   justify-content: center;
   position: relative;
+  background-color: #222;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 /* Slider track (moving container) */
@@ -30,8 +34,6 @@
 
 /* Individual slider item */
 .sliderItem {
-  display: flex;
-  flex-direction: row;
   text-align: center;
   background-color: transparent;
   color: white;
@@ -48,8 +50,16 @@
   cursor: pointer;
 }
 
+.inputContainer {
+  width: 100%;
+  padding: 5px;
+}
+
 .inputFridgeName {
-  background-color: transparent;
-  display: flex;
-  flex-direction: row;
+  text-align: center;
+}
+
+.inputFridgeButton {
+  flex: 1;
+  min-width: 100px;
 }

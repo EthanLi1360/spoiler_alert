@@ -16,6 +16,9 @@ function Recipes() {
     const [savedRecipes, setSavedRecipes] = useState([]);
     const [viewSaved, setViewSaved] = useState(false);
 
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [fridges, setFridges] = useState([]);
+
     const makePrompt = async (existedRecipe, restrictions=null) => {
         console.log("current fridge:")
         console.log(currentFridge)
@@ -105,15 +108,16 @@ function Recipes() {
         <div className={styles.page}>
             <Navbar />
             <div className={styles.container}>
-                <div className={styles.meun}>
-                    <Spinner />
+                <div>
                     {/* <FridgeNav setActiveFridge={(e) => setCurrentFridge(e)}/> */}
                     {currentFridge != null ?
                         <>
-                        <button className={styles.menuItem} onClick={onButtonClick}>{AIloading ? "Generating..." : "Generate Recipes"}</button> 
-                        <button className={styles.menuItem} onClick={toogleViewSaved}>{viewSaved ? "Choose new Recipes" : "Saved Recipes"}</button>
+                            <p className={styles.menuHeader}>{currentFridge.name}</p>
+                            <button className={styles.menuItem} onClick={onButtonClick}>{AIloading ? "Generating..." : "Generate Recipes"}</button> 
+                            <button className={styles.menuItem} onClick={toogleViewSaved}>{viewSaved ? "Choose new Recipes" : "Saved Recipes"}</button>
+                            <button className={styles.menuItem} onClick={() => setCurrentFridge(null)}>Back</button>
                         </>
-                        : ""
+                    : <Spinner setCurrentFridge={setCurrentFridge} />
                     }
                 </div>
                 

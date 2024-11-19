@@ -17,6 +17,16 @@
     flex-wrap: nowrap;
 }
 
+.menuHeader {
+    color: white;
+    border: none;
+    background-color: transparent;
+    font-size: 30px;
+    padding-left: 50px;
+    padding-bottom: 10px;
+    font-weight: 700;
+}
+
 .menuItem {
     display: flex;
     color: white;
