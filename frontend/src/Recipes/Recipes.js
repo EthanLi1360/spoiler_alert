@@ -17,6 +17,8 @@ function Recipes() {
     const [viewSaved, setViewSaved] = useState(false);
 
     const makePrompt = async (existedRecipe, restrictions=null) => {
+        console.log("current fridge:")
+        console.log(currentFridge)
         let ingredients = await getFridgeContents(1);
         console.log("Ingredients:", ingredients);
       
@@ -105,7 +107,7 @@ function Recipes() {
             <div className={styles.container}>
                 <div className={styles.meun}>
                     <Spinner />
-                    <FridgeNav setActiveFridge={(e) => setCurrentFridge(e)}/>
+                    {/* <FridgeNav setActiveFridge={(e) => setCurrentFridge(e)}/> */}
                     {currentFridge != null ?
                         <>
                         <button className={styles.menuItem} onClick={onButtonClick}>{AIloading ? "Generating..." : "Generate Recipes"}</button> 

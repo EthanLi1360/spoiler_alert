@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./Spinner.module.css";
+import axios from "axios";
 
 const Spinner = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -7,21 +8,45 @@ const Spinner = () => {
   const [centerOffset, setCenterOffset] = useState(0);
   const [isCreating, setIsCreating] = useState(false);
   const [newFridgeName, setNewFridgeName] = useState("");
+  const username = localStorage.getItem("username");
   const [Fridges, setFridges] = useState(["Fridge 1", "Fridge 2", "Fridge 3"])
 
   useEffect(() => {
+    const fetchFridges = async () => {
+      try {
+          const username = localStorage.getItem('username');
+          axios.get("http://127.0.0.1:5000/get_fridges?username="+username)
+              .then((response) => {
+                console.log("AAAA")
+                console.log(response)
+                  if (response.data.success) {
+                    setFridges(response.data.fridges.map((e) => e.name));
+                  }
+              });
+      } catch (error) {
+          console.error("Error fetching fridges:", error);
+      }
+    };
+    fetchFridges();
+
     if (!sliderRef.current) return;
 
     const sliderWindow = document.querySelector(`.${styles.sliderWindow}`);
-    const sliderWindowHeight = sliderWindow.offsetHeight;
-    setCenterOffset(sliderWindowHeight / 2);
-  }, []);
+    // const sliderWindowHeight = sliderWindow.offsetHeight;
+    // setCenterOffset(sliderWindowHeight / 2);
+  }, [sliderRef]);
+
+
 
   const handleClick = (itemIndex) => {
     setCurrentIndex(itemIndex)
   }
 
   const createFridge = (newFridge) => {
+     axios.post("http://127.0.0.1:5000/add_fridge", {
+      username: localStorage.getItem("username"),
+      name: newFridge
+    })
     setFridges([...Fridges, newFridge])
   }
 
