@@ -6,8 +6,10 @@ import Navbar from "../Navbar/Navbar"
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
+import { ResetTvOutlined } from '@mui/icons-material';
 
-function Wishlist({ wishlist, deleteWishlist }) {
+function Wishlist({ wishlist, deleteWishlist, selectedFridge }) {
+    const [recipes, setRecipes] = useState([])
     const [wishlistItems, setWishlistItems] = useState([]);
     const [checkedItems, setCheckedItems] = useState({});
     const [editingItem, setEditingItem] = useState(null);
@@ -93,7 +95,43 @@ function Wishlist({ wishlist, deleteWishlist }) {
     };
 
     const handleImportRecipe = async () => {
-        // try {
+        // importing the recipes
+        try {
+            // console.log("The selected fridge is: "+selectedFridge)
+            axios.get('http://127.0.0.1:5000/view_saved_recipes?fridgeID='+selectedFridge)
+                .then((response) => {
+                    if (response.data.success) {
+                        setRecipes(response.data.items);
+                    }
+                });
+        } catch (error) {
+            console.error("Error while getting the recipes corresponding to this fridge")
+        }
+
+        // creating the dropdown from which you can select the recipe which to include
+        if (!recipes.length) {
+            console.error("Cannot add items from recipes if you have no recipes!")
+        }
+
+        // HERE GOES THE DROPDOWN
+        
+        // END OF DROPDOWN
+        const currRecipe = recipes[0];
+        try {
+            axios.post('http://127.0.0.1:5000/add_all_recipe_ingredients_to_wishlist?recipeID?='+currRecipe+'&?wishlistID='+wishlist.id)
+                .then((response) => {
+                    if (response.data.success) {
+                        setWishlistItems(prev => ({
+                            ...prev,
+                            items: [...prev.items, ...response.items]
+                        }));
+                    }
+                });
+
+        } catch (error) {
+            console.error("Error importing recipe (although recipes were received):", error);
+        }
+        //try {
         //     const result = await api.importRecipe(1, wishlist.id);
         //     if (result.success) {
         //         setWishlist(prev => ({
@@ -384,7 +422,7 @@ function WishlistPage() {
 
                 <div className={styles.wishlistContainer}>
                     {wishlists.map((wishlist) => {
-                        return <Wishlist wishlist={wishlist} deleteWishlist={deleteWishlist} />
+                        return <Wishlist wishlist={wishlist} deleteWishlist={deleteWishlist} selectedFridge={selectedFridge} />
                     })}
                     <div className={styles.newWishlistButton}>
                         <input
