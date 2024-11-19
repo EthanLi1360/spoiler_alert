@@ -13,15 +13,12 @@ const FridgePage = () => {
   const [name, setName] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [unit, setUnit] = useState('');
   const [category, setCategory] = useState('');
   const [isInFreezer, setIsInFreezer] = useState(false);
   const [suggestedExpirationTime, setSuggestedExpirationTime] = useState('');
   const [suggestedCategory, setSuggestedCategory] = useState('');
   const [queryOption, setQueryOption] = useState('');
   const [isFridgeOpen, setIsFridgeOpen] = useState(false);
-  const [isViewSelected, setIsViewSelected] = useState(false);
-  const [isAddSelected, setIsAddSelected] = useState(false);
   const [foodSearchedName, setFoodSearchedName] = useState('');
   const [foodsSearched, setFoodsSearched] = useState([]);
 
@@ -84,7 +81,7 @@ const FridgePage = () => {
         username: localStorage.getItem("username"),
         fridgeID: fridge.fridgeID,
         quantity: quantity,
-        unit: unit,
+        unit: "Other",
         expirationDate: expirationDate,
         name: name,
         category: category,
@@ -219,7 +216,7 @@ const FridgePage = () => {
       <Navbar />
       <h2 className={styles.header}>{fridge.name}</h2>
 
-      {isViewSelected && <div className={styles.sortSection}>
+      <div className={styles.sortSection}>
         <span>Sort by:</span>
         <select
           name="sort_foods"
@@ -227,7 +224,7 @@ const FridgePage = () => {
           onChange={(e) => setQueryOption(e.target.value)}
         >
           <option value="" disabled>Select an option</option>
-          {['name', 'expirationDate', 'quantity', 'unit', 'category', 'isInFreezer'].map((option) => (
+          {['name', 'expirationDate', 'quantity', 'category', 'isInFreezer'].map((option) => (
             <option key={option} value={option}>{option}</option>
           ))}
         </select>
@@ -237,7 +234,7 @@ const FridgePage = () => {
           );
           setFoods(sortedFoods);
         }}>Sort</button>
-      </div>}
+      </div>
 
       <div className={styles.fridgeWrapper}>
         <div className={styles.fridgeContainer}>
@@ -247,31 +244,19 @@ const FridgePage = () => {
             className={styles.fridgeImage}
             onClick={toggleFridge}
           />
-        {isFridgeOpen && (
-          <>
-          <br></br>
-          <button onClick={() => {
-            setIsAddSelected(!isAddSelected);
-          }}>Add</button>
-          <br></br>
-          <button onClick={() => {
-            setIsViewSelected(!isViewSelected);
-          }}>View</button>
-          </>
-        )}
         </div>
         {isFridgeOpen && (
           <div className={styles.foodGrid}>
             {foods.map((food) => (
               <div key={food.itemID} className={styles.foodItem}>
-                <span>{`${food.name} - ${food.quantity} ${food.unit}, ${formatDate(food.expirationDate)}`}</span>
+                <span>{`${food.name} - ${food.quantity} grams, ${formatDate(food.expirationDate)}`}</span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {isAddSelected && (
+      {isFridgeOpen && (
         <div className={styles.userInput}>
           <div className={styles.inlineForm}>
             <input
@@ -282,30 +267,10 @@ const FridgePage = () => {
             />
             <input
               type="number"
-              placeholder="Quantity"
+              placeholder="Quantity (grams)"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
             />
-            <select name="unit" 
-              type="number"
-              onChange={(e) => setUnit(e.target.value)}
-            >
-              <option disabled selected value>--Select an Option--</option>
-              <option value="g">Grams</option>
-              <option value="kg">Kilograms</option>
-              <option value="mL">Mililiters</option>
-              <option value="L">Liters</option>
-              <option value="tsp">Teaspoons</option>
-              <option value="tbsp">Tablespoons</option>
-              <option value="c">Cups</option>
-              <option value="pt">Pints</option>
-              <option value="qt">Quarts</option>
-              <option value="gal">Gallons</option>
-              <option value="oz">Ounces</option>
-              <option value="fl-oz">Fluid ounces</option>
-              <option value="lb">Pounds</option>
-              <option value="unit(s)">Units</option>
-            </select>
             <label>In Freezer?</label>
             <input
               type="checkbox"
@@ -340,7 +305,7 @@ const FridgePage = () => {
         </div>
       )}
 
-      {isViewSelected && <div className={styles.searchBar}>
+      <div className={styles.searchBar}>
         <h3>Search the name of an item to modify</h3>
         <input
           type="text"
@@ -353,7 +318,7 @@ const FridgePage = () => {
           {foodsSearched.map((food) => (
             <li key={food.itemID} className={styles.foodSearch}>
               <p>Information of {food.name}</p>
-              <span>{food.name} -- {food.quantity} {food.unit}</span>
+              <span>{food.name} -- {food.quantity} grams</span>
               <span>Created at {food.creationDate}</span>
               <span>Expires on: {formatDate(food.expirationDate)}</span>
               <button onClick={() => deleteFoodItem(food.itemID)}>Delete this food item</button>
@@ -361,7 +326,6 @@ const FridgePage = () => {
           ))}
         </ul>
       </div>
-      }
     </div>
   );
 };

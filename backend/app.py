@@ -577,6 +577,8 @@ def delete_wishlist():
     try:
         fridgeID = request.args.get('fridgeID')
         wishlistID = request.args.get('wishlistID')
+        print(fridgeID)
+        print(wishlistID)
         delete_data_multiple_columns('Wishlist', [fridgeID, wishlistID], ['fridgeID', 'wishlistID'])
         return jsonify({
             'success': True

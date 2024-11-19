@@ -4,13 +4,16 @@ import styles from "./Wishlist.module.css";
 
 import Navbar from "../Navbar/Navbar"
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 
-function Wishlist({ wishlist }) {
+function Wishlist({ wishlist, deleteWishlist }) {
     const [wishlistItems, setWishlistItems] = useState([]);
     const [checkedItems, setCheckedItems] = useState({});
     const [editingItem, setEditingItem] = useState(null);
     const [tempName, setTempName] = useState("");
+    const [tempQuantity, setTempQuantity] = useState(null);
+    const [tempUnits, setTempUnits] = useState("");
 
     const refreshWishlist = async () => {
         axios.get("http://127.0.0.1:5000/get_wishlist_items?wishlistID="+wishlist.wishlistID)
@@ -53,11 +56,18 @@ function Wishlist({ wishlist }) {
 
     const changeEditingItem = (item) => {
         if (item == null) {
-            axios.patch("http://127.0.0.1:5000/update_wishlist_item", {
+            const obj = {
                 "wishlistID": wishlist.wishlistID,
                 "itemID": editingItem,
                 "name": tempName
-            }).then((response) => {
+            }
+            if (tempQuantity != null) {
+                obj.quantity = tempQuantity;
+            }
+            if (tempUnits != null) {
+                obj.unit = tempUnits;
+            }
+            axios.patch("http://127.0.0.1:5000/update_wishlist_item", obj).then((response) => {
                 if (response.data.success) {
                     refreshWishlist();
                     setEditingItem(null);
@@ -66,20 +76,14 @@ function Wishlist({ wishlist }) {
         } else {
             setEditingItem(item.itemID);
             setTempName(item.name);
+            setTempQuantity(item.quantity);
+            setTempUnits(item.unit);
         }
     }
 
-    const handleItemEdit = (itemId, newName) => {
-        setTempName(newName);
-        // setWishlistItems(prev => ({
-        //     ...prev,
-        //     items: prev.items.map(item =>
-        //         item.itemID === itemId
-        //             ? { ...item, name: newName }
-        //             : item
-        //     )
-        // }));
-    };
+    // const handleItemEdit = (itemId, newName) => {
+    //     setTempName(newName);
+    // };
 
     const handleCheckItem = (itemId) => {
         setCheckedItems(prev => ({
@@ -128,18 +132,18 @@ function Wishlist({ wishlist }) {
     return (
         <div className={styles.wishlist}>
             <div className={styles.wishlistHeader}>
-                <div style={{display: 'flex', alignItems: 'center'}}>
+                <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
                     <h2 style={{marginRight: '10px'}}>{wishlist.name}</h2>
-                    <EditIcon />
+                    <div style={{flex: 1}}/>
+                    {(Object.values(checkedItems).some(Boolean)) ? (
+                        <button
+                            className={styles.deleteButton}
+                            onClick={handleDeleteChecked}
+                        >
+                            Delete Selected
+                        </button>
+                    ) : <DeleteIcon style={{color: "red", cursor: "pointer"}} onClick={() => {deleteWishlist(wishlist.wishlistID)}} />}
                 </div>
-                {Object.values(checkedItems).some(Boolean) && (
-                    <button
-                        className={styles.deleteButton}
-                        onClick={handleDeleteChecked}
-                    >
-                        Delete Selected
-                    </button>
-                )}
             </div>
             <div className={styles.itemList}>
                 {wishlistItems.map((item, index) => (
@@ -155,27 +159,52 @@ function Wishlist({ wishlist }) {
                         />
                         <span className={styles.itemNumber}>{index + 1}.</span>
                         {editingItem === item.itemID ? (
-                            <input
-                                type="text"
-                                className={styles.itemInput}
-                                value={tempName}
-                                onChange={(e) => handleItemEdit(item.itemID, e.target.value)}
-                                onBlur={() => changeEditingItem(null)}
-                                onKeyPress={(e) => handleKeyPress(e, item.itemID)}
-                                autoFocus
-                            />
+                            <div style={{display: "flex"}}>
+                                <input
+                                    type="text"
+                                    placeholder='Name'
+                                    className={styles.itemInput}
+                                    value={tempName}
+                                    onChange={(e) => {setTempName(e.target.value)}}
+                                    // onBlur={() => changeEditingItem(null)}
+                                    onKeyPress={(e) => handleKeyPress(e, item.itemID)}
+                                    autoFocus
+                                />
+                                <input
+                                    type='number'
+                                    placeholder='#'
+                                    className={styles.unitInput}
+                                    value={tempQuantity}
+                                    onChange={(e) => {setTempQuantity(e.target.value)}}
+                                    // onBlur={() => changeEditingItem(null)}
+                                    onKeyPress={(e) => handleKeyPress(e, item.itemID)}
+                                    autoFocus
+                                />
+                                <input
+                                    type="text"
+                                    placeholder='units'
+                                    className={styles.unitInput}
+                                    value={tempUnits}
+                                    onChange={(e) => {setTempUnits(e.target.value)}}
+                                    // onBlur={() => changeEditingItem(null)}
+                                    onKeyPress={(e) => handleKeyPress(e, item.itemID)}
+                                    autoFocus
+                                />
+                            </div>
                         ) : (
-                            <span
-                                className={styles.itemName}
-                                onDoubleClick={() => changeEditingItem(item)}
-                            >
-                                {item.name}
-                            </span>
+                            <>
+                                <span
+                                    className={styles.itemName}
+                                    onDoubleClick={() => changeEditingItem(item)}
+                                >
+                                    {item.name}
+                                </span>
+                                <div className={styles.quantity}>
+                                    {item.quantity > 1 && `x${item.quantity}`}
+                                    {item.unit && ` ${item.unit}`}
+                                </div>
+                            </>
                         )}
-                        <div className={styles.quantity}>
-                            {item.quantity > 1 && `x${item.quantity}`}
-                            {item.unit && ` ${item.unit}`}
-                        </div>
                     </div>
                 ))}
                 <div
@@ -261,6 +290,7 @@ function WishlistPage() {
     const [selectedFridge, setSelectedFridge] = useState(null);
     const [wishlists, setWishlists] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [newWishlistName, setNewWishlistName] = useState("");
 
     useEffect(() => {
         const fetchFridges = async () => {
@@ -310,12 +340,22 @@ function WishlistPage() {
     const addNewWishlist = () => {
         axios.post("http://127.0.0.1:5000/create_wishlist", {
             fridgeID: selectedFridge,
-            name: "New wishlist"
+            name: newWishlistName
         }).then((response) => {
             if (response.data.success) {
                 fetchWishlists();
+                setNewWishlistName("");
             }
         })
+    }
+
+    const deleteWishlist = (wishlistID) => {
+        axios.delete("http://127.0.0.1:5000/delete_wishlist?wishlistID="+wishlistID+"&fridgeID="+selectedFridge)
+            .then((response) => {
+                if (response.data.success) {
+                    fetchWishlists();
+                }
+            });
     }
 
     if (loading || !wishlists) {
@@ -347,9 +387,18 @@ function WishlistPage() {
 
                 <div className={styles.wishlistContainer}>
                     {wishlists.map((wishlist) => {
-                        return <Wishlist wishlist={wishlist} />
+                        return <Wishlist wishlist={wishlist} deleteWishlist={deleteWishlist} />
                     })}
-                    <button className={styles.newWishlistButton} onClick={addNewWishlist}>Add new wishlist</button>
+                    <div className={styles.newWishlistButton}>
+                        <input
+                            placeholder='Enter name of new wishlist...'
+                            value={newWishlistName}
+                            onChange={(e) => {
+                                setNewWishlistName(e.target.value);
+                            }}
+                        />
+                        <button style={{width: "97.5%"}} onClick={addNewWishlist}>Add new wishlist</button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,5 +1,6 @@
 import styles from "./Navbar.module.css";
 import useToken from "../Util";
+import { Link } from "react-router-dom";
 
 function Navbar() {
     const {token, setToken} = useToken();
@@ -19,9 +20,9 @@ function Navbar() {
                     <li><a href="/login">Login</a></li>
                     <li><a href="/signup">Signup</a></li>
                 </> : <>
-                    <li><p className={styles.logout} onClick={() => {
+                    <li><Link to="/" className={styles.logout} onClick={() => {
                         setToken();
-                    }}>Logout</p></li>
+                    }}>Logout</Link></li>
                     <li><p>Welcome, <b>{localStorage.getItem("username")}</b></p></li>
                 </>
             }
