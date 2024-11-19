@@ -71,31 +71,50 @@ export function getUserFridgeAccess(userID){
         }
     ]; //api call
 }
-
-export function getFridgeContents(fridgeID){
-    return [
-        {
-            "contentID" : 1,
-            "fridgeID" : 1,
-            "itemID" : 1,
-            "quantity" : 1,
-            "unit" : "item",
-            "expirationDate" : Date.now() + 1.814e+9,
-            "addedBy" : 1,
-            "addedAt" : Date.now()
-        },
-        {
-            "contentID" : 2,
-            "fridgeID" : 1,
-            "itemID" : 4,
-            "quantity" : 6,
-            "unit" : "cup",
-            "expirationDate" : Date.now() + 1.814e+9,
-            "addedBy" : 1,
-            "addedAt" : Date.now()
+export async function getFridgeContents(fridgeID) {
+    try {
+        const response = await fetch(`http://127.0.0.1:5000/get_fridge_contents?fridgeID=1`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        const data = await response.json();
+        if (data.success) {
+            return data.items;
+        } else {
+            console.error("Failed to fetch fridge contents");
+            return [];
         }
-    ] //api call
+    } catch (error) {
+        console.error("Error fetching fridge contents:", error);
+        return [];
+    }
 }
+// export function getFridgeContents(fridgeID){
+//     return [
+//         {
+//             "contentID" : 1,
+//             "fridgeID" : 1,
+//             "itemID" : 1,
+//             "quantity" : 1,
+//             "unit" : "item",
+//             "expirationDate" : Date.now() + 1.814e+9,
+//             "addedBy" : 1,
+//             "addedAt" : Date.now()
+//         },
+//         {
+//             "contentID" : 2,
+//             "fridgeID" : 1,
+//             "itemID" : 4,
+//             "quantity" : 6,
+//             "unit" : "cup",
+//             "expirationDate" : Date.now() + 1.814e+9,
+//             "addedBy" : 1,
+//             "addedAt" : Date.now()
+//         }
+//     ] //api call
+// }
 
 export function getFridge(fridgeID){
     return {"fridgeID" : 1, "name" : "John's Fridge", "createdAt" : Date.now()}; //api call
