@@ -168,7 +168,6 @@ function Wishlist({ wishlist, deleteWishlist }) {
                                     onChange={(e) => {setTempName(e.target.value)}}
                                     // onBlur={() => changeEditingItem(null)}
                                     onKeyPress={(e) => handleKeyPress(e, item.itemID)}
-                                    autoFocus
                                 />
                                 <input
                                     type='number'
@@ -178,7 +177,6 @@ function Wishlist({ wishlist, deleteWishlist }) {
                                     onChange={(e) => {setTempQuantity(e.target.value)}}
                                     // onBlur={() => changeEditingItem(null)}
                                     onKeyPress={(e) => handleKeyPress(e, item.itemID)}
-                                    autoFocus
                                 />
                                 <input
                                     type="text"
@@ -188,7 +186,6 @@ function Wishlist({ wishlist, deleteWishlist }) {
                                     onChange={(e) => {setTempUnits(e.target.value)}}
                                     // onBlur={() => changeEditingItem(null)}
                                     onKeyPress={(e) => handleKeyPress(e, item.itemID)}
-                                    autoFocus
                                 />
                             </div>
                         ) : (

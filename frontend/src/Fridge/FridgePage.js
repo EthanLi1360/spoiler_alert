@@ -5,6 +5,7 @@ import closedFridge from '../closed_fridge.png';
 import openFridge from './open_fridge.png';
 
 import axios from 'axios';
+import ShareFridge from '../ShareFridge/ShareFridge';
 
 const FridgePage = () => {
   const [fridge, setFridge] = useState('');
@@ -13,6 +14,7 @@ const FridgePage = () => {
   const [name, setName] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [units, setUnits] = useState('');
   const [category, setCategory] = useState('');
   const [isInFreezer, setIsInFreezer] = useState(false);
   const [suggestedExpirationTime, setSuggestedExpirationTime] = useState('');
@@ -21,6 +23,8 @@ const FridgePage = () => {
   const [isFridgeOpen, setIsFridgeOpen] = useState(false);
   const [foodSearchedName, setFoodSearchedName] = useState('');
   const [foodsSearched, setFoodsSearched] = useState([]);
+
+  const [mode, setMode] = useState("none");
 
   useEffect(() => {
     const username = localStorage.getItem("username");
@@ -81,7 +85,7 @@ const FridgePage = () => {
         username: localStorage.getItem("username"),
         fridgeID: fridge.fridgeID,
         quantity: quantity,
-        unit: "Other",
+        unit: units,
         expirationDate: expirationDate,
         name: name,
         category: category,
@@ -99,6 +103,7 @@ const FridgePage = () => {
       setName('');
       setExpirationDate('');
       setQuantity('');
+      setUnits('');
       setCategory('');
       setSuggestedExpirationTime('');
       setSuggestedCategory('');
@@ -181,7 +186,6 @@ const FridgePage = () => {
   };
 
   const deleteFoodItem = async (id) => {
-    alert(id);
     const response = await axios
       .delete("http://127.0.0.1:5000/delete_fridge_content", {
         data: {
@@ -211,31 +215,10 @@ const FridgePage = () => {
     return new Date(date).toLocaleDateString(undefined, options);
   };
 
-  return (
+  return (<>
+    <Navbar />
     <div className={styles.container}>
-      <Navbar />
       <h2 className={styles.header}>{fridge.name}</h2>
-
-      <div className={styles.sortSection}>
-        <span>Sort by:</span>
-        <select
-          name="sort_foods"
-          value={queryOption}
-          onChange={(e) => setQueryOption(e.target.value)}
-        >
-          <option value="" disabled>Select an option</option>
-          {['name', 'expirationDate', 'quantity', 'category', 'isInFreezer'].map((option) => (
-            <option key={option} value={option}>{option}</option>
-          ))}
-        </select>
-        <button onClick={() => {
-          const sortedFoods = [...foods].sort((a, b) =>
-            String(a[queryOption]).localeCompare(String(b[queryOption]))
-          );
-          setFoods(sortedFoods);
-        }}>Sort</button>
-      </div>
-
       <div className={styles.fridgeWrapper}>
         <div className={styles.fridgeContainer}>
           <img
@@ -244,90 +227,158 @@ const FridgePage = () => {
             className={styles.fridgeImage}
             onClick={toggleFridge}
           />
+          {isFridgeOpen && <>
+            <button style={{width: "150px"}} onClick={() => {mode === "add" ? setMode("") : setMode("add")}}>Add Items</button>
+            <button style={{width: "150px"}} onClick={() => {mode === "view" ? setMode("") : setMode("view")}}>View Items</button>
+            <button style={{width: "150px"}} onClick={() => {mode === "share" ? setMode("") : setMode("share")}}>Share Fridge</button>
+          </>}
         </div>
         {isFridgeOpen && (
-          <div className={styles.foodGrid}>
-            {foods.map((food) => (
-              <div key={food.itemID} className={styles.foodItem}>
-                <span>{`${food.name} - ${food.quantity} grams, ${formatDate(food.expirationDate)}`}</span>
+          <div className={styles.fridgeDetailsContainer}>
+            
+            {foods.length == 0 ? 
+              <div className={styles.emptyFridgeContainer}>
+                <p className={styles.emptyFridgeMessage}>Looks like there's nothing in your fridge!</p>
               </div>
-            ))}
+            : 
+              <div className={styles.foodGrid}>
+                {foods.map((food) => (
+                  <div key={food.itemID} className={styles.foodItem} style={
+                    food.isInFreezer ? {backgroundColor: "#33f"} : (
+                      (Date.parse(food.expirationDate) < Date.now()) ? {backgroundColor: "#a33"} : {}
+                    )
+                  }>
+                    <span className={styles.foodName}>{`${food.name}`}</span>
+                    <span>{`${food.quantity} ${food.unit}`}</span>
+                    <span className={styles.foodCategory}>{`${food.category}`}</span>
+                    <br />
+                    <span>{food.isInFreezer ? "In freezer" : ((Date.parse(food.expirationDate) < Date.now()) ? "Expired" : "Expires")+` ${formatDate(food.expirationDate)}`}</span>
+                  </div>
+                ))}
+              </div>
+            }
+
+            {mode === "add" && <div className={styles.userInput}>
+              <div className={styles.inlineForm}>
+                <input
+                  type="text"
+                  placeholder="Food Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <input
+                  type="number"
+                  placeholder="Quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="Units"
+                  value={units}
+                  onChange={(e) => setUnits(e.target.value)}
+                />
+                <label>In Freezer?</label>
+                <input
+                  type="checkbox"
+                  checked={isInFreezer}
+                  onChange={() => setIsInFreezer(!isInFreezer)}
+                />
+              </div>
+
+              <div className={styles.inlineForm}>
+                <select
+                  name="category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
+                  <option value="" disabled>Select category</option>
+                  {Object.values(FridgeCategories).map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                <input
+                  type="date"
+                  value={expirationDate}
+                  onChange={(e) => setExpirationDate(e.target.value)}
+                  disabled={isInFreezer}
+                />
+              </div>
+
+              <span>Suggested expiration time in days: {suggestedExpirationTime}</span>
+              <span>Suggested category: {suggestedCategory}</span>
+              <button onClick={confirmSuggestion}>Confirm Suggestion</button>
+              <button onClick={addFoodItem}>Add Food Item</button>
+            </div>}
+
+            {mode === "view" && <>
+              <div className={styles.sortSection}>
+                <span>Sort by:</span>
+                <select
+                  name="sort_foods"
+                  value={queryOption}
+                  onChange={(e) => setQueryOption(e.target.value)}
+                >
+                  <option value="" disabled>Select an option</option>
+                  {['name', 'expirationDate', 'quantity', 'category', 'isInFreezer'].map((option) => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+                <button onClick={() => {
+                  const sortedFoods = [...foods].sort((a, b) => {
+                    if (queryOption === 'quantity') {
+                      return a[queryOption] - b[queryOption];
+                    }
+                    if (queryOption === 'expirationDate') {
+                      if (a.isInFreezer && !b.isInFreezer) {
+                        return 1;
+                      } else if (!a.isInFreezer && b.isInFreezer) {
+                        return -1;
+                      }
+                      return Date.parse(a[queryOption]) - Date.parse(b[queryOption]);
+                    }
+                    if (queryOption === 'isInFreezer') {
+                      if (a.isInFreezer && !b.isInFreezer) {
+                        return -1;
+                      } else if (!a.isInFreezer && b.isInFreezer) {
+                        return 1;
+                      }
+                      return 0;
+                    }
+                    return String(a[queryOption]).localeCompare(String(b[queryOption]));
+                  });
+                  setFoods(sortedFoods);
+                }}>Sort</button>
+              </div>
+              <div className={styles.searchBar}>
+                <h3>Search the name of an item to modify</h3>
+                <input
+                  type="text"
+                  placeholder="Search Food Item"
+                  value={foodSearchedName}
+                  onChange={(e) => setFoodSearchedName(e.target.value)}
+                />
+                <button onClick={searchFoodItem}>Search</button>
+                <ul>
+                  {foodsSearched.map((food) => (
+                    <li key={food.itemID} className={styles.foodSearch}>
+                      <p>Information of {food.name}</p>
+                      <span>{food.name} -- {food.quantity} grams</span>
+                      <span>Created at {food.creationDate}</span>
+                      <span>Expires on: {formatDate(food.expirationDate)}</span>
+                      <button onClick={() => deleteFoodItem(food.itemID)}>Delete this food item</button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>}
+
+            {mode === "share" && <ShareFridge activeFridgeID={fridge.fridgeID}/>}
           </div>
         )}
       </div>
-
-      {isFridgeOpen && (
-        <div className={styles.userInput}>
-          <div className={styles.inlineForm}>
-            <input
-              type="text"
-              placeholder="Food Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Quantity (grams)"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-            />
-            <label>In Freezer?</label>
-            <input
-              type="checkbox"
-              checked={isInFreezer}
-              onChange={() => setIsInFreezer(!isInFreezer)}
-            />
-          </div>
-
-          <div className={styles.inlineForm}>
-            <select
-              name="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="" disabled>Select category</option>
-              {Object.values(FridgeCategories).map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-            <input
-              type="date"
-              value={expirationDate}
-              onChange={(e) => setExpirationDate(e.target.value)}
-              disabled={isInFreezer}
-            />
-          </div>
-
-          <span>Suggested expiration time in days: {suggestedExpirationTime}</span>
-          <span>Suggested category: {suggestedCategory}</span>
-          <button onClick={confirmSuggestion}>Confirm Suggestion</button>
-          <button onClick={addFoodItem}>Add Food Item</button>
-        </div>
-      )}
-
-      <div className={styles.searchBar}>
-        <h3>Search the name of an item to modify</h3>
-        <input
-          type="text"
-          placeholder="Search Food Item"
-          value={foodSearchedName}
-          onChange={(e) => setFoodSearchedName(e.target.value)}
-        />
-        <button onClick={searchFoodItem}>Search</button>
-        <ul>
-          {foodsSearched.map((food) => (
-            <li key={food.itemID} className={styles.foodSearch}>
-              <p>Information of {food.name}</p>
-              <span>{food.name} -- {food.quantity} grams</span>
-              <span>Created at {food.creationDate}</span>
-              <span>Expires on: {formatDate(food.expirationDate)}</span>
-              <button onClick={() => deleteFoodItem(food.itemID)}>Delete this food item</button>
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
-  );
+  </>);
 };
 
 export default FridgePage;

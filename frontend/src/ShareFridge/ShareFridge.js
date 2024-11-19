@@ -4,14 +4,14 @@ import styles from "./ShareFridge.module.css";
 import { addFridgeAccess } from "../Util";
 
 function ShareFridge({activeFridgeID}) {
-    const toggleModal = () => {
-        if (modalActive) {
-            setModalCSS(styles.modalBase + " " + styles.animateToHidden);
-        } else {
-            setModalCSS(styles.modalBase + " " + styles.animateToActive);
-        }
-        setModalActive(!modalActive);
-    }
+    // const toggleModal = () => {
+    //     if (modalActive) {
+    //         setModalCSS(styles.modalBase + " " + styles.animateToHidden);
+    //     } else {
+    //         setModalCSS(styles.modalBase + " " + styles.animateToActive);
+    //     }
+    //     setModalActive(!modalActive);
+    // }
 
     const handleSharing = async () => {
         setButtonDisabled(true);
@@ -25,26 +25,26 @@ function ShareFridge({activeFridgeID}) {
             alert("Successfully shared!");
             setUsername("");
             setButtonDisabled(false);
-            setModalActive(!modalActive);
-            setModalCSS(styles.modalBase + " " + styles.animateToHidden);
+            // setModalActive(!modalActive);
+            // setModalCSS(styles.modalBase + " " + styles.animateToHidden);
         }
     }
     
-    const[modalCSS, setModalCSS] = useState(styles.modalBase);
-    const[modalActive, setModalActive] = useState(false);
+    // const[modalCSS, setModalCSS] = useState(styles.modalBase);
+    // const[modalActive, setModalActive] = useState(false);
     const[username, setUsername] = useState("");
     const[buttonDisabled, setButtonDisabled] = useState(false);
 
 
     return (
         <div className={styles.container}>
-            <button onClick={toggleModal}><img src={buttonImage} /></button>
-            <div className={modalCSS}>
-                <div className={styles.modalContainer}>
-                    <input type="text" placeholder="recipient username" className={styles.input} onChange={(e) => setUsername(e.target.value)} value={username} />
-                    <button className={styles.submitButton} onClick={handleSharing} disabled={buttonDisabled}>{buttonDisabled ? "Sharing..." : "Share!"}</button>
-                </div>
-            </div>
+            {/* <button onClick={toggleModal}><img src={buttonImage} /></button> */}
+            {/* <div className={styles.modalBase}>
+                <div className={styles.modalContainer}> */}
+            <input type="text" placeholder="recipient username" className={styles.input} onChange={(e) => setUsername(e.target.value)} value={username} />
+            <button className={styles.submitButton} onClick={handleSharing} disabled={buttonDisabled}>{buttonDisabled ? "Sharing..." : "Share!"}</button>
+                {/* </div>
+            </div> */}
         </div>
     );
 }

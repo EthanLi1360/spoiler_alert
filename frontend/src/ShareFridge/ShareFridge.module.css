@@ -2,15 +2,17 @@
     height: fit-content;
     width: fit-content;
     padding: 0;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
 }
 
-.container > button {
+/* .container > button {
     background-color: rgba(0, 0, 0, 0);
     height: fit-content;
     width: fit-content;
-    margin: 0;
     padding: 0;
-}
+} */
 
 .container button img {
     height: 30px;
@@ -70,6 +72,7 @@
     background-color: rgba(0, 0, 0, 0);
     color: black;
     margin: 0;
+    margin-right: 10px;
 }
 
 .submitButton {
