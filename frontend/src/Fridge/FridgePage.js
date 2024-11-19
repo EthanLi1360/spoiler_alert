@@ -6,6 +6,7 @@ import openFridge from './open_fridge.png';
 
 import axios from 'axios';
 import ShareFridge from '../ShareFridge/ShareFridge';
+import Spinner from '../Recipes/Spinner';
 
 const FridgePage = () => {
   const [fridge, setFridge] = useState('');
@@ -28,34 +29,34 @@ const FridgePage = () => {
 
   const [canOpenFridge, setCanOpenFridge] = useState(false);
 
-  useEffect(() => {
-    const username = localStorage.getItem("username");
-    axios.get("http://127.0.0.1:5000/get_fridges?username="+username)
-      .then((response) => {
-        if (response.data.success) {
-          const fridges = response.data.fridges;
-          if (fridges.length == 0) {
-            axios.post("http://127.0.0.1:5000/add_fridge", {
-              username: localStorage.getItem("username"),
-              name: "My first fridge"
-            }).then(
-              axios.get("http://127.0.0.1:5000/get_fridges?username="+username)
-              .then((response) => {
-                if (response.data.success) {
-                  const fridges = response.data.fridges;
-                  setFridge(fridges[0]);
-                  setCanOpenFridge(true);
-                }
-              })
-              .catch((error) => alert(error))
-            );
-            } else {
-              setFridge(fridges[0]);
-              setCanOpenFridge(true);
-            }
-        }
-      })
-  }, []);
+  // useEffect(() => {
+  //   const username = localStorage.getItem("username");
+  //   axios.get("http://127.0.0.1:5000/get_fridges?username="+username)
+  //     .then((response) => {
+  //       if (response.data.success) {
+  //         const fridges = response.data.fridges;
+  //         if (fridges.length == 0) {
+  //           axios.post("http://127.0.0.1:5000/add_fridge", {
+  //             username: localStorage.getItem("username"),
+  //             name: "My first fridge"
+  //           }).then(
+  //             axios.get("http://127.0.0.1:5000/get_fridges?username="+username)
+  //             .then((response) => {
+  //               if (response.data.success) {
+  //                 const fridges = response.data.fridges;
+  //                 setFridge(fridges[0]);
+  //                 setCanOpenFridge(true);
+  //               }
+  //             })
+  //             .catch((error) => alert(error))
+  //           );
+  //           } else {
+  //             setFridge(fridges[0]);
+  //             setCanOpenFridge(true);
+  //           }
+  //       }
+  //     })
+  // }, []);
 
   const FridgeCategories = {
     DAIRY: 'Dairy Products',
@@ -217,29 +218,70 @@ const FridgePage = () => {
   };
 
   const formatDate = (date) => {
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-    return new Date(date).toLocaleDateString(undefined, options);
+    const dateMillis = Date.parse(date);
+    const dateNow = Date.now();
+    const dateDiff = dateMillis - dateNow;
+    if (dateDiff > 0) {
+      const num = Math.ceil(dateDiff / (1000 * 60 * 60 * 24));
+      if (num === 1) {
+        return "tomorrow";
+      } else {
+        return "in "+num+" days"
+      }
+    } else {
+      const num = Math.floor(dateDiff / (1000 * 60 * 60 * 24));
+      if (num === -1) {
+        return "today";
+      } else {
+        return -num+" days ago"
+      }
+    }
+    // const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    // return new Date(date).toLocaleDateString(undefined, options);
   };
 
   return (<>
     <Navbar />
     <div className={styles.container}>
-      <h2 className={styles.header}>{fridge.name}</h2>
+      {canOpenFridge ? <div>
+        <p className={styles.menuHeader}>{fridge.name}</p>
+        <button className={styles.menuItem} onClick={() => {
+
+          axios.delete("http://127.0.0.1:5000/remove_fridge?fridgeID="+fridge.fridgeID)
+            .then((response) => {
+                if (response.data.success) {
+                  setCanOpenFridge(false);
+                  setIsFridgeOpen(false);
+                }
+              }
+            )
+        }}>Delete Fridge</button>
+        <button className={styles.menuItem} onClick={() => {
+          setCanOpenFridge(false);
+          setIsFridgeOpen(false);
+        }}>Back</button>
+      </div> :
+        <Spinner setCurrentFridge={(value) => {
+          setFridge(value);
+          setCanOpenFridge(true);
+        }} />
+      }
       <div className={styles.fridgeWrapper}>
         <div className={styles.fridgeContainer}>
-          {canOpenFridge ? <>
+          <>
             <img
               src={isFridgeOpen ? openFridge : closedFridge}
               alt="Fridge"
               className={styles.fridgeImage}
               onClick={toggleFridge}
+              style={!canOpenFridge ? {opacity: "25%", cursor: "default"} : {}}
             />
             {isFridgeOpen && <>
               <button style={{width: "150px"}} onClick={() => {mode === "add" ? setMode("") : setMode("add")}}>Add Items</button>
               <button style={{width: "150px"}} onClick={() => {mode === "view" ? setMode("") : setMode("view")}}>View Items</button>
               <button style={{width: "150px"}} onClick={() => {mode === "share" ? setMode("") : setMode("share")}}>Share Fridge</button>
             </>}
-          </> : <p>Loading...</p>}
+          </>
         </div>
         {isFridgeOpen && (
           <div className={styles.fridgeDetailsContainer}>

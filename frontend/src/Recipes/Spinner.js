@@ -2,27 +2,31 @@ import React, { useState, useEffect, useRef } from "react";
 import styles from "./Spinner.module.css";
 import axios from "axios";
 
-const Spinner = () => {
+const Spinner = ({ setCurrentFridge }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const sliderRef = useRef(null);
   const [centerOffset, setCenterOffset] = useState(0);
   const [isCreating, setIsCreating] = useState(false);
   const [newFridgeName, setNewFridgeName] = useState("");
   const username = localStorage.getItem("username");
-  const [Fridges, setFridges] = useState(["Fridge 1", "Fridge 2", "Fridge 3"])
+  const [Fridges, setFridges] = useState([{name: "Loading..."}])
+
+  const refreshFridges = () => {
+    const username = localStorage.getItem('username');
+    axios.get("http://127.0.0.1:5000/get_fridges?username="+username)
+    .then((response) => {
+      console.log("AAAA")
+      console.log(response)
+        if (response.data.success) {
+          setFridges(response.data.fridges);
+        }
+    });
+  }
 
   useEffect(() => {
     const fetchFridges = async () => {
       try {
-          const username = localStorage.getItem('username');
-          axios.get("http://127.0.0.1:5000/get_fridges?username="+username)
-              .then((response) => {
-                console.log("AAAA")
-                console.log(response)
-                  if (response.data.success) {
-                    setFridges(response.data.fridges.map((e) => e.name));
-                  }
-              });
+          refreshFridges();
       } catch (error) {
           console.error("Error fetching fridges:", error);
       }
@@ -47,7 +51,12 @@ const Spinner = () => {
       username: localStorage.getItem("username"),
       name: newFridge
     })
-    setFridges([...Fridges, newFridge])
+      .then((response) => {
+        if (response.data.success) {
+          refreshFridges();
+        }
+      })
+    // setFridges([...Fridges, newFridge])
   }
 
   const toggleIsCreating = () => setIsCreating((prev) => !prev)
@@ -75,7 +84,7 @@ const Spinner = () => {
             transform: `translateY(calc(${centerOffset}px - ${calculateOffset()}px))`,
           }}
         >
-          {Fridges.map((item, index) => (
+          {Fridges.length > 0 ? Fridges.map((item, index) => (
             <div
               key={index}
               className={styles.sliderItem}
@@ -87,31 +96,47 @@ const Spinner = () => {
               }}
               onClick={() => handleClick(index)}
             >
-              {item}
+              {item.name}
             </div>
-          ))}
+          )) : <>
+            <p style={{color: "#aaa", fontSize: "15px"}}>You have no fridges</p>
+          </>}
         </div>
       </div> 
       {
         !isCreating ? (
-          <div className={styles.createFridge} onClick={toggleIsCreating}>
-          Create New Fridge
-          </div>
+          <>
+            <div className={styles.createFridge} onClick={toggleIsCreating}>
+              Create New Fridge
+            </div>
+            <div className={styles.createFridge} onClick={() => {
+              if (Fridges.length > 0) {
+                setCurrentFridge(Fridges[currentIndex]);
+              }
+            }}>
+              Select Current Fridge
+            </div>
+          </>
         ) : (
-          <div className={styles.inputFridgeName}>
-          <input
-          type="text"
-          name="textInput"
-          placeholder="Enter Fridge Name"
-          value={newFridgeName}
-          onChange={(e) => setNewFridgeName(e.target.value)}
-          />
-            <button className={styles.inputFridgeName} onClick={() =>{
-              createFridge(newFridgeName);
-              toggleIsCreating();
-              }}>Create</button>
-            <button className={styles.inputFridgeName} onClick={toggleIsCreating}>Cancel</button>
-          </div>
+          <>
+            <div className={styles.inputContainer}>
+              <input
+                type="text"
+                name="textInput"
+                placeholder="Name"
+                value={newFridgeName}
+                onChange={(e) => setNewFridgeName(e.target.value)}
+                className={styles.inputFridgeName}
+              />
+              <div style={{display: "flex", gap: "10px"}}>
+                <button className={styles.inputFridgeButton} onClick={() =>{
+                  createFridge(newFridgeName);
+                  toggleIsCreating();
+                  }}>Create</button>
+                <button className={styles.inputFridgeButton} onClick={toggleIsCreating}>Cancel</button>
+              </div>
+            </div>
+          </>
         )
       }
     </div>

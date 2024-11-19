@@ -5,10 +5,10 @@ function RecipeDetails({recipe, closeRecipe}) {
         <div className={styles.container}>
             <div className={styles.box}>
                 <div className={styles.header}>
-                    <h3>{recipe.recipe_name}</h3>
+                    <h3>{recipe.name}</h3>
                     <button onClick={closeRecipe}>X</button>
                 </div>
-                <p>{recipe.notes}</p>
+                <p>{recipe.name}</p>
                 <div>
                     <h4>Ingredients</h4>
                     <ol>
@@ -20,9 +20,9 @@ function RecipeDetails({recipe, closeRecipe}) {
                     </ol>
                 </div>
                 <div>
-                    <h4>Directions</h4>
+                    <h4>Instructions</h4>
                     <ol>
-                        {recipe.directions.map((item, index) => {
+                        {recipe.instructions.map((item, index) => {
                             return (
                                 <li>{item}</li>
                             );
