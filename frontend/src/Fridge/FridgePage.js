@@ -26,6 +26,8 @@ const FridgePage = () => {
 
   const [mode, setMode] = useState("none");
 
+  const [canOpenFridge, setCanOpenFridge] = useState(false);
+
   useEffect(() => {
     const username = localStorage.getItem("username");
     axios.get("http://127.0.0.1:5000/get_fridges?username="+username)
@@ -42,12 +44,14 @@ const FridgePage = () => {
                 if (response.data.success) {
                   const fridges = response.data.fridges;
                   setFridge(fridges[0]);
+                  setCanOpenFridge(true);
                 }
               })
               .catch((error) => alert(error))
             );
             } else {
               setFridge(fridges[0]);
+              setCanOpenFridge(true);
             }
         }
       })
@@ -66,17 +70,19 @@ const FridgePage = () => {
   };
 
   const toggleFridge = async () => {
-    if (!isFridgeOpen) {
-      await axios.get("http://127.0.0.1:5000/get_fridge_contents?fridgeID="+fridge.fridgeID)
-        .then((response) => {
-          if (response.data.success) {
-            setFoods(response.data.items);
-          } else {
-            alert(fridge.name);
-          }
-        })
+    if (canOpenFridge) {
+      if (!isFridgeOpen) {
+        await axios.get("http://127.0.0.1:5000/get_fridge_contents?fridgeID="+fridge.fridgeID)
+          .then((response) => {
+            if (response.data.success) {
+              setFoods(response.data.items);
+            } else {
+              alert(fridge.name);
+            }
+          })
+      }
+      setIsFridgeOpen(!isFridgeOpen);
     }
-    setIsFridgeOpen(!isFridgeOpen);
   };
 
   const addFoodItem = async () => {
@@ -221,17 +227,19 @@ const FridgePage = () => {
       <h2 className={styles.header}>{fridge.name}</h2>
       <div className={styles.fridgeWrapper}>
         <div className={styles.fridgeContainer}>
-          <img
-            src={isFridgeOpen ? openFridge : closedFridge}
-            alt="Fridge"
-            className={styles.fridgeImage}
-            onClick={toggleFridge}
-          />
-          {isFridgeOpen && <>
-            <button style={{width: "150px"}} onClick={() => {mode === "add" ? setMode("") : setMode("add")}}>Add Items</button>
-            <button style={{width: "150px"}} onClick={() => {mode === "view" ? setMode("") : setMode("view")}}>View Items</button>
-            <button style={{width: "150px"}} onClick={() => {mode === "share" ? setMode("") : setMode("share")}}>Share Fridge</button>
-          </>}
+          {canOpenFridge ? <>
+            <img
+              src={isFridgeOpen ? openFridge : closedFridge}
+              alt="Fridge"
+              className={styles.fridgeImage}
+              onClick={toggleFridge}
+            />
+            {isFridgeOpen && <>
+              <button style={{width: "150px"}} onClick={() => {mode === "add" ? setMode("") : setMode("add")}}>Add Items</button>
+              <button style={{width: "150px"}} onClick={() => {mode === "view" ? setMode("") : setMode("view")}}>View Items</button>
+              <button style={{width: "150px"}} onClick={() => {mode === "share" ? setMode("") : setMode("share")}}>Share Fridge</button>
+            </>}
+          </> : <p>Loading...</p>}
         </div>
         {isFridgeOpen && (
           <div className={styles.fridgeDetailsContainer}>
