@@ -74,13 +74,14 @@ fridge_content = {
 
 recipe = {
     'recipeID': 'INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT',
+    'fridgeID': 'INT(10) UNSIGNED',
     'name': 'VARCHAR(50) NOT NULL',
     'ingredients': 'TEXT NOT NULL',
     'instructions': 'TEXT NOT NULL',
     'cuisine': 'VARCHAR(50)',
     'dietaryRestrictions': 'VARCHAR(100)',
-    'createdBy': 'INT(10) UNSIGNED',
-    'createdAt': 'DATE'
+    'createdBy': 'VARCHAR(75) NOT NULL',
+    'createdAt': 'DATE',
 }
 
 fridge_access = {
@@ -132,6 +133,8 @@ def reset():
     create_table('Wishlist', wishlist)
     create_table('WishlistItems', wishlist_item)
 
+# remove_table('Recipe')
+# create_table('Recipe', recipe)
 
 # if False:
 # reset()

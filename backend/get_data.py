@@ -42,21 +42,21 @@ def view_data(table_name, conn=conn):
 
     column_names = [i[0] for i in cursor.description]
 
-    print(f"\nData from {table_name}:")
-    print(column_names)
-    for row in rows:
-        print(row)
+    # print(f"\nData from {table_name}:")
+    # print(column_names)
+    # for row in rows:
+    #     print(row)
 
     cursor.close()
-    print("=====rows=====")
-    print(rows)
-    print()
+    # print("=====rows=====")
+    # print(rows)
+    # print()
     return rows
 
-view_data('User')
-view_data('Fridge')
-view_data('FridgeContent')
-view_data('Recipe')
-view_data('FridgeAccess')
-view_data('Wishlist')
-view_data('WishlistItems')
+# view_data('User')
+# view_data('Fridge')
+# view_data('FridgeContent')
+# view_data('Recipe')
+# view_data('FridgeAccess')
+# view_data('Wishlist')
+# view_data('WishlistItems')

@@ -236,6 +236,7 @@ def add_fridge_content():
 def get_fridge_contents():
     print("Get Fridge Content data endpoint hit")
     try:
+        print(int(request.args.get('fridgeID')))
         toReturn = get_fridge_contents_with_id(int(request.args.get('fridgeID')))
         return jsonify({
             'success': True,
@@ -454,21 +455,25 @@ def save_recipe():
     print("Save Recipe data endpoint hit")
     try:
         data = request.get_json()
-        fridgeID = data['fridgeID']
+        print(data)
+        fridgeID = int(data['fridgeID'])
         recipe_data = data['recipe']
         date = datetime.today()
         recipe_data['ingredients'] = json.dumps(recipe_data['ingredients'])
+        recipe_data['instructions'] = json.dumps(recipe_data['instructions'])
         recipe_data['dietaryRestrictions'] = json.dumps(recipe_data['dietaryRestrictions'])
-        recipeID = insert_data('Recipe', {
+        new_recipe = {
             'fridgeID': fridgeID,
             'name': recipe_data['name'],
+            'ingredients': recipe_data['ingredients'],
             'instructions': recipe_data['instructions'],
-            'cuisine': recipe_data['cuisine'],
-            'dietaryRestrictions': recipe_data['dietaryRestrictions'],
             'createdBy': recipe_data['createdBy'],
             'createdAt': date,
-            'ingredients': recipe_data['ingredients']      
-        })
+            'dietaryRestrictions': recipe_data['dietaryRestrictions'],
+            'cuisine': recipe_data['cuisine']
+        }
+
+        recipeID = insert_data('Recipe', new_recipe)
         return jsonify({
             'recipeID': recipeID,
             'success': True
@@ -491,7 +496,8 @@ def view_saved_recipes():
         for recipe in recipes:
             formatted_recipe = {
                 "name": recipe["name"],
-                "instructions": recipe["instructions"],
+                "recipeID": recipe["recipeID"],
+                "instructions": json.loads(recipe["instructions"]),
                 "cuisine": recipe["cuisine"],
                 "dietaryRestrictions": json.loads(recipe["dietaryRestrictions"]),
                 "createdBy": recipe["createdBy"],
@@ -775,6 +781,8 @@ def add_wishlist_item_helper(wishlistID, name, quantity, unit):
 #HELPER METHOD
 def get_table_content_with_key(table, key, id):
     contents = view_data(table)
+    print('contents')
+    print(contents)
     toReturn = []
     for content in contents:
         if content[key] == id:
