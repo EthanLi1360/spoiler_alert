@@ -84,7 +84,7 @@ const Spinner = ({ setCurrentFridge }) => {
             transform: `translateY(calc(${centerOffset}px - ${calculateOffset()}px))`,
           }}
         >
-          {Fridges.map((item, index) => (
+          {Fridges.length > 0 ? Fridges.map((item, index) => (
             <div
               key={index}
               className={styles.sliderItem}
@@ -98,7 +98,9 @@ const Spinner = ({ setCurrentFridge }) => {
             >
               {item.name}
             </div>
-          ))}
+          )) : <>
+            <p style={{color: "#aaa", fontSize: "15px"}}>You have no fridges</p>
+          </>}
         </div>
       </div> 
       {
@@ -107,7 +109,11 @@ const Spinner = ({ setCurrentFridge }) => {
             <div className={styles.createFridge} onClick={toggleIsCreating}>
               Create New Fridge
             </div>
-            <div className={styles.createFridge} onClick={() => setCurrentFridge(Fridges[currentIndex])}>
+            <div className={styles.createFridge} onClick={() => {
+              if (Fridges.length > 0) {
+                setCurrentFridge(Fridges[currentIndex]);
+              }
+            }}>
               Select Current Fridge
             </div>
           </>
