@@ -22,7 +22,7 @@ function Recipes() {
     const makePrompt = async (existedRecipe, restrictions=null) => {
         console.log("current fridge:")
         console.log(currentFridge)
-        let ingredients = await getFridgeContents(1);
+        let ingredients = await getFridgeContents(currentFridge.fridgeID);
         console.log("Ingredients:", ingredients);
       
         let prompt = "Generate me another recipe including but not limited to the following ingredients: ";

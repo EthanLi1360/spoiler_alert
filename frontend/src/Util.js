@@ -73,7 +73,7 @@ export function getUserFridgeAccess(userID){
 }
 export async function getFridgeContents(fridgeID) {
     try {
-        const response = await fetch(`http://127.0.0.1:5000/get_fridge_contents?fridgeID=1`, {
+        const response = await fetch(`http://127.0.0.1:5000/get_fridge_contents?fridgeID=` + fridgeID, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
