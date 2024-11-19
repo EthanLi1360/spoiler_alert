@@ -8,7 +8,7 @@ import {
 import LoginPage from './Login/LoginPage';
 import SignupPage from './Signup/SignupPage';
 import FridgePage from './Fridge/FridgePage';
-import Wishlist from './Wishlist/Wishlist';
+import Wishlist from './Wishlist/WishlistPage';
 import Home from './Home/Home';
 import Recipes from './Recipes/Recipes';
 import AboutPage from './AboutPage/AboutPage';
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/wishlist",
-    element: <Wishlist userID={1} />,
+    element: <Wishlist />,
   },
   {
     path: "/recipes",

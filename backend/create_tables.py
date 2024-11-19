@@ -90,6 +90,21 @@ fridge_access = {
     'CONSTRAINT': 'PK_Access PRIMARY KEY (username,fridgeID)'
 }
 
+wishlist = {
+    'wishlistID': 'INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT',
+    'name': 'VARCHAR(75)',
+    'createdAt': 'DATE',
+    'fridgeID': 'INT(10) UNSIGNED'
+}
+
+wishlist_item = {
+    'itemID': 'INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT',
+    'wishlistID': 'INT(10) UNSIGNED',
+    'name': 'VARCHAR(75)',
+    'quantity': 'FLOAT NOT NULL',
+    'unit': 'VARCHAR(20) NOT NULL'
+}
+
 
 def remove_table(table_name, conn=conn):
     cursor = conn.cursor()
@@ -106,13 +121,21 @@ def reset():
     remove_table('FridgeContent')
     remove_table('Recipe')
     remove_table('FridgeAccess')
+    remove_table('Wishlist')
+    remove_table('WishlistItems')
 
     create_table('User', user)
     create_table('Fridge', fridge)
     create_table('FridgeContent', fridge_content)
     create_table('Recipe', recipe)
     create_table('FridgeAccess', fridge_access)
+    create_table('Wishlist', wishlist)
+    create_table('WishlistItems', wishlist_item)
 
 
 # if False:
 # reset()
+
+if __name__ == "__main__":
+    create_table('Wishlist', wishlist)
+    create_table('WishlistItems', wishlist_item)

@@ -37,6 +37,8 @@ def GET_DATA():
         view_data('FridgeContent')
         view_data('Recipe')
         view_data('FridgeAccess')
+        view_data('Wishlist')
+        view_data('WishlistItems')
         return jsonify({"success" : True})
     except:
         return jsonify({"success" : True})
@@ -555,19 +557,18 @@ def get_wishlists():
     try:
         fridgeID = request.args.get('fridgeID')
         wishlists = get_table_content_with_key('Wishlist', 'fridgeID', int(fridgeID))
-        wishlistIDs = []
+        temp = []
         for wishlist in wishlists:
-            wishlistIDs.append(wishlist["wishlistID"])
+            temp.append(wishlist)
         return jsonify({
             'success': True,
-            'wishlistIDs': wishlistIDs
+            'wishlists': temp
         })
     except Exception:
         print("EXCEPTION")
         logging.exception("error_log")
         return jsonify({
-            'success': False,
-            'recipes': []
+            'success': False
         }) 
     
 @app.route('/delete_wishlist', methods=['DELETE'])
@@ -653,6 +654,7 @@ def update_wishlist_item():
     print("Update wishlist item endpoint hit")
     try:
         data = request.get_json()
+        print(data)
         wishlistID = None
         wishlist_data = view_data('Wishlist')
         for wishlist in wishlist_data:
@@ -677,6 +679,9 @@ def update_wishlist_item():
             content_to_edit['quantity'] = data['quantity']
         if 'unit' in data:
             content_to_edit['unit'] = data['unit']
+        print(wishlistID)
+        print(itemID)
+        print(content_to_edit)
         update_data('WishlistItems', content_to_edit, 'itemID', itemID)
         return jsonify({
             'success': True,
@@ -696,6 +701,8 @@ def delete_wishlist_item():
     try:
         wishlistID = request.args.get('wishlistID')
         itemID = request.args.get('itemID')
+        print(wishlistID)
+        print(itemID)
         delete_data_multiple_columns('WishlistItems', [wishlistID, itemID], ['wishlistID', 'itemID'])
         return jsonify({
                 'success': True

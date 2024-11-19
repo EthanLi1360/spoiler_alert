@@ -41,6 +41,7 @@ def delete_data_multiple_columns(table_name, keys, key_columns, conn=conn):
         equals_arr.append(f"{key_columns[i]} = %s ")
     where_clause = f"WHERE " + 'AND '.join(equals_arr)
     delete_query = f"DELETE FROM {table_name} {where_clause}"
+    print(delete_query)
     cursor.execute(delete_query, keys)
     conn.commit()
     cursor.close()
