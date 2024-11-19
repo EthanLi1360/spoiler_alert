@@ -217,8 +217,26 @@ const FridgePage = () => {
   };
 
   const formatDate = (date) => {
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-    return new Date(date).toLocaleDateString(undefined, options);
+    const dateMillis = Date.parse(date);
+    const dateNow = Date.now();
+    const dateDiff = dateMillis - dateNow;
+    if (dateDiff > 0) {
+      const num = Math.ceil(dateDiff / (1000 * 60 * 60 * 24));
+      if (num === 1) {
+        return "tomorrow";
+      } else {
+        return "in "+num+" days"
+      }
+    } else {
+      const num = Math.floor(dateDiff / (1000 * 60 * 60 * 24));
+      if (num === -1) {
+        return "today";
+      } else {
+        return -num+" days ago"
+      }
+    }
+    // const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    // return new Date(date).toLocaleDateString(undefined, options);
   };
 
   return (<>
