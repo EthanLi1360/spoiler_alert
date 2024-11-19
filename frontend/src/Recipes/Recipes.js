@@ -115,43 +115,48 @@ function Recipes() {
                             <p className={styles.menuHeader}>{currentFridge.name}</p>
                             <button className={styles.menuItem} onClick={onButtonClick}>{AIloading ? "Generating..." : "Generate Recipes"}</button> 
                             <button className={styles.menuItem} onClick={toogleViewSaved}>{viewSaved ? "Choose new Recipes" : "Saved Recipes"}</button>
-                            <button className={styles.menuItem} onClick={() => setCurrentFridge(null)}>Back</button>
+                            <button className={styles.menuItem} onClick={() => {
+                                setCurrentFridge(null);
+                                setGeneratedRecipes([]);
+                            }}>Back</button>
                         </>
                     : <Spinner setCurrentFridge={setCurrentFridge} />
                     }
                 </div>
                 
-                {recipeSelected == null ? 
-                (!viewSaved ?
-                    (<>
-                        {generatedRecipes.length > 0 && !AIloading ?
-                            <RecipeBanners recipes={generatedRecipes} recipeClicked={recipeClicked} replaceRecipe={replaceRecipe} saveRecipe={saveRecipe}/> : ""
-                        }
-                    </>
-                    ) : (
-                        <div className={styles.savedRecipesList}>
-                            {savedRecipes.map((recipe, index) => (
-                                <div key={recipe.id || index} className={styles.savedRecipe} onClick={() => recipeClicked(recipe)}>
-                                    <div>
-                                        <h4>{recipe.recipe_name}</h4>
-                                    </div>
-                                    <div className={styles.actionButtons}>
-                                        <button className={styles.actionButton} onClick={(event) => {
-                                            event.stopPropagation();
-                                            }} style={{ marginRight: '10px' }}>Use</button>
-                                        <button className={styles.actionButton} onClick={(event) => {
-                                            event.stopPropagation();
-                                            removeSavedRecipe(recipe.id);
-                                            }}>Remove</button>
-                                    </div>
+                {currentFridge != null ? 
+                    (recipeSelected == null ? 
+                        (!viewSaved ?
+                            (<>
+                                {generatedRecipes.length > 0 && !AIloading ?
+                                    <RecipeBanners recipes={generatedRecipes} recipeClicked={recipeClicked} replaceRecipe={replaceRecipe} saveRecipe={saveRecipe}/> : ""
+                                }
+                            </>
+                            ) : (
+                                <div className={styles.savedRecipesList}>
+                                    {savedRecipes.map((recipe, index) => (
+                                        <div key={recipe.id || index} className={styles.savedRecipe} onClick={() => recipeClicked(recipe)}>
+                                            <div>
+                                                <h4>{recipe.recipe_name}</h4>
+                                            </div>
+                                            <div className={styles.actionButtons}>
+                                                <button className={styles.actionButton} onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    }} style={{ marginRight: '10px' }}>Use</button>
+                                                <button className={styles.actionButton} onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    removeSavedRecipe(recipe.id);
+                                                    }}>Remove</button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            )
+                        ) : (
+                            <RecipeDetails recipe={recipeSelected} closeRecipe={closeRecipe}/>
+                        )
                     )
-                ) : (
-                    <RecipeDetails recipe={recipeSelected} closeRecipe={closeRecipe}/>
-                )
-            }
+                : null}
             </div>
             
         </div>
