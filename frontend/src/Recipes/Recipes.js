@@ -6,6 +6,7 @@ import styles from "./Recipes.module.css";
 import { generate } from "./GeminiRecipes";
 import { getFoodItem, getFridgeContents } from "../Util";
 import RecipeDetails from "./RecipeDetails";
+import Spinner from "./Spinner";
 
 function Recipes() {
     const [generatedRecipes, setGeneratedRecipes] = useState([]);
@@ -96,11 +97,14 @@ function Recipes() {
 
     const toogleViewSaved = () => setViewSaved(!viewSaved)
 
+    const choices = ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5", "Option 6", "Option 7"];
+
     return(
         <div className={styles.page}>
             <Navbar />
             <div className={styles.container}>
                 <div className={styles.meun}>
+                    <Spinner />
                     <FridgeNav setActiveFridge={(e) => setCurrentFridge(e)}/>
                     {currentFridge != null ?
                         <>

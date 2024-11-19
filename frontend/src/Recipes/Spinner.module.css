@@ -1,0 +1,55 @@
+/* Slider container */
+.sliderContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  height:auto;
+  position: relative;
+}
+
+/* Slider window (visible area) */
+.sliderWindow {
+  width: auto;
+  height: 200px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+/* Slider track (moving container) */
+.sliderTrack {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.5s ease-in-out;
+  gap: 10px;
+  will-change: transform;
+}
+
+/* Individual slider item */
+.sliderItem {
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  background-color: transparent;
+  color: white;
+  font-size: 20px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.createFridge {
+  background-color: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.inputFridgeName {
+  background-color: transparent;
+  display: flex;
+  flex-direction: row;
+}
