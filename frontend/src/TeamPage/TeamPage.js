@@ -68,6 +68,23 @@ export default function TeamPage() {
         <h2>Eric Joseph</h2>
         <p>Frontend Developer</p>
       </div>
+
+      <div className={styles.person}>
+        <a href="https://www.linkedin.com/in/roshan-kolachina-736861272/">
+          <img src={ej} alt="Roshan Kolachina" />
+        </a>
+        <h2>Roshan Kolachina</h2>
+        <p>Backend Developer</p>
+      </div>
+
+      <div className={styles.person}>
+        <a href="https://www.linkedin.com/in/kaushik-vemulapalli-559769303/">
+          <img src={ej} alt="Kaushik Vemulapalli" />
+        </a>
+        <h2>Kaushik Vemulapalli</h2>
+        <p>Backend Developer</p>
+      </div>
+      
       <Footer />
     </div>
   )
