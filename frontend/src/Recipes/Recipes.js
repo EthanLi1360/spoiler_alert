@@ -15,40 +15,46 @@ function Recipes() {
     const [savedRecipes, setSavedRecipes] = useState([]);
     const [viewSaved, setViewSaved] = useState(false);
 
-    const makePrompt = (existedRecipe, restrictions=null) => {
-        let ingredients = getFridgeContents(currentFridge.fridgeID);
+    const makePrompt = async (existedRecipe, restrictions=null) => {
+        let ingredients = await getFridgeContents(1);
+        console.log("Ingredients:", ingredients);
+      
         let prompt = "Generate me another recipe including but not limited to the following ingredients: ";
-        if(ingredients.length > 0){
-            prompt += getFoodItem(ingredients[0].contentID).name;
+        if (ingredients.length > 0) {
+            prompt += ingredients[0].name;
         }
-        for(let i = 1; i < ingredients.length; i++) {
-            prompt += " and " + getFoodItem(ingredients[i].contentID); 
+        for (let i = 1; i < ingredients.length; i++) {
+            prompt += " and " + ingredients[i].name;
         }
+      
         if (restrictions != null) {
             prompt += ". But exclude the following:";
             for (const restriction in restrictions) {
                 prompt += restriction + " and ";
             }
         }
+      
         if (existedRecipe.length != 0) {
             prompt += ". Do not give me these recipes:"
             for (const existed of existedRecipe) {
-                prompt += existed["recipe_name"] + " and "
+                prompt += existed["recipe_name"] + " and ";
             }
         }
-        return prompt
+        
+        console.log("Generated Prompt:", prompt);
+        return prompt.trim();
     }
+    
 
     const onButtonClick = async () => {
         let temp = [];
         setAILoading(true);
         for (let i = 0; i < 10 && temp.length < 3; i++) {
-            const prompt = makePrompt(temp);
-            await generate(prompt).then((result) => {
-                if (result != null) {
-                    temp.push(result);
-                }
-            });
+            const prompt = await makePrompt(temp);
+            const result = await generate(prompt);
+            if (result != null) {
+                temp.push(result);
+            }
         }
         setGeneratedRecipes(temp);
         setAILoading(false);
