@@ -31,9 +31,9 @@ const Spinner = () => {
 
     if (!sliderRef.current) return;
 
-    const sliderWindow = document.querySelector(`.${styles.sliderWindow}`);
-    // const sliderWindowHeight = sliderWindow.offsetHeight;
-    // setCenterOffset(sliderWindowHeight / 2);
+    const sliderWindow = sliderRef.current;
+    const sliderWindowHeight = sliderWindow.offsetHeight;
+    setCenterOffset(sliderWindowHeight / 2);
   }, [sliderRef]);
 
 
