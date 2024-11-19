@@ -6,6 +6,7 @@ import ej from "./ej.jpeg"
 import jd from "./jd.jpg"
 import ss from "./ss.jpg"
 import yl from "./yl.jpg"
+import tn from "./tn.jpg"
 import Footer from "../Footer/Footer"
 
 
@@ -84,8 +85,16 @@ export default function TeamPage() {
         <h2>Kaushik Vemulapalli</h2>
         <p>Backend Developer</p>
       </div>
+      <div className={styles.person}>
+        <a href="https://www.linkedin.com/in/hieu-tommy-nguyen/">
+          <img src={tn} alt="Tommy Nguyen" />
+        </a>
+        <h2>Tommy Nguyen</h2>
+        <p>Full-Stack Developer</p>
+      </div>
       
       <Footer />
     </div>
+    
   )
 } 
