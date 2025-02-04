@@ -1,13 +1,15 @@
 import styles from "./TeamPage.module.css";
-import el from "./el.jpg"
-import e2 from "./e2.jpg"
-import aa from "./aa.jpg"
-import ej from "./ej.jpeg"
-import jd from "./jd.jpg"
-import ss from "./ss.jpg"
-import yl from "./yl.jpg"
-import tn from "./tn.jpg"
-import Footer from "../Footer/Footer"
+import el from "./el.jpg";
+import e2 from "./e2.jpg";
+import aa from "./aa.jpg";
+import ej from "./ej.jpeg";
+import jd from "./jd.jpg";
+import ss from "./ss.jpg";
+import yl from "./yl.jpg";
+import k from "./picKaushik.jpg";
+import r from "./picRoshan.jpg";
+import tn from "./tn.jpg";
+import Footer from "../Footer/Footer";
 
 
 export default function TeamPage() {
@@ -72,7 +74,7 @@ export default function TeamPage() {
 
       <div className={styles.person}>
         <a href="https://www.linkedin.com/in/roshan-kolachina-736861272/">
-          <img src={ej} alt="Roshan Kolachina" />
+          <img src={r} alt="Roshan Kolachina" />
         </a>
         <h2>Roshan Kolachina</h2>
         <p>Backend Developer</p>
@@ -80,7 +82,7 @@ export default function TeamPage() {
 
       <div className={styles.person}>
         <a href="https://www.linkedin.com/in/kaushik-vemulapalli-559769303/">
-          <img src={ej} alt="Kaushik Vemulapalli" />
+          <img src={k} alt="Kaushik Vemulapalli" />
         </a>
         <h2>Kaushik Vemulapalli</h2>
         <p>Backend Developer</p>
