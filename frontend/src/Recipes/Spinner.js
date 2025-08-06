@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./Spinner.module.css";
 import axios from "axios";
+import { getCachedBackendUrl } from '../Util';
 
 const Spinner = ({ setCurrentFridge }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -9,36 +10,60 @@ const Spinner = ({ setCurrentFridge }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [newFridgeName, setNewFridgeName] = useState("");
   const username = localStorage.getItem("username");
-  const [Fridges, setFridges] = useState([{name: "Loading..."}])
+  const [Fridges, setFridges] = useState([{name: "Loading..."}]);
+  const [backendUrl, setBackendUrl] = useState('');
 
-  const refreshFridges = () => {
+  // Initialize backend URL
+  useEffect(() => {
+    const initBackendUrl = async () => {
+      try {
+        const url = await getCachedBackendUrl();
+        setBackendUrl(url);
+      } catch (error) {
+        console.error('Failed to get backend URL:', error);
+        setBackendUrl('http://localhost:5000'); // fallback
+      }
+    };
+    initBackendUrl();
+  }, []);
+
+  const refreshFridges = async () => {
+    if (!backendUrl) return;
+    
     const username = localStorage.getItem('username');
-    axios.get("http://127.0.0.1:5000/get_fridges?username="+username)
-    .then((response) => {
-      console.log("AAAA")
-      console.log(response)
-        if (response.data.success) {
-          setFridges(response.data.fridges);
-        }
-    });
-  }
+    try {
+      const response = await axios.get(`${backendUrl}/get_fridges?username=${username}`);
+      console.log("AAAA");
+      console.log(response);
+      if (response.data.success) {
+        setFridges(response.data.fridges);
+      }
+    } catch (error) {
+      console.error('Error fetching fridges:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchFridges = async () => {
       try {
-          refreshFridges();
+        if (backendUrl) {
+          await refreshFridges();
+        }
       } catch (error) {
-          console.error("Error fetching fridges:", error);
+        console.error("Error fetching fridges:", error);
       }
     };
-    fetchFridges();
+    
+    if (backendUrl) {
+      fetchFridges();
+    }
 
     if (!sliderRef.current) return;
 
     const sliderWindow = sliderRef.current;
     const sliderWindowHeight = sliderWindow.offsetHeight;
     setCenterOffset(sliderWindowHeight / 2);
-  }, [sliderRef]);
+  }, [sliderRef, backendUrl]);
 
 
 
@@ -46,18 +71,22 @@ const Spinner = ({ setCurrentFridge }) => {
     setCurrentIndex(itemIndex)
   }
 
-  const createFridge = (newFridge) => {
-     axios.post("http://127.0.0.1:5000/add_fridge", {
-      username: localStorage.getItem("username"),
-      name: newFridge
-    })
-      .then((response) => {
-        if (response.data.success) {
-          refreshFridges();
-        }
-      })
-    // setFridges([...Fridges, newFridge])
-  }
+  const createFridge = async (newFridge) => {
+    if (!backendUrl) return;
+    
+    try {
+      const response = await axios.post(`${backendUrl}/add_fridge`, {
+        username: localStorage.getItem("username"),
+        name: newFridge
+      });
+      
+      if (response.data.success) {
+        await refreshFridges();
+      }
+    } catch (error) {
+      console.error('Error creating fridge:', error);
+    }
+  };
 
   const toggleIsCreating = () => setIsCreating((prev) => !prev)
 

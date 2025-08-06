@@ -4,18 +4,20 @@ import os
 
 load_dotenv()
 
-timeout = 10000
+# Default connection timeout in seconds
+DB_CONNECT_TIMEOUT = int(os.getenv("DB_CONNECT_TIMEOUT", 10))
+
 conn = pymysql.connect(
   charset="utf8mb4",
-  connect_timeout=timeout,
+  connect_timeout=DB_CONNECT_TIMEOUT,
   cursorclass=pymysql.cursors.DictCursor,
-  db="defaultdb",
-  host="spoiler-alert-spoileralert.d.aivencloud.com",
-  read_timeout=timeout,
-  port=24887,
-  user="avnadmin",
-  password= os.getenv("AIVEN_PASS"),
-  write_timeout=timeout,
+  db=os.getenv("DB_NAME"),
+  host=os.getenv("DB_HOST"),
+  password=os.getenv("DB_PASS"),
+  port=int(os.getenv("DB_PORT")),
+  read_timeout=DB_CONNECT_TIMEOUT,
+  user=os.getenv("DB_USER"),
+  write_timeout=DB_CONNECT_TIMEOUT,
 )
 
 

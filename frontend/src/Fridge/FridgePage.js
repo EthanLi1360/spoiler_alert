@@ -3,6 +3,7 @@ import Navbar from '../Navbar/Navbar';
 import styles from './FridgePage.module.css';
 import closedFridge from '../closed_fridge.png';
 import openFridge from './open_fridge.png';
+import { getCachedBackendUrl, clearBackendUrlCache } from '../Util';
 
 import axios from 'axios';
 import ShareFridge from '../ShareFridge/ShareFridge';
@@ -24,10 +25,31 @@ const FridgePage = () => {
   const [isFridgeOpen, setIsFridgeOpen] = useState(false);
   const [foodSearchedName, setFoodSearchedName] = useState('');
   const [foodsSearched, setFoodsSearched] = useState([]);
+  const [backendUrl, setBackendUrl] = useState('');
+  const [editingItem, setEditingItem] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [mode, setMode] = useState("none");
 
   const [canOpenFridge, setCanOpenFridge] = useState(false);
+
+  // Initialize backend URL on component mount
+  useEffect(() => {
+    const initBackendUrl = async () => {
+      try {
+        console.log('Attempting to discover backend URL...');
+        // Clear cache to ensure fresh discovery
+        clearBackendUrlCache();
+        const url = await getCachedBackendUrl();
+        console.log('Backend URL discovered:', url);
+        setBackendUrl(url);
+      } catch (error) {
+        console.error('Failed to get backend URL:', error);
+        setBackendUrl('http://localhost:5000'); // fallback
+      }
+    };
+    initBackendUrl();
+  }, []);
 
   // useEffect(() => {
   //   const username = localStorage.getItem("username");
@@ -71,50 +93,98 @@ const FridgePage = () => {
   };
 
   const toggleFridge = async () => {
-    if (canOpenFridge) {
+    if (canOpenFridge && backendUrl) {
       if (!isFridgeOpen) {
-        await axios.get("http://127.0.0.1:5000/get_fridge_contents?fridgeID="+fridge.fridgeID)
-          .then((response) => {
-            if (response.data.success) {
-              setFoods(response.data.items);
-            } else {
-              alert(fridge.name);
-            }
-          })
+        try {
+          console.log('Making request to:', `${backendUrl}/get_fridge_contents?fridgeID=${fridge.fridgeID}`);
+          const response = await axios.get(`${backendUrl}/get_fridge_contents?fridgeID=${fridge.fridgeID}`);
+          
+          if (response.data.success) {
+            setFoods(response.data.items);
+          } else {
+            alert('Failed to load fridge contents: ' + (response.data.error || 'Unknown error'));
+          }
+        } catch (error) {
+          console.error('Error loading fridge contents:', error);
+          alert('Network error loading fridge contents. Please check if the backend is running.');
+          return; // Don't toggle fridge state on error
+        }
       }
       setIsFridgeOpen(!isFridgeOpen);
+    } else if (!backendUrl) {
+      alert('Backend URL not yet discovered. Please wait a moment and try again.');
     }
   };
 
   const addFoodItem = async () => {
-    const response = await axios
-      .post("http://127.0.0.1:5000/add_fridge_content", {
+    if (!backendUrl) return;
+    
+    // Frontend validation
+    if (!name.trim()) {
+      alert('Please enter a food name');
+      return;
+    }
+    
+    if (!quantity || parseFloat(quantity) <= 0) {
+      alert('Please enter a valid positive quantity');
+      return;
+    }
+    
+    if (!units.trim()) {
+      alert('Please enter a unit (e.g., lbs, pieces, cups)');
+      return;
+    }
+    
+    if (!category) {
+      alert('Please select a category');
+      return;
+    }
+    
+    if (!isInFreezer && !expirationDate) {
+      alert('Please set an expiration date for items not in the freezer');
+      return;
+    }
+    
+    try {
+      const response = await axios.post(`${backendUrl}/add_fridge_content`, {
         username: localStorage.getItem("username"),
         fridgeID: fridge.fridgeID,
-        quantity: quantity,
-        unit: units,
-        expirationDate: expirationDate,
-        name: name,
+        quantity: parseFloat(quantity),
+        unit: units.trim(),
+        expirationDate: expirationDate || null, // Ensure proper format or null
+        name: name.trim(),
         category: category,
         isInFreezer: isInFreezer ? 1 : 0
       });
       
-    if (response.data.success) {
-      axios.get("http://127.0.0.1:5000/get_fridge_contents?fridgeID="+fridge.fridgeID)
-        .then((response) => {
-          if (response.data.success) {
-            setFoods(response.data.items);
-          }
-        });
+      if (response.data.success) {
+        // Refresh the fridge contents
+        const refreshResponse = await axios.get(`${backendUrl}/get_fridge_contents?fridgeID=${fridge.fridgeID}`);
+        if (refreshResponse.data.success) {
+          setFoods(refreshResponse.data.items);
+        }
 
-      setName('');
-      setExpirationDate('');
-      setQuantity('');
-      setUnits('');
-      setCategory('');
-      setSuggestedExpirationTime('');
-      setSuggestedCategory('');
-      setIsInFreezer(false);
+        // Clear form
+        setName('');
+        setExpirationDate('');
+        setQuantity('');
+        setUnits('');
+        setCategory('');
+        setSuggestedExpirationTime('');
+        setSuggestedCategory('');
+        setIsInFreezer(false);
+        
+        // Item added successfully - no alert needed for better UX
+      } else {
+        alert('Error adding food item: ' + (response.data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error adding food item:', error);
+      if (error.response && error.response.data && error.response.data.error) {
+        alert('Error: ' + error.response.data.error);
+      } else {
+        alert('Network error adding food item. Please check your connection.');
+      }
     }
   };
 
@@ -129,12 +199,21 @@ const FridgePage = () => {
 
   // Integrate Google Generative AI for suggestion functionality
   useEffect(() => {
-    const API_KEY = "AIzaSyBdWGJbElVGJdovFYym4c_WEuTVvr0HQmo";
     const typingDelay = 1500;
 
     const fetchSuggestions = async () => {
       if (name) {
         try {
+          // Fetch API key from backend using dynamic port discovery
+          const backendUrl = await getCachedBackendUrl();
+          const apiResponse = await fetch(`${backendUrl}/get_gemini_api_key`);
+          const apiData = await apiResponse.json();
+          
+          if (!apiData.success) {
+            throw new Error(apiData.error || "Failed to get API key");
+          }
+          
+          const API_KEY = apiData.api_key;
           const { GoogleGenerativeAI } = require("@google/generative-ai");
           const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -185,35 +264,131 @@ const FridgePage = () => {
     return () => clearTimeout(timer);
   }, [name]);
 
-  const searchFoodItem = () => {
-    const results = foods.filter((food) =>
-      food.name.toLowerCase().includes(foodSearchedName.toLowerCase())
-    );
-    setFoodsSearched(results);
-  };
-
   const deleteFoodItem = async (id) => {
-    const response = await axios
-      .delete("http://127.0.0.1:5000/delete_fridge_content", {
+    if (!backendUrl) return;
+    
+    if (!window.confirm('Are you sure you want to delete this item?')) {
+      return;
+    }
+    
+    try {
+      const response = await axios.delete(`${backendUrl}/delete_fridge_content`, {
         data: {
           fridgeID: fridge.fridgeID,
           itemID: id
         }
-      })
-      .catch((error) => {
-        alert(error.message);
-        return;
       });
       
-    if (response.data.success) {
-      axios.get("http://127.0.0.1:5000/get_fridge_contents?fridgeID="+fridge.fridgeID)
-        .then((response) => {
-          if (response.data.success) {
-            setFoods(response.data.items);
-          } else {
-            alert("oops, items bugged");
-          }
-        });
+      if (response.data.success) {
+        // Refresh the fridge contents
+        const refreshResponse = await axios.get(`${backendUrl}/get_fridge_contents?fridgeID=${fridge.fridgeID}`);
+        if (refreshResponse.data.success) {
+          setFoods(refreshResponse.data.items);
+        }
+        // Item deleted successfully - no alert needed for better UX
+      } else {
+        alert('Error deleting item: ' + (response.data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error deleting food item:', error);
+      alert('Network error deleting item. Please check your connection.');
+    }
+  };
+
+  /**
+   * Start editing a food item
+   */
+  const startEditItem = (item) => {
+    setEditingItem(item);
+    setName(item.name);
+    setQuantity(item.quantity.toString());
+    setUnits(item.unit);
+    setCategory(item.category);
+    setExpirationDate(item.expirationDate ? item.expirationDate.split('T')[0] : '');
+    setIsInFreezer(Boolean(item.isInFreezer));
+    setMode("edit");
+  };
+
+  /**
+   * Cancel editing and clear form
+   */
+  const cancelEdit = () => {
+    setEditingItem(null);
+    setName('');
+    setQuantity('');
+    setUnits('');
+    setCategory('');
+    setExpirationDate('');
+    setIsInFreezer(false);
+    setSuggestedExpirationTime('');
+    setSuggestedCategory('');
+    setMode("none");
+  };
+
+  /**
+   * Update an existing food item
+   */
+  const updateFoodItem = async () => {
+    if (!backendUrl || !editingItem) return;
+    
+    // Frontend validation
+    if (!name.trim()) {
+      alert('Please enter a food name');
+      return;
+    }
+    
+    if (!quantity || parseFloat(quantity) <= 0) {
+      alert('Please enter a valid positive quantity');
+      return;
+    }
+    
+    if (!units.trim()) {
+      alert('Please enter a unit (e.g., lbs, pieces, cups)');
+      return;
+    }
+    
+    if (!category) {
+      alert('Please select a category');
+      return;
+    }
+    
+    if (!isInFreezer && !expirationDate) {
+      alert('Please set an expiration date for items not in the freezer');
+      return;
+    }
+    
+    try {
+      const response = await axios.patch(`${backendUrl}/update_fridge_content`, {
+        fridgeID: fridge.fridgeID,
+        itemID: editingItem.itemID,
+        quantity: parseFloat(quantity),
+        unit: units.trim(),
+        expirationDate: expirationDate || null, // Ensure proper format or null
+        name: name.trim(),
+        category: category,
+        isInFreezer: isInFreezer ? 1 : 0
+      });
+      
+      if (response.data.success) {
+        // Refresh the fridge contents
+        const refreshResponse = await axios.get(`${backendUrl}/get_fridge_contents?fridgeID=${fridge.fridgeID}`);
+        if (refreshResponse.data.success) {
+          setFoods(refreshResponse.data.items);
+        }
+        
+        // Clear form and exit edit mode
+        cancelEdit();
+        // Item updated successfully - no alert needed for better UX
+      } else {
+        alert('Error updating food item: ' + (response.data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error updating food item:', error);
+      if (error.response && error.response.data && error.response.data.error) {
+        alert('Error: ' + error.response.data.error);
+      } else {
+        alert('Network error updating food item. Please check your connection.');
+      }
     }
   };
 
@@ -246,8 +421,9 @@ const FridgePage = () => {
       {canOpenFridge ? <div>
         <p className={styles.menuHeader}>{fridge.name}</p>
         <button className={styles.menuItem} onClick={() => {
+          if (!backendUrl) return;
 
-          axios.delete("http://127.0.0.1:5000/remove_fridge?fridgeID="+fridge.fridgeID)
+          axios.delete(`${backendUrl}/remove_fridge?fridgeID=${fridge.fridgeID}`)
             .then((response) => {
                 if (response.data.success) {
                   setCanOpenFridge(false);
@@ -277,9 +453,18 @@ const FridgePage = () => {
               style={!canOpenFridge ? {opacity: "25%", cursor: "default"} : {}}
             />
             {isFridgeOpen && <>
-              <button style={{width: "150px"}} onClick={() => {mode === "add" ? setMode("") : setMode("add")}}>Add Items</button>
-              <button style={{width: "150px"}} onClick={() => {mode === "view" ? setMode("") : setMode("view")}}>View Items</button>
-              <button style={{width: "150px"}} onClick={() => {mode === "share" ? setMode("") : setMode("share")}}>Share Fridge</button>
+              <div className={styles.actionButtons}>
+                <button 
+                  style={{width: "150px"}} 
+                  onClick={() => {mode === "add" ? setMode("none") : setMode("add")}}
+                  className={mode === "add" ? styles.cancelButton : ""}
+                >
+                  {mode === "add" ? "Cancel Add" : "Add Item"}
+                </button>
+                <button style={{width: "150px"}} onClick={() => {mode === "share" ? setMode("none") : setMode("share")}}>
+                  {mode === "share" ? "Cancel Share" : "Share Fridge"}
+                </button>
+              </div>
             </>}
           </>
         </div>
@@ -291,139 +476,224 @@ const FridgePage = () => {
                 <p className={styles.emptyFridgeMessage}>Looks like there's nothing in your fridge!</p>
               </div>
             : 
-              <div className={styles.foodGrid}>
-                {foods.map((food) => (
-                  <div key={food.itemID} className={styles.foodItem} style={
-                    food.isInFreezer ? {backgroundColor: "#33f"} : (
-                      (Date.parse(food.expirationDate) < Date.now()) ? {backgroundColor: "#a33"} : {}
-                    )
-                  }>
-                    <span className={styles.foodName}>{`${food.name}`}</span>
-                    <span>{`${food.quantity} ${food.unit}`}</span>
-                    <span className={styles.foodCategory}>{`${food.category}`}</span>
-                    <br />
-                    <span>{food.isInFreezer ? "In freezer" : ((Date.parse(food.expirationDate) < Date.now()) ? "Expired" : "Expires")+` ${formatDate(food.expirationDate)}`}</span>
+              <div>
+                {/* Search and Sort Controls */}
+                <div className={styles.controlsSection}>
+                  <div className={styles.searchControls}>
+                    <input
+                      type="text"
+                      placeholder="Search items..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className={styles.searchInput}
+                    />
                   </div>
-                ))}
+                  <div className={styles.sortControls}>
+                    <span>Sort by:</span>
+                    <select
+                      name="sort_foods"
+                      value={queryOption}
+                      onChange={(e) => {
+                        const selectedOption = e.target.value;
+                        setQueryOption(selectedOption);
+                        
+                        // Auto-sort when option is selected
+                        if (selectedOption) {
+                          const sortedFoods = [...foods].sort((a, b) => {
+                            if (selectedOption === 'quantity') {
+                              return a[selectedOption] - b[selectedOption];
+                            }
+                            if (selectedOption === 'expirationDate') {
+                              if (a.isInFreezer && !b.isInFreezer) {
+                                return 1;
+                              } else if (!a.isInFreezer && b.isInFreezer) {
+                                return -1;
+                              }
+                              return Date.parse(a[selectedOption]) - Date.parse(b[selectedOption]);
+                            }
+                            if (selectedOption === 'isInFreezer') {
+                              if (a.isInFreezer && !b.isInFreezer) {
+                                return -1;
+                              } else if (!a.isInFreezer && b.isInFreezer) {
+                                return 1;
+                              }
+                              return 0;
+                            }
+                            return String(a[selectedOption]).localeCompare(String(b[selectedOption]));
+                          });
+                          setFoods(sortedFoods);
+                        }
+                      }}
+                      className={styles.sortSelect}
+                    >
+                      <option value="" disabled>Select an option</option>
+                      {['name', 'expirationDate', 'quantity', 'category', 'isInFreezer'].map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                
+                {/* Food Items Grid */}
+                <div className={styles.foodGrid}>
+                  {foods
+                    .filter(food => 
+                      searchTerm === '' || 
+                      food.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      food.category.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                    .map((food) => (
+                    <div key={food.itemID} className={styles.foodItem} style={
+                      food.isInFreezer ? {backgroundColor: "#33f"} : (
+                        (Date.parse(food.expirationDate) < Date.now()) ? {backgroundColor: "#a33"} : {}
+                      )
+                    }>
+                      <div className={styles.foodItemHeader}>
+                        <span className={styles.foodName}>{`${food.name}`}</span>
+                        <div className={styles.foodActions}>
+                          <button 
+                            onClick={() => startEditItem(food)}
+                            className={styles.editButton}
+                            title="Edit item"
+                          >
+                            ✏️
+                          </button>
+                          <button 
+                            onClick={() => deleteFoodItem(food.itemID)}
+                            className={styles.deleteButton}
+                            title="Delete item"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                      <span>{`${food.quantity} ${food.unit}`}</span>
+                      <span className={styles.foodCategory}>{`${food.category}`}</span>
+                      <br />
+                      <span className={styles.expirationInfo}>
+                        {food.isInFreezer ? "In freezer" : ((Date.parse(food.expirationDate) < Date.now()) ? "Expired" : "Expires")+` ${formatDate(food.expirationDate)}`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             }
 
-            {mode === "add" && <div className={styles.userInput}>
-              <div className={styles.inlineForm}>
-                <input
-                  type="text"
-                  placeholder="Food Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-                <input
-                  type="number"
-                  placeholder="Quantity"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                />
-                <input
-                  type="text"
-                  placeholder="Units"
-                  value={units}
-                  onChange={(e) => setUnits(e.target.value)}
-                />
-                <label>In Freezer?</label>
-                <input
-                  type="checkbox"
-                  checked={isInFreezer}
-                  onChange={() => setIsInFreezer(!isInFreezer)}
-                />
-              </div>
+            {mode !== "none" && (
+              <div className={styles.dialogContainer}>
+                {mode === "share" ? (
+                  <ShareFridge activeFridgeID={fridge.fridgeID}/>
+                ) : (
+                  <div className={styles.userInput}>
+                    <h3>{mode === "edit" ? "Edit Food Item" : "Add New Food Item"}</h3>
+                    
+                    <div className={styles.inlineForm}>
+                      <input
+                        type="text"
+                        placeholder="Food Name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className={styles.formInput}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Quantity"
+                        value={quantity}
+                        onChange={(e) => setQuantity(e.target.value)}
+                        min="0.01"
+                        step="0.01"
+                        className={styles.formInput}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Units (e.g., lbs, pieces, cups)"
+                        value={units}
+                        onChange={(e) => setUnits(e.target.value)}
+                        className={styles.formInput}
+                      />
+                    </div>
 
-              <div className={styles.inlineForm}>
-                <select
-                  name="category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  <option value="" disabled>Select category</option>
-                  {Object.values(FridgeCategories).map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-                <input
-                  type="date"
-                  value={expirationDate}
-                  onChange={(e) => setExpirationDate(e.target.value)}
-                  disabled={isInFreezer}
-                />
-              </div>
+                    <div className={styles.inlineForm}>
+                      <select
+                        name="category"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        className={styles.formSelect}
+                      >
+                        <option value="" disabled>Select category</option>
+                        {Object.values(FridgeCategories).map((cat) => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                      <input
+                        type="date"
+                        value={expirationDate}
+                        onChange={(e) => setExpirationDate(e.target.value)}
+                        disabled={isInFreezer}
+                        className={styles.formInput}
+                        title={isInFreezer ? "Expiration date not required for freezer items" : ""}
+                      />
+                      <label className={styles.checkboxLabel}>
+                        <input
+                          type="checkbox"
+                          checked={isInFreezer}
+                          onChange={() => {
+                            setIsInFreezer(!isInFreezer);
+                            // Clear expiration date when checking "In Freezer" for better UX
+                            if (!isInFreezer) {
+                              setExpirationDate('');
+                            }
+                          }}
+                        />
+                        In Freezer?
+                      </label>
+                    </div>
 
-              <span>Suggested expiration time in days: {suggestedExpirationTime}</span>
-              <span>Suggested category: {suggestedCategory}</span>
-              <button onClick={confirmSuggestion}>Confirm Suggestion</button>
-              <button onClick={addFoodItem}>Add Food Item</button>
-            </div>}
+                    {mode === "add" && suggestedExpirationTime && (
+                      <div className={styles.aiSuggestions}>
+                        <div className={styles.aiSuggestionsHeader}>
+                          💡 AI Suggestions
+                        </div>
+                        <div className={styles.aiSuggestionsContent}>
+                          <div className={styles.suggestionItem}>
+                            <span className={styles.suggestionLabel}>Expiration:</span>
+                            <span className={styles.suggestionValue}>{suggestedExpirationTime} days</span>
+                          </div>
+                          <div className={styles.suggestionItem}>
+                            <span className={styles.suggestionLabel}>Category:</span>
+                            <span className={styles.suggestionValue}>{suggestedCategory}</span>
+                          </div>
+                        </div>
+                        <div className={styles.suggestionButtonContainer}>
+                          <button onClick={confirmSuggestion} className={styles.suggestionButton}>
+                            Apply Suggestions
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
-            {mode === "view" && <>
-              <div className={styles.sortSection}>
-                <span>Sort by:</span>
-                <select
-                  name="sort_foods"
-                  value={queryOption}
-                  onChange={(e) => setQueryOption(e.target.value)}
-                >
-                  <option value="" disabled>Select an option</option>
-                  {['name', 'expirationDate', 'quantity', 'category', 'isInFreezer'].map((option) => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-                <button onClick={() => {
-                  const sortedFoods = [...foods].sort((a, b) => {
-                    if (queryOption === 'quantity') {
-                      return a[queryOption] - b[queryOption];
-                    }
-                    if (queryOption === 'expirationDate') {
-                      if (a.isInFreezer && !b.isInFreezer) {
-                        return 1;
-                      } else if (!a.isInFreezer && b.isInFreezer) {
-                        return -1;
-                      }
-                      return Date.parse(a[queryOption]) - Date.parse(b[queryOption]);
-                    }
-                    if (queryOption === 'isInFreezer') {
-                      if (a.isInFreezer && !b.isInFreezer) {
-                        return -1;
-                      } else if (!a.isInFreezer && b.isInFreezer) {
-                        return 1;
-                      }
-                      return 0;
-                    }
-                    return String(a[queryOption]).localeCompare(String(b[queryOption]));
-                  });
-                  setFoods(sortedFoods);
-                }}>Sort</button>
-              </div>
-              <div className={styles.searchBar}>
-                <h3>Search the name of an item to modify</h3>
-                <input
-                  type="text"
-                  placeholder="Search Food Item"
-                  value={foodSearchedName}
-                  onChange={(e) => setFoodSearchedName(e.target.value)}
-                />
-                <button onClick={searchFoodItem}>Search</button>
-                <ul>
-                  {foodsSearched.map((food) => (
-                    <li key={food.itemID} className={styles.foodSearch}>
-                      <p>Information of {food.name}</p>
-                      <span>{food.name} -- {food.quantity} grams</span>
-                      <span>Created at {food.creationDate}</span>
-                      <span>Expires on: {formatDate(food.expirationDate)}</span>
-                      <button onClick={() => deleteFoodItem(food.itemID)}>Delete this food item</button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </>}
+                    <div className={styles.formSeparator}></div>
 
-            {mode === "share" && <ShareFridge activeFridgeID={fridge.fridgeID}/>}
+                    <div className={styles.actionButtons}>
+                      {mode === "add" ? (
+                        <button onClick={addFoodItem} className={styles.primaryButton}>
+                          Add Food Item
+                        </button>
+                      ) : (
+                        <>
+                          <button onClick={updateFoodItem} className={styles.primaryButton}>
+                            Update Item
+                          </button>
+                          <button onClick={cancelEdit} className={styles.secondaryButton}>
+                            Cancel
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

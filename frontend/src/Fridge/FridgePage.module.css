@@ -1,8 +1,37 @@
+/* Theme Variables & Responsiveness */
+:root {
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+  --success-color: #28a745;
+  --success-hover: #218838;
+  --danger-color: #dc3545;
+  --danger-hover: #c82333;
+  --secondary-color: #6c757d;
+  --secondary-hover: #545b62;
+  --dark-bg: #1a1a1a;
+  --card-bg: rgba(255, 255, 255, 0.1);
+  --card-bg-expired: rgba(220, 53, 69, 0.3);
+  --card-bg-freezer: rgba(0, 123, 255, 0.3);
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --muted-text-color: #888888;
+  --border-color: #333333;
+  --gap: 16px;
+  --card-padding: 16px;
+  --input-height: 40px;
+  --input-padding: 8px 12px;
+  --input-radius: 6px;
+  --btn-padding: 10px 20px;
+  --btn-radius: 6px;
+  --card-radius: 12px;
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 .container {
   width: 100%;
   height: 95vh;
-  background-color: black;
-  color: white;
+  background-color: var(--dark-bg);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
 }
@@ -19,13 +48,14 @@
   margin: 15px 0;
 }
 
+/* Page Layout & Container */
 .fridgeWrapper {
   display: flex;
   justify-content: space-around;
   flex: 1;
   padding-left: 10%;
   padding-right: 10%;
-  gap: 10px;
+  gap: var(--gap);
 }
 
 .fridgeContainer {
@@ -38,94 +68,226 @@
 }
 
 .fridgeDetailsContainer {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--gap);
+  width: 100%;
   flex: 4;
   justify-content: center;
+  padding: var(--gap);
 }
 
 .fridgeImage {
   width: 300px;
   cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
+.fridgeImage:hover {
+  transform: scale(1.02);
+}
+
+/* Empty Fridge Styling */
 .emptyFridgeContainer {
-  flex: 2;
-  background-color: #222222;
-  border-radius: 20px;
-  height: fit-content;
-  max-height: 100px;
-  align-items: center;
-  display: flex;
+  background: linear-gradient(135deg, rgba(34, 34, 34, 0.8), rgba(34, 34, 34, 0.6));
+  border: 1px dashed var(--border-color);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  text-align: center;
+  backdrop-filter: blur(10px);
 }
 
 .emptyFridgeMessage {
-  text-align: center;
-  margin: 0 auto;
-  color: #777777;
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin: 0;
 }
 
+/* Card Grid & Item Cards */
 .foodGrid {
-  flex: 2;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
-  background-color: #222222;
-  border-radius: 20px;
-  padding: 10px;
-  height: fit-content;
-  max-height: fit-content;
-  overflow-y: scroll;
-  scrollbar-width: none;
-  align-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--gap);
+  background-color: rgba(34, 34, 34, 0.8);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  max-height: 60vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) transparent;
+}
+
+.itemDialog {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--gap);
+  margin: 0 auto;
+  width: 100%;
+  max-width: calc((240px + var(--gap)) * 3);
+  background-color: rgba(34, 34, 34, 0.9);
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--border-color);
+}
+
+.dialogContainer {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  max-width: calc((240px + var(--gap)) * 3);
+  background-color: rgba(34, 34, 34, 0.95);
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+}
+
+.dialogContainer .actionButtons {
+  display: flex;
+  gap: var(--gap);
+  justify-content: flex-end;
+  margin-top: var(--gap);
+}
+
+.dialogContainer .primaryButton,
+.dialogContainer .secondaryButton {
+  min-width: 150px;
+}
+
+.foodGrid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.foodGrid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.foodGrid::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color);
+  border-radius: 4px;
 }
 
 .foodItem {
-  height: 100px;
-  background-color: rgba(255, 255, 255, 0.2);
-  padding: 10px;
-  border-radius: 8px;
+  aspect-ratio: 4/3;
+  background-color: var(--card-bg);
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid var(--border-color);
+}
+
+.foodItem:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Enhanced state styling for food items */
+.foodItem[style*="background-color: rgb(170, 51, 51)"] {
+  background-color: var(--card-bg-expired) !important;
+  border-color: var(--danger-color);
+}
+
+.foodItem[style*="background-color: rgb(51, 51, 255)"] {
+  background-color: var(--card-bg-freezer) !important;
+  border-color: var(--primary-color);
 }
 
 .foodName {
-  font-weight: 900;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
 }
 
 .foodCategory {
-  font-size: x-small;
-  color: #aaa;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
 }
 
+/* Form & Controls Styling */
 .userInput {
-  width: 80%;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  align-items: center;
+  gap: var(--gap);
+}
+
+.userInput h3 {
+  margin: 0 0 var(--gap) 0;
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .inlineForm {
-  display: flex;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap);
   align-items: center;
+  margin-bottom: calc(var(--gap) * 0.75);
 }
 
-button {
-  padding: 8px 12px;
-  margin-top: 10px;
-  background-color: #007bff;
+/* Special styling for checkbox to span full width in its grid cell */
+.inlineForm .checkboxLabel {
+  grid-column: span 1;
+  justify-self: start;
+  align-self: center;
+}
+
+.formSeparator {
+  width: 100%;
+  height: 1px;
+  background: var(--border-color);
+  margin: calc(var(--gap) * 0.75) 0;
+  opacity: 0.6;
+}
+
+/* Button Group & Share Action */
+.actionButtons {
+  display: flex;
+  gap: var(--gap);
+  margin: 15px 0;
+  justify-content: center;
+}
+
+.cancelButton {
+  background-color: var(--danger-color) !important;
   color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
-button:hover {
-  background-color: #0056b3;
+.cancelButton:hover {
+  background-color: var(--danger-hover) !important;
+}
+
+.activeButton {
+  background-color: var(--success-color) !important;
+}
+
+.controlsSection {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: var(--gap);
+  align-items: center;
+  margin: 20px 0;
+  padding: var(--card-padding);
+  background-color: rgba(34, 34, 34, 0.8);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .controlsSection {
+    grid-template-columns: 1fr;
+    gap: calc(var(--gap) / 2);
+  }
 }
 
 .menuHeader {
@@ -146,4 +308,473 @@ button:hover {
   cursor: pointer;
   font-size: 20px;
   padding-left: 50px;
+}
+
+/* Enhanced Input Styling */
+.searchInput {
+  width: 100%;
+  height: var(--input-height);
+  padding: var(--input-padding);
+  border: 1px solid var(--border-color);
+  border-radius: var(--input-radius);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.searchInput::placeholder {
+  color: var(--text-secondary);
+}
+
+.sortControls {
+  display: flex;
+  gap: var(--gap);
+  align-items: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.sortSelect {
+  height: var(--input-height);
+  padding: var(--input-padding);
+  border: 1px solid var(--border-color);
+  border-radius: var(--input-radius);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+}
+
+.sortSelect:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.sortSelect option {
+  background-color: var(--dark-bg);
+  color: var(--text-primary);
+}
+
+/* Enhanced Food Item Actions */
+.foodItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.foodActions {
+  display: flex;
+  gap: 8px;
+}
+
+.editButton, .deleteButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+}
+
+.editButton:hover {
+  background-color: rgba(0, 123, 255, 0.2);
+  border-color: var(--primary-color);
+  transform: scale(1.1);
+}
+
+.deleteButton:hover {
+  background-color: rgba(220, 53, 69, 0.2);
+  border-color: var(--danger-color);
+  transform: scale(1.1);
+}
+
+.foodName {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.foodCategory {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.expirationInfo {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* Empty Fridge Styling */
+.emptyFridgeContainer {
+  background: linear-gradient(135deg, rgba(34, 34, 34, 0.8), rgba(34, 34, 34, 0.6));
+  border: 1px dashed var(--border-color);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.emptyFridgeMessage {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Legacy Menu Styles */
+.header {
+  font-size: 24px;
+  margin: 10px 0;
+}
+
+.sortSection {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 15px 0;
+}
+
+.menuHeader {
+  color: white;
+  border: none;
+  background-color: transparent;
+  font-size: 30px;
+  padding-left: 50px;
+  padding-bottom: 10px;
+  font-weight: 700;
+}
+
+.menuItem {
+  display: flex;
+  color: white;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  padding-left: 50px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .foodGrid,
+  .itemDialog,
+  .dialogContainer {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+  
+  .inlineForm {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .fridgeWrapper {
+    flex-direction: column;
+    padding: var(--gap);
+  }
+  
+  .foodGrid,
+  .itemDialog,
+  .dialogContainer {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    max-height: 50vh;
+  }
+  
+  .controlsSection {
+    grid-template-columns: 1fr;
+    gap: calc(var(--gap) / 2);
+  }
+  
+  .actionButtons {
+    flex-wrap: wrap;
+  }
+  
+  .fridgeImage {
+    width: 200px;
+  }
+  
+  .inlineForm {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .foodGrid,
+  .itemDialog,
+  .dialogContainer {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+  
+  .inlineForm {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Enhanced Button Styling */
+button {
+  padding: var(--btn-padding);
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--btn-radius);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.formActions {
+  display: flex;
+  gap: var(--gap);
+  margin-top: 15px;
+  justify-content: flex-end;
+}
+
+.primaryButton {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: var(--btn-padding);
+  border-radius: var(--btn-radius);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 120px;
+  transition: all 0.2s ease;
+}
+
+.primaryButton:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.secondaryButton {
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  padding: var(--btn-padding);
+  border-radius: var(--btn-radius);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 120px;
+  transition: all 0.2s ease;
+}
+
+.secondaryButton:hover {
+  background-color: var(--secondary-hover);
+  transform: translateY(-1px);
+}
+
+.foodItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.foodActions {
+  display: flex;
+  gap: 5px;
+}
+
+.editButton, .deleteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.editButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.deleteButton:hover {
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.expirationInfo {
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* Enhanced Form Input Styling */
+.formInput, .formSelect {
+  height: var(--input-height);
+  padding: var(--input-padding);
+  border: 1px solid var(--border-color);
+  border-radius: var(--input-radius);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.formInput:focus, .formSelect:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.formInput::placeholder {
+  color: var(--text-secondary);
+}
+
+.formSelect option {
+  background-color: var(--dark-bg);
+  color: var(--text-primary);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--input-radius);
+  transition: background-color 0.2s ease;
+}
+
+.checkboxLabel:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-color);
+}
+
+/* Enhanced Suggestions Styling */
+.suggestions {
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 123, 255, 0.05));
+  border: 1px solid rgba(0, 123, 255, 0.3);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  margin: 15px 0;
+  backdrop-filter: blur(10px);
+}
+
+.suggestions p {
+  margin: 8px 0;
+  color: var(--text-primary);
+}
+
+.suggestions strong {
+  color: var(--primary-color);
+}
+
+.suggestionButton {
+  background-color: var(--success-color);
+  color: white;
+  border: none;
+  padding: var(--btn-padding);
+  border-radius: var(--btn-radius);
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+}
+
+.suggestionButton:hover {
+  background-color: var(--success-hover);
+  transform: translateY(-1px);
+}
+
+/* AI Suggestions Enhanced Styling */
+.aiSuggestions {
+  background: rgba(100, 149, 237, 0.08);
+  border: 1px solid rgba(100, 149, 237, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: calc(var(--gap) * 0.75);
+  backdrop-filter: blur(4px);
+}
+
+.aiSuggestionsHeader {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aiSuggestionsContent {
+  margin-bottom: 12px;
+}
+
+.suggestionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.suggestionItem:last-of-type {
+  margin-bottom: 0;
+}
+
+.suggestionLabel {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-color);
+  min-width: 80px;
+}
+
+.suggestionValue {
+  font-size: 1rem;
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.suggestionButtonContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+/* Override existing suggestion button for new AI suggestions */
+.aiSuggestions .suggestionButton {
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  color: var(--text-color);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0;
+}
+
+.aiSuggestions .suggestionButton:hover {
+  background: var(--hover-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: none;
 }
