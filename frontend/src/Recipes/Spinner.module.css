@@ -5,9 +5,11 @@
   align-items: center;
   justify-content: center;
   gap: 20px;
-  height:auto;
+  height: auto;
   position: relative;
-  margin-left: 50px;
+  margin: 0 auto; /* Center horizontally */
+  width: 100%;
+  max-width: 400px; /* Limit max width for better centering */
 }
 
 /* Slider window (visible area) */

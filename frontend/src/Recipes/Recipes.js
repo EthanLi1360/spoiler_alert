@@ -4,7 +4,7 @@ import FridgeNav from "./FridgeNav";
 import RecipeBanners from "./RecipeBanners";
 import styles from "./Recipes.module.css";
 import { generate } from "./GeminiRecipes";
-import { getFoodItem, getFridgeContents } from "../Util";
+import { getFoodItem, getFridgeContents, getCachedBackendUrl } from "../Util";
 import RecipeDetails from "./RecipeDetails";
 import Spinner from "./Spinner";
 import axios from "axios";
@@ -24,15 +24,23 @@ function Recipes() {
     const makePrompt = async (existedRecipe, restrictions=null) => {
         console.log("current fridge:")
         console.log(currentFridge)
+        
+        if (!currentFridge || !currentFridge.fridgeID) {
+            console.error("No current fridge selected");
+            return "";
+        }
+        
         let ingredients = await getFridgeContents(currentFridge.fridgeID);
         console.log("Ingredients:", ingredients);
       
         let prompt = "Generate me another recipe including but not limited to the following ingredients: ";
-        if (ingredients.length > 0) {
+        if (ingredients && ingredients.length > 0) {
             prompt += ingredients[0].name;
-        }
-        for (let i = 1; i < ingredients.length; i++) {
-            prompt += " and " + ingredients[i].name;
+            for (let i = 1; i < ingredients.length; i++) {
+                prompt += " and " + ingredients[i].name;
+            }
+        } else {
+            prompt += "any ingredients you think would make a good recipe";
         }
       
         if (restrictions != null) {
@@ -42,7 +50,7 @@ function Recipes() {
             }
         }
       
-        if (existedRecipe.length != 0) {
+        if (existedRecipe && existedRecipe.length != 0) {
             prompt += ". Do not give me these recipes:"
             for (const existed of existedRecipe) {
                 prompt += existed["recipe_name"] + " and ";
@@ -85,34 +93,51 @@ function Recipes() {
         setAILoading(false);
     }
 
-    const saveRecipe = (recipe) => {
+    const saveRecipe = async (recipe) => {
         // setSavedRecipes([...savedRecipes, recipe]);
         console.log(recipe)
-        axios.post("http://127.0.0.1:5000/save_recipe", {
-          fridgeID: currentFridge.fridgeID,
-          recipe: {
-            name: recipe.recipe_name,
-            instructions: recipe.directions,
-            createdBy: localStorage.getItem("username"),
-            ingredients: recipe.ingredients,
-            cuisine: '',
-            dietaryRestrictions: ''
-          }
-        })
-        .then((response) => {
+        
+        if (!currentFridge || !currentFridge.fridgeID) {
+            console.error("No current fridge selected");
+            return;
+        }
+        
+        if (!recipe || !recipe.recipe_name) {
+            console.error("Invalid recipe data");
+            return;
+        }
+        
+        try {
+            const backendUrl = await getCachedBackendUrl();
+            const response = await axios.post(`${backendUrl}/save_recipe`, {
+              fridgeID: currentFridge.fridgeID,
+              recipe: {
+                name: recipe.recipe_name,
+                instructions: recipe.directions || [],
+                createdBy: localStorage.getItem("username"),
+                ingredients: recipe.ingredients || [],
+                cuisine: '',
+                dietaryRestrictions: ''
+              }
+            });
             console.log("Saving a recipe")
             console.log(response)
             setIfAddedRecipe(true)
-        });    
+        } catch (error) {
+            console.error("Error saving recipe:", error);
+        }
     }
 
     const removeSavedRecipe = async (recipe) => {
         console.log(recipe)
-        setSavedRecipes(savedRecipes.filter(e => e.recipeID !== recipe.recipeID));
-        axios.delete("http://127.0.0.1:5000/delete_recipe?fridgeID=" + currentFridge.fridgeID + "&recipeID=" + recipe.recipeID)
-        .then((response) => {
-            console.log(response.data.recipes)
-        });
+        try {
+            const backendUrl = await getCachedBackendUrl();
+            setSavedRecipes(savedRecipes.filter(e => e.recipeID !== recipe.recipeID));
+            const response = await axios.delete(`${backendUrl}/delete_recipe?fridgeID=${currentFridge.fridgeID}&recipeID=${recipe.recipeID}`);
+            console.log(response.data);
+        } catch (error) {
+            console.error("Error deleting recipe:", error);
+        }
     }
 
     const recipeClicked = (recipe) => {
@@ -130,12 +155,22 @@ function Recipes() {
 
     const toogleViewSaved = async () => {
         console.log("Saved recipes")
-        axios.get("http://127.0.0.1:5000/view_saved_recipes?fridgeID=" + currentFridge.fridgeID)
-        .then((response) => {
+        
+        if (!currentFridge || !currentFridge.fridgeID) {
+            console.error("No current fridge selected");
+            return;
+        }
+        
+        try {
+            const backendUrl = await getCachedBackendUrl();
+            const response = await axios.get(`${backendUrl}/view_saved_recipes?fridgeID=${currentFridge.fridgeID}`);
             console.log(response.data.recipes)
-            setSavedRecipes(response.data.recipes)
+            setSavedRecipes(response.data.recipes || [])
             setViewSaved(!viewSaved)
-        });
+        } catch (error) {
+            console.error("Error fetching saved recipes:", error);
+            setSavedRecipes([]);
+        }
     }
 
     const choices = ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5", "Option 6", "Option 7"];
