@@ -454,7 +454,27 @@ def update_fridge_content():
             content_to_edit['category'] = data['category']
         
         if 'expirationDate' in data:
-            content_to_edit['expirationDate'] = data['expirationDate']
+            # Handle date formatting properly - ensure it's in YYYY-MM-DD format or None
+            exp_date = data['expirationDate']
+            if exp_date is None or str(exp_date).strip() == '':
+                content_to_edit['expirationDate'] = None
+            else:
+                # If it's already in proper format (YYYY-MM-DD), use it directly
+                # Otherwise, try to parse and reformat
+                try:
+                    from datetime import datetime
+                    if isinstance(exp_date, str) and len(exp_date) == 10 and exp_date.count('-') == 2:
+                        # Already in YYYY-MM-DD format
+                        content_to_edit['expirationDate'] = exp_date
+                    else:
+                        # Try to parse and reformat
+                        parsed_date = datetime.strptime(str(exp_date)[:10], '%Y-%m-%d')
+                        content_to_edit['expirationDate'] = parsed_date.strftime('%Y-%m-%d')
+                except (ValueError, TypeError):
+                    return jsonify({
+                        'success': False,
+                        'error': 'Invalid date format. Please use YYYY-MM-DD format'
+                    }), 400
         
         if 'isInFreezer' in data:
             content_to_edit['isInFreezer'] = 1 if data['isInFreezer'] else 0
