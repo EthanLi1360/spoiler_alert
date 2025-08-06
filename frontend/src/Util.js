@@ -179,3 +179,86 @@ export default function useToken() {
         token
     }
 }
+
+/**
+ * Dynamically discovers the backend API base URL by testing common ports
+ * @returns {Promise<string>} The base URL of the running backend server
+ */
+export const getBackendBaseUrl = async () => {
+  const commonPorts = [5000, 5001, 3001, 8000, 8080];
+  
+  for (const port of commonPorts) {
+    const baseUrl = `http://localhost:${port}`;
+    try {
+      // Create an AbortController for timeout functionality
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      
+      // Test if the server is responding by hitting a simple endpoint
+      const response = await fetch(`${baseUrl}/get_gemini_api_key`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        console.log(`Backend detected on port ${port}`);
+        return baseUrl;
+      }
+    } catch (error) {
+      // Port is not responding, try the next one
+      console.log(`Port ${port} not responding:`, error.message);
+      continue;
+    }
+  }
+  
+  // If no port works, default to 5000 and let the error bubble up
+  console.warn('No backend server detected on common ports, defaulting to 5000');
+  return 'http://localhost:5000';
+};
+
+/**
+ * Makes an API call to the backend with automatic port discovery
+ * @param {string} endpoint - The API endpoint (e.g., '/get_gemini_api_key')
+ * @param {Object} options - Fetch options (method, headers, body, etc.)
+ * @returns {Promise<Response>} The fetch response
+ */
+export const apiCall = async (endpoint, options = {}) => {
+  const baseUrl = await getBackendBaseUrl();
+  const url = `${baseUrl}${endpoint}`;
+  
+  return fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  });
+};
+
+/**
+ * Cached backend URL to avoid repeated discovery calls
+ */
+let cachedBackendUrl = null;
+
+/**
+ * Gets the backend URL with caching to improve performance
+ * @returns {Promise<string>} The base URL of the running backend server
+ */
+export const getCachedBackendUrl = async () => {
+  if (!cachedBackendUrl) {
+    cachedBackendUrl = await getBackendBaseUrl();
+  }
+  return cachedBackendUrl;
+};
+
+/**
+ * Clears the cached backend URL (useful for testing or if server restarts)
+ */
+export const clearBackendUrlCache = () => {
+  cachedBackendUrl = null;
+};

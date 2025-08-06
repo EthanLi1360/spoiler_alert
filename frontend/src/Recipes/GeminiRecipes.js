@@ -1,9 +1,27 @@
+import { getCachedBackendUrl } from '../Util';
+
 export async function generate(prompt) {
     const {
       GoogleGenerativeAI
     } = require("@google/generative-ai");
   
-    const apiKey = "AIzaSyBdWGJbElVGJdovFYym4c_WEuTVvr0HQmo";
+    // Fetch API key from backend using dynamic port discovery
+    let apiKey;
+    try {
+      const backendUrl = await getCachedBackendUrl();
+      const response = await fetch(`${backendUrl}/get_gemini_api_key`);
+      const data = await response.json();
+      
+      if (data.success) {
+        apiKey = data.api_key;
+      } else {
+        throw new Error(data.error || "Failed to get API key");
+      }
+    } catch (error) {
+      console.error("Error fetching Gemini API key:", error);
+      throw error;
+    }
+  
     const genAI = new GoogleGenerativeAI(apiKey);
   
     const model = genAI.getGenerativeModel({

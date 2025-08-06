@@ -3,6 +3,7 @@ import Navbar from '../Navbar/Navbar';
 import styles from './FridgePage.module.css';
 import closedFridge from '../closed_fridge.png';
 import openFridge from './open_fridge.png';
+import { getCachedBackendUrl, clearBackendUrlCache } from '../Util';
 
 import axios from 'axios';
 import ShareFridge from '../ShareFridge/ShareFridge';
@@ -24,10 +25,29 @@ const FridgePage = () => {
   const [isFridgeOpen, setIsFridgeOpen] = useState(false);
   const [foodSearchedName, setFoodSearchedName] = useState('');
   const [foodsSearched, setFoodsSearched] = useState([]);
+  const [backendUrl, setBackendUrl] = useState('');
 
   const [mode, setMode] = useState("none");
 
   const [canOpenFridge, setCanOpenFridge] = useState(false);
+
+  // Initialize backend URL on component mount
+  useEffect(() => {
+    const initBackendUrl = async () => {
+      try {
+        console.log('Attempting to discover backend URL...');
+        // Clear cache to ensure fresh discovery
+        clearBackendUrlCache();
+        const url = await getCachedBackendUrl();
+        console.log('Backend URL discovered:', url);
+        setBackendUrl(url);
+      } catch (error) {
+        console.error('Failed to get backend URL:', error);
+        setBackendUrl('http://localhost:5000'); // fallback
+      }
+    };
+    initBackendUrl();
+  }, []);
 
   // useEffect(() => {
   //   const username = localStorage.getItem("username");
@@ -71,24 +91,34 @@ const FridgePage = () => {
   };
 
   const toggleFridge = async () => {
-    if (canOpenFridge) {
+    if (canOpenFridge && backendUrl) {
       if (!isFridgeOpen) {
-        await axios.get("http://127.0.0.1:5000/get_fridge_contents?fridgeID="+fridge.fridgeID)
-          .then((response) => {
-            if (response.data.success) {
-              setFoods(response.data.items);
-            } else {
-              alert(fridge.name);
-            }
-          })
+        try {
+          console.log('Making request to:', `${backendUrl}/get_fridge_contents?fridgeID=${fridge.fridgeID}`);
+          const response = await axios.get(`${backendUrl}/get_fridge_contents?fridgeID=${fridge.fridgeID}`);
+          
+          if (response.data.success) {
+            setFoods(response.data.items);
+          } else {
+            alert('Failed to load fridge contents: ' + (response.data.error || 'Unknown error'));
+          }
+        } catch (error) {
+          console.error('Error loading fridge contents:', error);
+          alert('Network error loading fridge contents. Please check if the backend is running.');
+          return; // Don't toggle fridge state on error
+        }
       }
       setIsFridgeOpen(!isFridgeOpen);
+    } else if (!backendUrl) {
+      alert('Backend URL not yet discovered. Please wait a moment and try again.');
     }
   };
 
   const addFoodItem = async () => {
+    if (!backendUrl) return;
+    
     const response = await axios
-      .post("http://127.0.0.1:5000/add_fridge_content", {
+      .post(`${backendUrl}/add_fridge_content`, {
         username: localStorage.getItem("username"),
         fridgeID: fridge.fridgeID,
         quantity: quantity,
@@ -100,7 +130,7 @@ const FridgePage = () => {
       });
       
     if (response.data.success) {
-      axios.get("http://127.0.0.1:5000/get_fridge_contents?fridgeID="+fridge.fridgeID)
+      axios.get(`${backendUrl}/get_fridge_contents?fridgeID=${fridge.fridgeID}`)
         .then((response) => {
           if (response.data.success) {
             setFoods(response.data.items);
@@ -129,12 +159,21 @@ const FridgePage = () => {
 
   // Integrate Google Generative AI for suggestion functionality
   useEffect(() => {
-    const API_KEY = "AIzaSyBdWGJbElVGJdovFYym4c_WEuTVvr0HQmo";
     const typingDelay = 1500;
 
     const fetchSuggestions = async () => {
       if (name) {
         try {
+          // Fetch API key from backend using dynamic port discovery
+          const backendUrl = await getCachedBackendUrl();
+          const apiResponse = await fetch(`${backendUrl}/get_gemini_api_key`);
+          const apiData = await apiResponse.json();
+          
+          if (!apiData.success) {
+            throw new Error(apiData.error || "Failed to get API key");
+          }
+          
+          const API_KEY = apiData.api_key;
           const { GoogleGenerativeAI } = require("@google/generative-ai");
           const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -193,8 +232,10 @@ const FridgePage = () => {
   };
 
   const deleteFoodItem = async (id) => {
+    if (!backendUrl) return;
+    
     const response = await axios
-      .delete("http://127.0.0.1:5000/delete_fridge_content", {
+      .delete(`${backendUrl}/delete_fridge_content`, {
         data: {
           fridgeID: fridge.fridgeID,
           itemID: id
@@ -206,7 +247,7 @@ const FridgePage = () => {
       });
       
     if (response.data.success) {
-      axios.get("http://127.0.0.1:5000/get_fridge_contents?fridgeID="+fridge.fridgeID)
+      axios.get(`${backendUrl}/get_fridge_contents?fridgeID=${fridge.fridgeID}`)
         .then((response) => {
           if (response.data.success) {
             setFoods(response.data.items);
@@ -246,8 +287,9 @@ const FridgePage = () => {
       {canOpenFridge ? <div>
         <p className={styles.menuHeader}>{fridge.name}</p>
         <button className={styles.menuItem} onClick={() => {
+          if (!backendUrl) return;
 
-          axios.delete("http://127.0.0.1:5000/remove_fridge?fridgeID="+fridge.fridgeID)
+          axios.delete(`${backendUrl}/remove_fridge?fridgeID=${fridge.fridgeID}`)
             .then((response) => {
                 if (response.data.success) {
                   setCanOpenFridge(false);
