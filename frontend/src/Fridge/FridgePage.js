@@ -151,7 +151,7 @@ const FridgePage = () => {
         fridgeID: fridge.fridgeID,
         quantity: parseFloat(quantity),
         unit: units.trim(),
-        expirationDate: expirationDate,
+        expirationDate: expirationDate || null, // Ensure proper format or null
         name: name.trim(),
         category: category,
         isInFreezer: isInFreezer ? 1 : 0
@@ -174,7 +174,7 @@ const FridgePage = () => {
         setSuggestedCategory('');
         setIsInFreezer(false);
         
-        alert('Food item added successfully!');
+        // Item added successfully - no alert needed for better UX
       } else {
         alert('Error adding food item: ' + (response.data.error || 'Unknown error'));
       }
@@ -267,7 +267,7 @@ const FridgePage = () => {
   const deleteFoodItem = async (id) => {
     if (!backendUrl) return;
     
-    if (!confirm('Are you sure you want to delete this item?')) {
+    if (!window.confirm('Are you sure you want to delete this item?')) {
       return;
     }
     
@@ -285,7 +285,7 @@ const FridgePage = () => {
         if (refreshResponse.data.success) {
           setFoods(refreshResponse.data.items);
         }
-        alert('Item deleted successfully!');
+        // Item deleted successfully - no alert needed for better UX
       } else {
         alert('Error deleting item: ' + (response.data.error || 'Unknown error'));
       }
@@ -363,7 +363,7 @@ const FridgePage = () => {
         itemID: editingItem.itemID,
         quantity: parseFloat(quantity),
         unit: units.trim(),
-        expirationDate: expirationDate,
+        expirationDate: expirationDate || null, // Ensure proper format or null
         name: name.trim(),
         category: category,
         isInFreezer: isInFreezer ? 1 : 0
@@ -378,7 +378,7 @@ const FridgePage = () => {
         
         // Clear form and exit edit mode
         cancelEdit();
-        alert('Food item updated successfully!');
+        // Item updated successfully - no alert needed for better UX
       } else {
         alert('Error updating food item: ' + (response.data.error || 'Unknown error'));
       }
@@ -457,7 +457,7 @@ const FridgePage = () => {
                 <button 
                   style={{width: "150px"}} 
                   onClick={() => {mode === "add" ? setMode("none") : setMode("add")}}
-                  className={mode === "add" ? styles.activeButton : ""}
+                  className={mode === "add" ? styles.cancelButton : ""}
                 >
                   {mode === "add" ? "Cancel Add" : "Add Item"}
                 </button>
@@ -493,7 +493,37 @@ const FridgePage = () => {
                     <select
                       name="sort_foods"
                       value={queryOption}
-                      onChange={(e) => setQueryOption(e.target.value)}
+                      onChange={(e) => {
+                        const selectedOption = e.target.value;
+                        setQueryOption(selectedOption);
+                        
+                        // Auto-sort when option is selected
+                        if (selectedOption) {
+                          const sortedFoods = [...foods].sort((a, b) => {
+                            if (selectedOption === 'quantity') {
+                              return a[selectedOption] - b[selectedOption];
+                            }
+                            if (selectedOption === 'expirationDate') {
+                              if (a.isInFreezer && !b.isInFreezer) {
+                                return 1;
+                              } else if (!a.isInFreezer && b.isInFreezer) {
+                                return -1;
+                              }
+                              return Date.parse(a[selectedOption]) - Date.parse(b[selectedOption]);
+                            }
+                            if (selectedOption === 'isInFreezer') {
+                              if (a.isInFreezer && !b.isInFreezer) {
+                                return -1;
+                              } else if (!a.isInFreezer && b.isInFreezer) {
+                                return 1;
+                              }
+                              return 0;
+                            }
+                            return String(a[selectedOption]).localeCompare(String(b[selectedOption]));
+                          });
+                          setFoods(sortedFoods);
+                        }
+                      }}
                       className={styles.sortSelect}
                     >
                       <option value="" disabled>Select an option</option>
@@ -501,31 +531,6 @@ const FridgePage = () => {
                         <option key={option} value={option}>{option}</option>
                       ))}
                     </select>
-                    <button onClick={() => {
-                      const sortedFoods = [...foods].sort((a, b) => {
-                        if (queryOption === 'quantity') {
-                          return a[queryOption] - b[queryOption];
-                        }
-                        if (queryOption === 'expirationDate') {
-                          if (a.isInFreezer && !b.isInFreezer) {
-                            return 1;
-                          } else if (!a.isInFreezer && b.isInFreezer) {
-                            return -1;
-                          }
-                          return Date.parse(a[queryOption]) - Date.parse(b[queryOption]);
-                        }
-                        if (queryOption === 'isInFreezer') {
-                          if (a.isInFreezer && !b.isInFreezer) {
-                            return -1;
-                          } else if (!a.isInFreezer && b.isInFreezer) {
-                            return 1;
-                          }
-                          return 0;
-                        }
-                        return String(a[queryOption]).localeCompare(String(b[queryOption]));
-                      });
-                      setFoods(sortedFoods);
-                    }} className={styles.sortButton}>Sort</button>
                   </div>
                 </div>
                 
@@ -574,95 +579,121 @@ const FridgePage = () => {
               </div>
             }
 
-            {(mode === "add" || mode === "edit") && <div className={styles.userInput}>
-              <h3>{mode === "edit" ? "Edit Food Item" : "Add New Food Item"}</h3>
-              
-              <div className={styles.inlineForm}>
-                <input
-                  type="text"
-                  placeholder="Food Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className={styles.formInput}
-                />
-                <input
-                  type="number"
-                  placeholder="Quantity"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  min="0.01"
-                  step="0.01"
-                  className={styles.formInput}
-                />
-                <input
-                  type="text"
-                  placeholder="Units (e.g., lbs, pieces, cups)"
-                  value={units}
-                  onChange={(e) => setUnits(e.target.value)}
-                  className={styles.formInput}
-                />
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={isInFreezer}
-                    onChange={() => setIsInFreezer(!isInFreezer)}
-                  />
-                  In Freezer?
-                </label>
-              </div>
-
-              <div className={styles.inlineForm}>
-                <select
-                  name="category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className={styles.formSelect}
-                >
-                  <option value="" disabled>Select category</option>
-                  {Object.values(FridgeCategories).map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-                <input
-                  type="date"
-                  value={expirationDate}
-                  onChange={(e) => setExpirationDate(e.target.value)}
-                  disabled={isInFreezer}
-                  className={styles.formInput}
-                  title={isInFreezer ? "Expiration date not required for freezer items" : ""}
-                />
-              </div>
-
-              {mode === "add" && suggestedExpirationTime && (
-                <div className={styles.suggestions}>
-                  <p><strong>AI Suggestions:</strong></p>
-                  <p>Suggested expiration time: {suggestedExpirationTime} days</p>
-                  <p>Suggested category: {suggestedCategory}</p>
-                  <button onClick={confirmSuggestion} className={styles.suggestionButton}>
-                    Apply Suggestions
-                  </button>
-                </div>
-              )}
-
-              <div className={styles.formActions}>
-                {mode === "add" ? (
-                  <button onClick={addFoodItem} className={styles.primaryButton}>
-                    Add Food Item
-                  </button>
+            {mode !== "none" && (
+              <div className={styles.dialogContainer}>
+                {mode === "share" ? (
+                  <ShareFridge activeFridgeID={fridge.fridgeID}/>
                 ) : (
-                  <>
-                    <button onClick={updateFoodItem} className={styles.primaryButton}>
-                      Update Item
-                    </button>
-                    <button onClick={cancelEdit} className={styles.secondaryButton}>
-                      Cancel
-                    </button>
-                  </>
+                  <div className={styles.userInput}>
+                    <h3>{mode === "edit" ? "Edit Food Item" : "Add New Food Item"}</h3>
+                    
+                    <div className={styles.inlineForm}>
+                      <input
+                        type="text"
+                        placeholder="Food Name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className={styles.formInput}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Quantity"
+                        value={quantity}
+                        onChange={(e) => setQuantity(e.target.value)}
+                        min="0.01"
+                        step="0.01"
+                        className={styles.formInput}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Units (e.g., lbs, pieces, cups)"
+                        value={units}
+                        onChange={(e) => setUnits(e.target.value)}
+                        className={styles.formInput}
+                      />
+                    </div>
+
+                    <div className={styles.inlineForm}>
+                      <select
+                        name="category"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        className={styles.formSelect}
+                      >
+                        <option value="" disabled>Select category</option>
+                        {Object.values(FridgeCategories).map((cat) => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                      <input
+                        type="date"
+                        value={expirationDate}
+                        onChange={(e) => setExpirationDate(e.target.value)}
+                        disabled={isInFreezer}
+                        className={styles.formInput}
+                        title={isInFreezer ? "Expiration date not required for freezer items" : ""}
+                      />
+                      <label className={styles.checkboxLabel}>
+                        <input
+                          type="checkbox"
+                          checked={isInFreezer}
+                          onChange={() => {
+                            setIsInFreezer(!isInFreezer);
+                            // Clear expiration date when checking "In Freezer" for better UX
+                            if (!isInFreezer) {
+                              setExpirationDate('');
+                            }
+                          }}
+                        />
+                        In Freezer?
+                      </label>
+                    </div>
+
+                    {mode === "add" && suggestedExpirationTime && (
+                      <div className={styles.aiSuggestions}>
+                        <div className={styles.aiSuggestionsHeader}>
+                          💡 AI Suggestions
+                        </div>
+                        <div className={styles.aiSuggestionsContent}>
+                          <div className={styles.suggestionItem}>
+                            <span className={styles.suggestionLabel}>Expiration:</span>
+                            <span className={styles.suggestionValue}>{suggestedExpirationTime} days</span>
+                          </div>
+                          <div className={styles.suggestionItem}>
+                            <span className={styles.suggestionLabel}>Category:</span>
+                            <span className={styles.suggestionValue}>{suggestedCategory}</span>
+                          </div>
+                        </div>
+                        <div className={styles.suggestionButtonContainer}>
+                          <button onClick={confirmSuggestion} className={styles.suggestionButton}>
+                            Apply Suggestions
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className={styles.formSeparator}></div>
+
+                    <div className={styles.actionButtons}>
+                      {mode === "add" ? (
+                        <button onClick={addFoodItem} className={styles.primaryButton}>
+                          Add Food Item
+                        </button>
+                      ) : (
+                        <>
+                          <button onClick={updateFoodItem} className={styles.primaryButton}>
+                            Update Item
+                          </button>
+                          <button onClick={cancelEdit} className={styles.secondaryButton}>
+                            Cancel
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
-            </div>}
-
-            {mode === "share" && <ShareFridge activeFridgeID={fridge.fridgeID}/>}
+            )}
           </div>
         )}
       </div>
