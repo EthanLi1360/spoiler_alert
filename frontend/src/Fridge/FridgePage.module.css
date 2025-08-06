@@ -89,7 +89,11 @@
 
 /* Empty Fridge Styling */
 .emptyFridgeContainer {
-  background: linear-gradient(135deg, rgba(34, 34, 34, 0.8), rgba(34, 34, 34, 0.6));
+  background: linear-gradient(
+    135deg,
+    rgba(34, 34, 34, 0.8),
+    rgba(34, 34, 34, 0.6)
+  );
   border: 1px dashed var(--border-color);
   border-radius: var(--card-radius);
   padding: var(--card-padding);
@@ -187,12 +191,12 @@
 }
 
 /* Enhanced state styling for food items */
-.foodItem[style*="background-color: rgb(170, 51, 51)"] {
+.foodItem[style*='background-color: rgb(170, 51, 51)'] {
   background-color: var(--card-bg-expired) !important;
   border-color: var(--danger-color);
 }
 
-.foodItem[style*="background-color: rgb(51, 51, 255)"] {
+.foodItem[style*='background-color: rgb(51, 51, 255)'] {
   background-color: var(--card-bg-freezer) !important;
   border-color: var(--primary-color);
 }
@@ -374,7 +378,8 @@
   gap: 8px;
 }
 
-.editButton, .deleteButton {
+.editButton,
+.deleteButton {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid transparent;
   cursor: pointer;
@@ -421,7 +426,11 @@
 
 /* Empty Fridge Styling */
 .emptyFridgeContainer {
-  background: linear-gradient(135deg, rgba(34, 34, 34, 0.8), rgba(34, 34, 34, 0.6));
+  background: linear-gradient(
+    135deg,
+    rgba(34, 34, 34, 0.8),
+    rgba(34, 34, 34, 0.6)
+  );
   border: 1px dashed var(--border-color);
   border-radius: var(--card-radius);
   padding: var(--card-padding);
@@ -475,7 +484,7 @@
   .dialogContainer {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
-  
+
   .inlineForm {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -486,27 +495,27 @@
     flex-direction: column;
     padding: var(--gap);
   }
-  
+
   .foodGrid,
   .itemDialog,
   .dialogContainer {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     max-height: 50vh;
   }
-  
+
   .controlsSection {
     grid-template-columns: 1fr;
     gap: calc(var(--gap) / 2);
   }
-  
+
   .actionButtons {
     flex-wrap: wrap;
   }
-  
+
   .fridgeImage {
     width: 200px;
   }
-  
+
   .inlineForm {
     grid-template-columns: 1fr;
   }
@@ -519,7 +528,7 @@
     grid-template-columns: 1fr;
     max-width: 100%;
   }
-  
+
   .inlineForm {
     grid-template-columns: 1fr;
   }
@@ -598,7 +607,8 @@ button:hover {
   gap: 5px;
 }
 
-.editButton, .deleteButton {
+.editButton,
+.deleteButton {
   background: none;
   border: none;
   cursor: pointer;
@@ -622,7 +632,8 @@ button:hover {
 }
 
 /* Enhanced Form Input Styling */
-.formInput, .formSelect {
+.formInput,
+.formSelect {
   height: var(--input-height);
   padding: var(--input-padding);
   border: 1px solid var(--border-color);
@@ -633,7 +644,8 @@ button:hover {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.formInput:focus, .formSelect:focus {
+.formInput:focus,
+.formSelect:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
@@ -664,7 +676,7 @@ button:hover {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
-.checkboxLabel input[type="checkbox"] {
+.checkboxLabel input[type='checkbox'] {
   width: 18px;
   height: 18px;
   accent-color: var(--primary-color);
@@ -672,7 +684,11 @@ button:hover {
 
 /* Enhanced Suggestions Styling */
 .suggestions {
-  background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 123, 255, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(0, 123, 255, 0.1),
+    rgba(0, 123, 255, 0.05)
+  );
   border: 1px solid rgba(0, 123, 255, 0.3);
   border-radius: var(--card-radius);
   padding: var(--card-padding);

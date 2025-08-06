@@ -15,16 +15,20 @@ code {
     monospace;
 }
 
-h1, h3, p, li, td {
+h1,
+h3,
+p,
+li,
+td {
   color: white;
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   margin: 0;
   padding: 0;
 }
 
 h1 {
   margin-bottom: 5px;
-  font-family: "Russo One";
+  font-family: 'Russo One';
   font-size: min(150px, max(80px, 10vw));
   font-weight: 400;
   font-style: normal;
@@ -35,6 +39,7 @@ h3 {
   font-size: 35px;
 }
 
-p, li {
+p,
+li {
   font-size: 20px;
 }
