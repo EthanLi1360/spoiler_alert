@@ -98,7 +98,7 @@ def login_credentials():
 
     # generate token
     # TODO generate new token if timestamp is too old, NOT always!
-    new_token = uuid4()
+    new_token = str(uuid4())  # Convert UUID to string for database storage
     timestamp = current_time_millis()
     print(timestamp)
     update_data('User', {"token": new_token}, "username", data["username"])
@@ -127,9 +127,9 @@ def add_account():
     try:
         insert_data('User', {
             "username": data['username'],
-            "password" : hashed_password,
+            "password" : hashed_password.decode('utf-8'),  # Convert bytes to string
             "createdAt": datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
-            "salt": salt
+            "salt": salt.decode('utf-8')  # Convert bytes to string
         })
         return jsonify({
                 "success": True,
