@@ -13,9 +13,15 @@ import bcrypt
 import logging
 import json
 import time
+import os
 from uuid import uuid4
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 #resets all db values when endpoint is reached
 @app.route('/RESET', methods=['DELETE'])
@@ -814,8 +820,35 @@ def get_table_content_with_key(table, key, id):
 #      print(f"Either {username} is used or the value entered is illegal.")
 #      return index(consoleInfo="last input was not successful")
 
+@app.route('/get_gemini_api_key', methods=['GET'])
+@cross_origin()
+def get_gemini_api_key():
+    """
+    Endpoint to provide the Gemini API key to authenticated frontend requests.
+    This centralizes API key management and keeps sensitive keys in the backend.
+    """
+    try:
+        # Get the API key from environment variables
+        api_key = os.getenv("GEMINI_API_KEY")
+        
+        if not api_key:
+            return jsonify({
+                "success": False,
+                "error": "Gemini API key not configured"
+            }), 500
+            
+        return jsonify({
+            "success": True,
+            "api_key": api_key
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
 if __name__=="__main__":
-  app.run(debug=True)
+  app.run(debug=True, port=5001)
 
 
     
