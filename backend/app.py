@@ -199,42 +199,113 @@ def delete_fridge():
 @app.route('/add_fridge_content', methods=['POST'])
 @cross_origin()
 def add_fridge_content():
+    """
+    Add a food item to a fridge with comprehensive input validation.
+    Validates quantity, expiration date, and required fields.
+    """
     print("Add Fridge Content data endpoint hit")
     data = request.get_json()
+    
+    # Input validation
     try:
+        # Validate required fields
+        required_fields = ['fridgeID', 'quantity', 'unit', 'name', 'category', 'username']
+        for field in required_fields:
+            if field not in data or data[field] is None or str(data[field]).strip() == '':
+                return jsonify({
+                    'success': False,
+                    'error': f'Required field "{field}" is missing or empty'
+                }), 400
+        
+        # Validate quantity is positive number
+        try:
+            quantity = float(data['quantity'])
+            if quantity <= 0:
+                return jsonify({
+                    'success': False,
+                    'error': 'Quantity must be a positive number greater than 0'
+                }), 400
+        except (ValueError, TypeError):
+            return jsonify({
+                'success': False,
+                'error': 'Quantity must be a valid number'
+            }), 400
+        
+        # Validate unit is not empty
+        if not str(data['unit']).strip():
+            return jsonify({
+                'success': False,
+                'error': 'Unit cannot be empty'
+            }), 400
+        
+        # Validate name length
+        if len(str(data['name']).strip()) < 2:
+            return jsonify({
+                'success': False,
+                'error': 'Food name must be at least 2 characters long'
+            }), 400
+        
+        # Validate category
+        valid_categories = [
+            'Dairy Products', 'Fruits', 'Vegetables', 'Meats, Poultry, and Fish',
+            'Eggs and Egg Products', 'Condiments, Sauces and Spreads', 'Beverages',
+            'Leftovers and Pre-Cooked Meals', 'Other Items'
+        ]
+        if data['category'] not in valid_categories:
+            return jsonify({
+                'success': False,
+                'error': f'Invalid category. Must be one of: {", ".join(valid_categories)}'
+            }), 400
+        
+        # Validate fridge exists
         confirmed_fridge_ID = None
         fridge_rows = view_data('Fridge')
         for fridge in fridge_rows:
             if fridge['fridgeID'] == data['fridgeID']:
                 confirmed_fridge_ID = data['fridgeID']
+                break
+        
         if confirmed_fridge_ID == None:
-            raise Exception("No Fridge with inputted ID")
-        if data['expirationDate'] == None and not data['isInFreezer']:
-            raise Exception("Must have expiration date if not in freezer")
+            return jsonify({
+                'success': False,
+                'error': 'Fridge not found with the specified ID'
+            }), 404
+        
+        # Validate expiration date for non-freezer items
+        is_in_freezer = data.get('isInFreezer', False)
+        if not is_in_freezer and (data.get('expirationDate') is None or str(data.get('expirationDate')).strip() == ''):
+            return jsonify({
+                'success': False,
+                'error': 'Expiration date is required for items not stored in freezer'
+            }), 400
+        
+        # Prepare data for insertion
         posted_data = {
             'fridgeID': confirmed_fridge_ID,
-            'quantity': data['quantity'],
-            'unit': data['unit'],
-            'expirationDate': data['expirationDate'],
-            'addedBy': data['username'],
+            'quantity': quantity,
+            'unit': str(data['unit']).strip(),
+            'expirationDate': data.get('expirationDate'),
+            'addedBy': str(data['username']).strip(),
             'addedAt': datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
-            'name': data['name'],
+            'name': str(data['name']).strip(),
             'category': data['category'],
-            'isInFreezer': data['isInFreezer']
-
+            'isInFreezer': 1 if is_in_freezer else 0
         }
+        
         insert_data('FridgeContent', posted_data)
         return jsonify({
             'success': True,
-            'item': posted_data
+            'item': posted_data,
+            'message': 'Food item added successfully'
         })
-    except:
-        print("EXCEPTION")
-        logging.exception("error_log")
+        
+    except Exception as e:
+        print("EXCEPTION:", str(e))
+        logging.exception("Error adding fridge content")
         return jsonify({
             'success': False,
-            'item': {}
-        })
+            'error': f'Server error: {str(e)}'
+        }), 500
 
 
 @app.route('/get_fridge_contents', methods=['GET'])
@@ -291,16 +362,37 @@ def get_user_fridges():
 @app.route('/update_fridge_content', methods=['PATCH'])
 @cross_origin()
 def update_fridge_content():
+    """
+    Update an existing food item in a fridge with comprehensive input validation.
+    """
     print("Update fridge content data endpoint hit")
+    data = request.get_json()
+    
     try:
-        data = request.get_json()
+        # Validate required fields for update
+        required_fields = ['fridgeID', 'itemID']
+        for field in required_fields:
+            if field not in data or data[field] is None:
+                return jsonify({
+                    'success': False,
+                    'error': f'Required field "{field}" is missing'
+                }), 400
+        
+        # Validate fridge exists
         fridge_ID = None
         fridge_data = view_data('Fridge')
         for fridge in fridge_data:
             if fridge['fridgeID'] == data['fridgeID']:
                 fridge_ID = data['fridgeID']
+                break
+        
         if fridge_ID == None:
-            raise Exception('No Fridge with inputted ID')
+            return jsonify({
+                'success': False,
+                'error': 'Fridge not found with the specified ID'
+            }), 404
+        
+        # Validate item exists in the fridge
         item_ID = None
         content_data = view_data('FridgeContent')
         content_to_edit = None
@@ -308,34 +400,88 @@ def update_fridge_content():
             if content['itemID'] == data['itemID']:
                 item_ID = data['itemID']
                 content_to_edit = content
+                break
+        
         if item_ID == None or content_to_edit['fridgeID'] != fridge_ID:
-            raise Exception('No Fridge Content in Fridge with inputted ID')
+            return jsonify({
+                'success': False,
+                'error': 'Food item not found in the specified fridge'
+            }), 404
+        
+        # Validate and update fields
         if 'name' in data:
-            content_to_edit['name'] = data['name']
+            if not str(data['name']).strip() or len(str(data['name']).strip()) < 2:
+                return jsonify({
+                    'success': False,
+                    'error': 'Food name must be at least 2 characters long'
+                }), 400
+            content_to_edit['name'] = str(data['name']).strip()
+        
+        if 'quantity' in data:
+            try:
+                quantity = float(data['quantity'])
+                if quantity <= 0:
+                    return jsonify({
+                        'success': False,
+                        'error': 'Quantity must be a positive number greater than 0'
+                    }), 400
+                content_to_edit['quantity'] = quantity
+            except (ValueError, TypeError):
+                return jsonify({
+                    'success': False,
+                    'error': 'Quantity must be a valid number'
+                }), 400
+        
+        if 'unit' in data:
+            if not str(data['unit']).strip():
+                return jsonify({
+                    'success': False,
+                    'error': 'Unit cannot be empty'
+                }), 400
+            content_to_edit['unit'] = str(data['unit']).strip()
+        
+        if 'category' in data:
+            valid_categories = [
+                'Dairy Products', 'Fruits', 'Vegetables', 'Meats, Poultry, and Fish',
+                'Eggs and Egg Products', 'Condiments, Sauces and Spreads', 'Beverages',
+                'Leftovers and Pre-Cooked Meals', 'Other Items'
+            ]
+            if data['category'] not in valid_categories:
+                return jsonify({
+                    'success': False,
+                    'error': f'Invalid category. Must be one of: {", ".join(valid_categories)}'
+                }), 400
+            content_to_edit['category'] = data['category']
+        
         if 'expirationDate' in data:
             content_to_edit['expirationDate'] = data['expirationDate']
-        if 'quantity' in data:
-            content_to_edit['quantity'] = data['quantity']
-        if 'unit' in data:
-            content_to_edit['unit'] = data['unit']
-        if 'category' in data:
-            content_to_edit['category'] = data['category']
+        
         if 'isInFreezer' in data:
-            content_to_edit['isInFreezer'] = data['isInFreezer']
-        if content_to_edit['isInFreezer'] == False and content_to_edit['expirationDate'] == None:
-            raise Exception("Must have expiration date if not in freezer")
+            content_to_edit['isInFreezer'] = 1 if data['isInFreezer'] else 0
+        
+        # Validate expiration date for non-freezer items
+        if content_to_edit['isInFreezer'] == 0 and (content_to_edit.get('expirationDate') is None or str(content_to_edit.get('expirationDate')).strip() == ''):
+            return jsonify({
+                'success': False,
+                'error': 'Expiration date is required for items not stored in freezer'
+            }), 400
+        
+        # Update the item in database
         update_data('FridgeContent', content_to_edit, 'ItemID', item_ID)
+        
         return jsonify({
             'success': True,
-            'item': content_to_edit
+            'item': content_to_edit,
+            'message': 'Food item updated successfully'
         })
-    except:
-        print("EXCEPTION")
-        logging.exception("error_log")
+        
+    except Exception as e:
+        print("EXCEPTION:", str(e))
+        logging.exception("Error updating fridge content")
         return jsonify({
             'success': False,
-            'item': {}
-        })
+            'error': f'Server error: {str(e)}'
+        }), 500
 
 
 @app.route('/delete_fridge_content', methods=['DELETE'])
