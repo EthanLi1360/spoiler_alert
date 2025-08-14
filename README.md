@@ -5,6 +5,12 @@
 
 Spoiler Alert helps you track what’s in your fridge, reduce food waste, and make meal planning effortless.
 
+## 🎥 Demo
+
+<!-- Drop your YouTube demo URL or embedded markdown/image thumbnail below -->
+<!-- Example: [![Demo Video](https://img.youtube.com/vi/VIDEO_ID/hqdefault.jpg)](https://youtu.be/VIDEO_ID) -->
+<!-- Placeholder intentionally left for future video insertion. -->
+
 ---
 
 ## 🚀 Key Features
@@ -101,22 +107,26 @@ To use AI-powered recipe generation, you need a Google Gemini API key.
 ## 🖥️ Usage
 
 1. **Sign up and log in.**
-2. **Create or select a fridge.**
+2. **Select or create a fridge:**
+    - You’ll see a centered spinner carousel listing all fridges you have access to.
+    - Click a name to highlight it, then choose **Select Current Fridge** or **Create New Fridge**.
+    - Navigation between pages (Fridges / Recipes / Wishlists) is always available even before selecting a fridge.
 3. **Add food items:**
-    - The app predicts expiry and category for you.
+    - Once a fridge is selected and opened, add items; the app predicts expiry date and category.
 4. **Generate recipes:**
-    - Click "Generate Recipes" to get ideas based on your fridge contents.
-    - Use or save recipes; add ingredients to your fridge with one click.
+    - On the Recipes page, if no fridge is selected you’ll first see the same centered spinner.
+    - After selecting a fridge, click **Generate Recipes** to produce AI-based ideas from your existing inventory.
+    - Save or use a recipe; using it can post ingredients back into your fridge inventory.
 5. **Share your fridge:**
-    - Invite others to collaborate (see Share Fridge feature).
+    - Invite collaborators via the Share Fridge feature so everyone can view and manage contents.
 
 ---
 
 ## 📝 Troubleshooting
 
 - **CORS or network errors?**
-   - Make sure both frontend and backend are running on the correct ports.
-   - Set `REACT_APP_BACKEND_URL` if auto-discovery fails.
+    - Make sure both frontend and backend are running on the correct ports.
+    - Set `REACT_APP_BACKEND_URL` if auto-discovery fails.
 - **Gemini API errors?**
    - Check your API key and backend `.env`.
 - **Port conflicts?**
