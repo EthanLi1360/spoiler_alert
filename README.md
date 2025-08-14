@@ -1,4 +1,3 @@
-
 # Spoiler Alert
 
 **Your smart fridge companion.**
@@ -42,7 +41,6 @@ git clone https://github.com/suryaatm21/spoiler_alert.git
 cd spoiler_alert
 ```
 
-
 ### 2. Backend Setup
 
 ```sh
@@ -58,14 +56,14 @@ python app.py
 - By default, Spoiler Alert uses **SQLite** (a file-based database) for easy local development. The database file is created automatically in the backend directory.
 - **No setup is required for SQLite.**
 - If you want to use a different database (e.g., PostgreSQL, MySQL), update the `SQLALCHEMY_DATABASE_URI` in `backend/app.py` and install the appropriate driver in `requirements.txt`.
-    - Example for PostgreSQL:
-        ```python
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@localhost/dbname'
-        ```
-    - Then run:
-        ```sh
-        pip install psycopg2-binary
-        ```
+  - Example for PostgreSQL:
+    ```python
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@localhost/dbname'
+    ```
+  - Then run:
+    ```sh
+    pip install psycopg2-binary
+    ```
 
 By default, the backend runs on port **5001**. If you need to change this, edit `app.py` or set the port in your run command.
 
@@ -83,9 +81,9 @@ The frontend runs on port **3005** by default (see `.env`). You can change this 
 
 - The frontend will auto-discover the backend on `localhost:5001` or `127.0.0.1:5001`.
 - To override, set `REACT_APP_BACKEND_URL` in `frontend/.env`:
-   ```properties
-   REACT_APP_BACKEND_URL=http://localhost:5001
-   ```
+  ```properties
+  REACT_APP_BACKEND_URL=http://localhost:5001
+  ```
 
 ---
 
@@ -94,13 +92,13 @@ The frontend runs on port **3005** by default (see `.env`). You can change this 
 To use AI-powered recipe generation, you need a Google Gemini API key.
 
 1. **Get your Gemini API key:**
-    - Go to [Google AI Studio](https://aistudio.google.com/app/apikey) and create a key.
+   - Go to [Google AI Studio](https://aistudio.google.com/app/apikey) and create a key.
 2. **Add your key to the backend:**
-    - Create a `.env` file in the `backend/` directory (if it doesn't exist):
-       ```properties
-       GEMINI_API_KEY=your-gemini-api-key-here
-       ```
-    - Restart the backend after adding the key.
+   - Create a `.env` file in the `backend/` directory (if it doesn't exist):
+     ```properties
+     GEMINI_API_KEY=your-gemini-api-key-here
+     ```
+   - Restart the backend after adding the key.
 
 ---
 
@@ -108,29 +106,29 @@ To use AI-powered recipe generation, you need a Google Gemini API key.
 
 1. **Sign up and log in.**
 2. **Select or create a fridge:**
-    - You’ll see a centered spinner carousel listing all fridges you have access to.
-    - Click a name to highlight it, then choose **Select Current Fridge** or **Create New Fridge**.
-    - Navigation between pages (Fridges / Recipes / Wishlists) is always available even before selecting a fridge.
+   - You’ll see a centered spinner carousel listing all fridges you have access to.
+   - Click a name to highlight it, then choose **Select Current Fridge** or **Create New Fridge**.
+   - Navigation between pages (Fridges / Recipes / Wishlists) is always available even before selecting a fridge.
 3. **Add food items:**
-    - Once a fridge is selected and opened, add items; the app predicts expiry date and category.
+   - Once a fridge is selected and opened, add items; the app predicts expiry date and category.
 4. **Generate recipes:**
-    - On the Recipes page, if no fridge is selected you’ll first see the same centered spinner.
-    - After selecting a fridge, click **Generate Recipes** to produce AI-based ideas from your existing inventory.
-    - Save or use a recipe; using it can post ingredients back into your fridge inventory.
+   - On the Recipes page, if no fridge is selected you’ll first see the same centered spinner.
+   - After selecting a fridge, click **Generate Recipes** to produce AI-based ideas from your existing inventory.
+   - Save or use a recipe; using it can post ingredients back into your fridge inventory.
 5. **Share your fridge:**
-    - Invite collaborators via the Share Fridge feature so everyone can view and manage contents.
+   - Invite collaborators via the Share Fridge feature so everyone can view and manage contents.
 
 ---
 
 ## 📝 Troubleshooting
 
 - **CORS or network errors?**
-    - Make sure both frontend and backend are running on the correct ports.
-    - Set `REACT_APP_BACKEND_URL` if auto-discovery fails.
+  - Make sure both frontend and backend are running on the correct ports.
+  - Set `REACT_APP_BACKEND_URL` if auto-discovery fails.
 - **Gemini API errors?**
-   - Check your API key and backend `.env`.
+  - Check your API key and backend `.env`.
 - **Port conflicts?**
-   - Change the `PORT` in `frontend/.env` or backend run command.
+  - Change the `PORT` in `frontend/.env` or backend run command.
 
 ---
 

@@ -1,44 +1,43 @@
 .container {
-    width: 80%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: 80px; /* Add separation from navbar */
-    padding: 20px;
-    box-sizing: border-box;
+  width: 80%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 80px; /* Add separation from navbar */
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
 }
 
 .header button {
-    cursor: pointer;
-    width: fit-content;
-    height: fit-content;
-    background-color: rgba(0, 0, 0, 0);
-    border-width: 0;
-    font-size: 30px;
-    color: white;
+  cursor: pointer;
+  width: fit-content;
+  height: fit-content;
+  background-color: rgba(0, 0, 0, 0);
+  border-width: 0;
+  font-size: 30px;
+  color: white;
 }
 
 .box {
-    width: 90%;
-    height: 90%;
-    padding: 20px;
-    border-radius: 40px;
-    background-color: rgba(189, 195, 199, 0.5);
-    overflow-y: auto;
-    max-height: 1000px;
+  width: 90%;
+  height: 90%;
+  padding: 20px;
+  border-radius: 40px;
+  background-color: rgba(189, 195, 199, 0.5);
+  overflow-y: auto;
+  max-height: 1000px;
 }
 
 .box p {
-    font-size: 15px;
+  font-size: 15px;
 }
 
 .box h4 {
-    color: white;
-    font-size: 20px;
+  color: white;
+  font-size: 20px;
 }
-

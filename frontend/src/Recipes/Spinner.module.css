@@ -64,7 +64,7 @@
 }
 
 .createFridge {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   border: none;
   color: white;
   cursor: pointer;
@@ -111,14 +111,14 @@
 
 .inputFridgeName:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #4caf50;
 }
 
 .inputFridgeButton {
   flex: 1;
   min-width: 100px;
   padding: 12px 20px;
-  background-color: #2196F3;
+  background-color: #2196f3;
   color: white;
   border: none;
   border-radius: 8px;
@@ -129,6 +129,6 @@
 }
 
 .inputFridgeButton:hover {
-  background-color: #1976D2;
+  background-color: #1976d2;
   transform: translateY(-2px);
 }

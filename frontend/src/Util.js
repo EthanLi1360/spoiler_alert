@@ -207,7 +207,10 @@ export const getBackendBaseUrl = async () => {
         return explicit;
       }
     } catch (e) {
-      console.warn(`Explicit REACT_APP_BACKEND_URL unreachable: ${explicit}`, e);
+      console.warn(
+        `Explicit REACT_APP_BACKEND_URL unreachable: ${explicit}`,
+        e,
+      );
     }
   }
 
@@ -221,7 +224,7 @@ export const getBackendBaseUrl = async () => {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 2000);
-  const response = await fetch(`${baseUrl}/GET_DATA`, {
+        const response = await fetch(`${baseUrl}/GET_DATA`, {
           method: 'GET',
           headers: { Accept: 'application/json' },
           signal: controller.signal,
@@ -234,7 +237,10 @@ export const getBackendBaseUrl = async () => {
         }
       } catch (error) {
         // Try next combo
-        console.log(`No response from ${baseUrl}:`, error?.message ?? 'unknown error');
+        console.log(
+          `No response from ${baseUrl}:`,
+          error?.message ?? 'unknown error',
+        );
       }
     }
   }

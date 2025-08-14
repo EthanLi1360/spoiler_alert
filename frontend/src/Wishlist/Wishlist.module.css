@@ -145,7 +145,8 @@
   cursor: text;
 }
 
-.itemInput, .unitInput {
+.itemInput,
+.unitInput {
   background: transparent;
   border: none;
   border-bottom: 1px solid #444;
@@ -154,7 +155,8 @@
   padding: 4px 0;
 }
 
-.itemInput:focus, .unitInput:focus {
+.itemInput:focus,
+.unitInput:focus {
   outline: none;
   border-bottom-color: #666;
 }
