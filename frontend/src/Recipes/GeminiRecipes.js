@@ -90,12 +90,14 @@ export async function generate(prompt) {
       returnValue = json;
     })
     .catch((error) => {
-      console.error("Gemini API Error:", error);
-      
+      console.error('Gemini API Error:', error);
+
       // Check for rate limit errors
-      if (error.message && error.message.includes('quota') || 
-          error.message.includes('rate limit') || 
-          error.message.includes('429')) {
+      if (
+        (error.message && error.message.includes('quota')) ||
+        error.message.includes('rate limit') ||
+        error.message.includes('429')
+      ) {
         throw new Error('RATE_LIMIT_EXCEEDED');
       } else if (error.message && error.message.includes('API key')) {
         throw new Error('INVALID_API_KEY');

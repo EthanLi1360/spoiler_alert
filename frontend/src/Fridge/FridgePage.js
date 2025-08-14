@@ -485,7 +485,13 @@ const FridgePage = () => {
             </button>
           </div>
         ) : (
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
             <Spinner
               setCurrentFridge={(value) => {
                 setFridge(value);
@@ -495,331 +501,331 @@ const FridgePage = () => {
           </div>
         )}
         {canOpenFridge && (
-        <div className={styles.fridgeWrapper}>
-          <div className={styles.fridgeContainer}>
-            <>
-              {canOpenFridge && (
-                <img
-                  src={isFridgeOpen ? openFridge : closedFridge}
-                  alt="Fridge"
-                  className={styles.fridgeImage}
-                  onClick={toggleFridge}
-                />
-              )}
-              {isFridgeOpen && (
-                <>
-                  <div className={styles.actionButtons}>
-                    <button
-                      style={{ width: '150px' }}
-                      onClick={() => {
-                        mode === 'add' ? setMode('none') : setMode('add');
-                      }}
-                      className={mode === 'add' ? styles.cancelButton : ''}>
-                      {mode === 'add' ? 'Cancel Add' : 'Add Item'}
-                    </button>
-                    <button
-                      style={{ width: '150px' }}
-                      onClick={() => {
-                        mode === 'share' ? setMode('none') : setMode('share');
-                      }}>
-                      {mode === 'share' ? 'Cancel Share' : 'Share Fridge'}
-                    </button>
-                  </div>
-                </>
-              )}
-            </>
-          </div>
-          {isFridgeOpen && (
-            <div className={styles.fridgeDetailsContainer}>
-              {foods.length == 0 ? (
-                <div className={styles.emptyFridgeContainer}>
-                  <p className={styles.emptyFridgeMessage}>
-                    Looks like there's nothing in your fridge!
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  {/* Search and Sort Controls */}
-                  <div className={styles.controlsSection}>
-                    <div className={styles.searchControls}>
-                      <input
-                        type="text"
-                        placeholder="Search items..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className={styles.searchInput}
-                      />
-                    </div>
-                    <div className={styles.sortControls}>
-                      <span>Sort by:</span>
-                      <select
-                        name="sort_foods"
-                        value={queryOption}
-                        onChange={(e) => {
-                          const selectedOption = e.target.value;
-                          setQueryOption(selectedOption);
-
-                          // Auto-sort when option is selected
-                          if (selectedOption) {
-                            const sortedFoods = [...foods].sort((a, b) => {
-                              if (selectedOption === 'quantity') {
-                                return a[selectedOption] - b[selectedOption];
-                              }
-                              if (selectedOption === 'expirationDate') {
-                                if (a.isInFreezer && !b.isInFreezer) {
-                                  return 1;
-                                } else if (!a.isInFreezer && b.isInFreezer) {
-                                  return -1;
-                                }
-                                return (
-                                  Date.parse(a[selectedOption]) -
-                                  Date.parse(b[selectedOption])
-                                );
-                              }
-                              if (selectedOption === 'isInFreezer') {
-                                if (a.isInFreezer && !b.isInFreezer) {
-                                  return -1;
-                                } else if (!a.isInFreezer && b.isInFreezer) {
-                                  return 1;
-                                }
-                                return 0;
-                              }
-                              return String(a[selectedOption]).localeCompare(
-                                String(b[selectedOption]),
-                              );
-                            });
-                            setFoods(sortedFoods);
-                          }
+          <div className={styles.fridgeWrapper}>
+            <div className={styles.fridgeContainer}>
+              <>
+                {canOpenFridge && (
+                  <img
+                    src={isFridgeOpen ? openFridge : closedFridge}
+                    alt="Fridge"
+                    className={styles.fridgeImage}
+                    onClick={toggleFridge}
+                  />
+                )}
+                {isFridgeOpen && (
+                  <>
+                    <div className={styles.actionButtons}>
+                      <button
+                        style={{ width: '150px' }}
+                        onClick={() => {
+                          mode === 'add' ? setMode('none') : setMode('add');
                         }}
-                        className={styles.sortSelect}>
-                        <option value="" disabled>
-                          Select an option
-                        </option>
-                        {[
-                          'name',
-                          'expirationDate',
-                          'quantity',
-                          'category',
-                          'isInFreezer',
-                        ].map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
+                        className={mode === 'add' ? styles.cancelButton : ''}>
+                        {mode === 'add' ? 'Cancel Add' : 'Add Item'}
+                      </button>
+                      <button
+                        style={{ width: '150px' }}
+                        onClick={() => {
+                          mode === 'share' ? setMode('none') : setMode('share');
+                        }}>
+                        {mode === 'share' ? 'Cancel Share' : 'Share Fridge'}
+                      </button>
                     </div>
+                  </>
+                )}
+              </>
+            </div>
+            {isFridgeOpen && (
+              <div className={styles.fridgeDetailsContainer}>
+                {foods.length == 0 ? (
+                  <div className={styles.emptyFridgeContainer}>
+                    <p className={styles.emptyFridgeMessage}>
+                      Looks like there's nothing in your fridge!
+                    </p>
                   </div>
-
-                  {/* Food Items Grid */}
-                  <div className={styles.foodGrid}>
-                    {foods
-                      .filter(
-                        (food) =>
-                          searchTerm === '' ||
-                          food.name
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          food.category
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()),
-                      )
-                      .map((food) => (
-                        <div
-                          key={food.itemID}
-                          className={styles.foodItem}
-                          style={
-                            food.isInFreezer
-                              ? { backgroundColor: '#33f' }
-                              : Date.parse(food.expirationDate) < Date.now()
-                              ? { backgroundColor: '#a33' }
-                              : {}
-                          }>
-                          <div className={styles.foodItemHeader}>
-                            <span
-                              className={
-                                styles.foodName
-                              }>{`${food.name}`}</span>
-                            <div className={styles.foodActions}>
-                              <button
-                                onClick={() => startEditItem(food)}
-                                className={styles.editButton}
-                                title="Edit item">
-                                ✏️
-                              </button>
-                              <button
-                                onClick={() => deleteFoodItem(food.itemID)}
-                                className={styles.deleteButton}
-                                title="Delete item">
-                                🗑️
-                              </button>
-                            </div>
-                          </div>
-                          <span>{`${food.quantity} ${food.unit}`}</span>
-                          <span
-                            className={
-                              styles.foodCategory
-                            }>{`${food.category}`}</span>
-                          <br />
-                          <span className={styles.expirationInfo}>
-                            {food.isInFreezer
-                              ? 'In freezer'
-                              : (Date.parse(food.expirationDate) < Date.now()
-                                  ? 'Expired'
-                                  : 'Expires') +
-                                ` ${formatDate(food.expirationDate)}`}
-                          </span>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
-
-              {mode !== 'none' && (
-                <div className={styles.dialogContainer}>
-                  {mode === 'share' ? (
-                    <ShareFridge activeFridgeID={fridge.fridgeID} />
-                  ) : (
-                    <div className={styles.userInput}>
-                      <h3>
-                        {mode === 'edit'
-                          ? 'Edit Food Item'
-                          : 'Add New Food Item'}
-                      </h3>
-
-                      <div className={styles.inlineForm}>
+                ) : (
+                  <div>
+                    {/* Search and Sort Controls */}
+                    <div className={styles.controlsSection}>
+                      <div className={styles.searchControls}>
                         <input
                           type="text"
-                          placeholder="Food Name"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          className={styles.formInput}
-                        />
-                        <input
-                          type="number"
-                          placeholder="Quantity"
-                          value={quantity}
-                          onChange={(e) => setQuantity(e.target.value)}
-                          min="0.01"
-                          step="0.01"
-                          className={styles.formInput}
-                        />
-                        <input
-                          type="text"
-                          placeholder="Units (e.g., lbs, pieces, cups)"
-                          value={units}
-                          onChange={(e) => setUnits(e.target.value)}
-                          className={styles.formInput}
+                          placeholder="Search items..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className={styles.searchInput}
                         />
                       </div>
-
-                      <div className={styles.inlineForm}>
+                      <div className={styles.sortControls}>
+                        <span>Sort by:</span>
                         <select
-                          name="category"
-                          value={category}
-                          onChange={(e) => setCategory(e.target.value)}
-                          className={styles.formSelect}>
+                          name="sort_foods"
+                          value={queryOption}
+                          onChange={(e) => {
+                            const selectedOption = e.target.value;
+                            setQueryOption(selectedOption);
+
+                            // Auto-sort when option is selected
+                            if (selectedOption) {
+                              const sortedFoods = [...foods].sort((a, b) => {
+                                if (selectedOption === 'quantity') {
+                                  return a[selectedOption] - b[selectedOption];
+                                }
+                                if (selectedOption === 'expirationDate') {
+                                  if (a.isInFreezer && !b.isInFreezer) {
+                                    return 1;
+                                  } else if (!a.isInFreezer && b.isInFreezer) {
+                                    return -1;
+                                  }
+                                  return (
+                                    Date.parse(a[selectedOption]) -
+                                    Date.parse(b[selectedOption])
+                                  );
+                                }
+                                if (selectedOption === 'isInFreezer') {
+                                  if (a.isInFreezer && !b.isInFreezer) {
+                                    return -1;
+                                  } else if (!a.isInFreezer && b.isInFreezer) {
+                                    return 1;
+                                  }
+                                  return 0;
+                                }
+                                return String(a[selectedOption]).localeCompare(
+                                  String(b[selectedOption]),
+                                );
+                              });
+                              setFoods(sortedFoods);
+                            }
+                          }}
+                          className={styles.sortSelect}>
                           <option value="" disabled>
-                            Select category
+                            Select an option
                           </option>
-                          {Object.values(FridgeCategories).map((cat) => (
-                            <option key={cat} value={cat}>
-                              {cat}
+                          {[
+                            'name',
+                            'expirationDate',
+                            'quantity',
+                            'category',
+                            'isInFreezer',
+                          ].map((option) => (
+                            <option key={option} value={option}>
+                              {option}
                             </option>
                           ))}
                         </select>
-                        <input
-                          type="date"
-                          value={expirationDate}
-                          onChange={(e) => setExpirationDate(e.target.value)}
-                          disabled={isInFreezer}
-                          className={styles.formInput}
-                          title={
-                            isInFreezer
-                              ? 'Expiration date not required for freezer items'
-                              : ''
-                          }
-                        />
-                        <label className={styles.checkboxLabel}>
-                          <input
-                            type="checkbox"
-                            checked={isInFreezer}
-                            onChange={() => {
-                              setIsInFreezer(!isInFreezer);
-                              // Clear expiration date when checking "In Freezer" for better UX
-                              if (!isInFreezer) {
-                                setExpirationDate('');
-                              }
-                            }}
-                          />
-                          In Freezer?
-                        </label>
-                      </div>
-
-                      {mode === 'add' && suggestedExpirationTime && (
-                        <div className={styles.aiSuggestions}>
-                          <div className={styles.aiSuggestionsHeader}>
-                            💡 AI Suggestions
-                          </div>
-                          <div className={styles.aiSuggestionsContent}>
-                            <div className={styles.suggestionItem}>
-                              <span className={styles.suggestionLabel}>
-                                Expiration:
-                              </span>
-                              <span className={styles.suggestionValue}>
-                                {suggestedExpirationTime} days
-                              </span>
-                            </div>
-                            <div className={styles.suggestionItem}>
-                              <span className={styles.suggestionLabel}>
-                                Category:
-                              </span>
-                              <span className={styles.suggestionValue}>
-                                {suggestedCategory}
-                              </span>
-                            </div>
-                          </div>
-                          <div className={styles.suggestionButtonContainer}>
-                            <button
-                              onClick={confirmSuggestion}
-                              className={styles.suggestionButton}>
-                              Apply Suggestions
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className={styles.formSeparator}></div>
-
-                      <div className={styles.actionButtons}>
-                        {mode === 'add' ? (
-                          <button
-                            onClick={addFoodItem}
-                            className={styles.primaryButton}>
-                            Add Food Item
-                          </button>
-                        ) : (
-                          <>
-                            <button
-                              onClick={updateFoodItem}
-                              className={styles.primaryButton}>
-                              Update Item
-                            </button>
-                            <button
-                              onClick={cancelEdit}
-                              className={styles.secondaryButton}>
-                              Cancel
-                            </button>
-                          </>
-                        )}
                       </div>
                     </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-  </div>
-  )}
+
+                    {/* Food Items Grid */}
+                    <div className={styles.foodGrid}>
+                      {foods
+                        .filter(
+                          (food) =>
+                            searchTerm === '' ||
+                            food.name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()) ||
+                            food.category
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase()),
+                        )
+                        .map((food) => (
+                          <div
+                            key={food.itemID}
+                            className={styles.foodItem}
+                            style={
+                              food.isInFreezer
+                                ? { backgroundColor: '#33f' }
+                                : Date.parse(food.expirationDate) < Date.now()
+                                ? { backgroundColor: '#a33' }
+                                : {}
+                            }>
+                            <div className={styles.foodItemHeader}>
+                              <span
+                                className={
+                                  styles.foodName
+                                }>{`${food.name}`}</span>
+                              <div className={styles.foodActions}>
+                                <button
+                                  onClick={() => startEditItem(food)}
+                                  className={styles.editButton}
+                                  title="Edit item">
+                                  ✏️
+                                </button>
+                                <button
+                                  onClick={() => deleteFoodItem(food.itemID)}
+                                  className={styles.deleteButton}
+                                  title="Delete item">
+                                  🗑️
+                                </button>
+                              </div>
+                            </div>
+                            <span>{`${food.quantity} ${food.unit}`}</span>
+                            <span
+                              className={
+                                styles.foodCategory
+                              }>{`${food.category}`}</span>
+                            <br />
+                            <span className={styles.expirationInfo}>
+                              {food.isInFreezer
+                                ? 'In freezer'
+                                : (Date.parse(food.expirationDate) < Date.now()
+                                    ? 'Expired'
+                                    : 'Expires') +
+                                  ` ${formatDate(food.expirationDate)}`}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {mode !== 'none' && (
+                  <div className={styles.dialogContainer}>
+                    {mode === 'share' ? (
+                      <ShareFridge activeFridgeID={fridge.fridgeID} />
+                    ) : (
+                      <div className={styles.userInput}>
+                        <h3>
+                          {mode === 'edit'
+                            ? 'Edit Food Item'
+                            : 'Add New Food Item'}
+                        </h3>
+
+                        <div className={styles.inlineForm}>
+                          <input
+                            type="text"
+                            placeholder="Food Name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className={styles.formInput}
+                          />
+                          <input
+                            type="number"
+                            placeholder="Quantity"
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}
+                            min="0.01"
+                            step="0.01"
+                            className={styles.formInput}
+                          />
+                          <input
+                            type="text"
+                            placeholder="Units (e.g., lbs, pieces, cups)"
+                            value={units}
+                            onChange={(e) => setUnits(e.target.value)}
+                            className={styles.formInput}
+                          />
+                        </div>
+
+                        <div className={styles.inlineForm}>
+                          <select
+                            name="category"
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            className={styles.formSelect}>
+                            <option value="" disabled>
+                              Select category
+                            </option>
+                            {Object.values(FridgeCategories).map((cat) => (
+                              <option key={cat} value={cat}>
+                                {cat}
+                              </option>
+                            ))}
+                          </select>
+                          <input
+                            type="date"
+                            value={expirationDate}
+                            onChange={(e) => setExpirationDate(e.target.value)}
+                            disabled={isInFreezer}
+                            className={styles.formInput}
+                            title={
+                              isInFreezer
+                                ? 'Expiration date not required for freezer items'
+                                : ''
+                            }
+                          />
+                          <label className={styles.checkboxLabel}>
+                            <input
+                              type="checkbox"
+                              checked={isInFreezer}
+                              onChange={() => {
+                                setIsInFreezer(!isInFreezer);
+                                // Clear expiration date when checking "In Freezer" for better UX
+                                if (!isInFreezer) {
+                                  setExpirationDate('');
+                                }
+                              }}
+                            />
+                            In Freezer?
+                          </label>
+                        </div>
+
+                        {mode === 'add' && suggestedExpirationTime && (
+                          <div className={styles.aiSuggestions}>
+                            <div className={styles.aiSuggestionsHeader}>
+                              💡 AI Suggestions
+                            </div>
+                            <div className={styles.aiSuggestionsContent}>
+                              <div className={styles.suggestionItem}>
+                                <span className={styles.suggestionLabel}>
+                                  Expiration:
+                                </span>
+                                <span className={styles.suggestionValue}>
+                                  {suggestedExpirationTime} days
+                                </span>
+                              </div>
+                              <div className={styles.suggestionItem}>
+                                <span className={styles.suggestionLabel}>
+                                  Category:
+                                </span>
+                                <span className={styles.suggestionValue}>
+                                  {suggestedCategory}
+                                </span>
+                              </div>
+                            </div>
+                            <div className={styles.suggestionButtonContainer}>
+                              <button
+                                onClick={confirmSuggestion}
+                                className={styles.suggestionButton}>
+                                Apply Suggestions
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className={styles.formSeparator}></div>
+
+                        <div className={styles.actionButtons}>
+                          {mode === 'add' ? (
+                            <button
+                              onClick={addFoodItem}
+                              className={styles.primaryButton}>
+                              Add Food Item
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                onClick={updateFoodItem}
+                                className={styles.primaryButton}>
+                                Update Item
+                              </button>
+                              <button
+                                onClick={cancelEdit}
+                                className={styles.secondaryButton}>
+                                Cancel
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </>
   );

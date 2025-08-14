@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
-import styles from "./Spinner.module.css";
-import axios from "axios";
-import { getCachedBackendUrl } from "../Util";
+import React, { useState, useEffect, useRef } from 'react';
+import styles from './Spinner.module.css';
+import axios from 'axios';
+import { getCachedBackendUrl } from '../Util';
 
 /**
  * Spinner component
@@ -20,10 +20,10 @@ const Spinner = ({ setCurrentFridge }) => {
   const [centerOffset, setCenterOffset] = useState(0);
   // UI state for create-fridge mode
   const [isCreating, setIsCreating] = useState(false);
-  const [newFridgeName, setNewFridgeName] = useState("");
+  const [newFridgeName, setNewFridgeName] = useState('');
   // Fridge list and backend base URL
-  const [Fridges, setFridges] = useState([{ name: "Loading..." }]);
-  const [backendUrl, setBackendUrl] = useState("");
+  const [Fridges, setFridges] = useState([{ name: 'Loading...' }]);
+  const [backendUrl, setBackendUrl] = useState('');
 
   // Initialize backend URL once
   useEffect(() => {
@@ -32,9 +32,9 @@ const Spinner = ({ setCurrentFridge }) => {
         const url = await getCachedBackendUrl();
         setBackendUrl(url);
       } catch (error) {
-        console.error("Failed to get backend URL:", error);
+        console.error('Failed to get backend URL:', error);
         // Fallback in case discovery fails
-        setBackendUrl("http://localhost:5000");
+        setBackendUrl('http://localhost:5000');
       }
     };
     // Fire and forget
@@ -46,10 +46,10 @@ const Spinner = ({ setCurrentFridge }) => {
     if (!backendUrl) {
       return;
     }
-    const username = localStorage.getItem("username");
+    const username = localStorage.getItem('username');
     try {
       const response = await axios.get(
-        `${backendUrl}/get_fridges?username=${username}`
+        `${backendUrl}/get_fridges?username=${username}`,
       );
       if (
         response.data &&
@@ -59,7 +59,7 @@ const Spinner = ({ setCurrentFridge }) => {
         setFridges(response.data.fridges);
       }
     } catch (error) {
-      console.error("Error fetching fridges:", error);
+      console.error('Error fetching fridges:', error);
     }
   };
 
@@ -90,16 +90,16 @@ const Spinner = ({ setCurrentFridge }) => {
 
     try {
       const response = await axios.post(`${backendUrl}/add_fridge`, {
-        username: localStorage.getItem("username"),
+        username: localStorage.getItem('username'),
         name: newFridge.trim(),
       });
 
       if (response.data && response.data.success === true) {
         await refreshFridges();
-        setNewFridgeName("");
+        setNewFridgeName('');
       }
     } catch (error) {
-      console.error("Error creating fridge:", error);
+      console.error('Error creating fridge:', error);
     }
   };
 
@@ -132,27 +132,27 @@ const Spinner = ({ setCurrentFridge }) => {
             ref={trackRef}
             style={{
               transform: `translateY(calc(${centerOffset}px - ${calculateOffset()}px))`,
-            }}
-          >
+            }}>
             {Fridges.length > 0 ? (
               Fridges.map((item, index) => (
                 <div
                   key={`${item.name}-${index}`}
                   className={styles.sliderItem}
                   style={{
-                    transform: `scale(${1 - Math.abs(currentIndex - index) * 0.15})`,
+                    transform: `scale(${
+                      1 - Math.abs(currentIndex - index) * 0.15
+                    })`,
                     opacity: Math.max(
                       1 - Math.abs(currentIndex - index) * 0.2,
-                      0
+                      0,
                     ),
                   }}
-                  onClick={() => handleClick(index)}
-                >
+                  onClick={() => handleClick(index)}>
                   {item.name}
                 </div>
               ))
             ) : (
-              <p style={{ color: "#aaa", fontSize: "15px" }}>
+              <p style={{ color: '#aaa', fontSize: '15px' }}>
                 You have no fridges
               </p>
             )}
@@ -170,8 +170,7 @@ const Spinner = ({ setCurrentFridge }) => {
                 if (Fridges.length > 0) {
                   setCurrentFridge(Fridges[currentIndex]);
                 }
-              }}
-            >
+              }}>
               Select Current Fridge
             </div>
           </>
@@ -185,20 +184,18 @@ const Spinner = ({ setCurrentFridge }) => {
               onChange={(e) => setNewFridgeName(e.target.value)}
               className={styles.inputFridgeName}
             />
-            <div style={{ display: "flex", gap: "10px" }}>
+            <div style={{ display: 'flex', gap: '10px' }}>
               <button
                 className={styles.inputFridgeButton}
                 onClick={() => {
                   createFridge(newFridgeName);
                   toggleIsCreating();
-                }}
-              >
+                }}>
                 Create
               </button>
               <button
                 className={styles.inputFridgeButton}
-                onClick={toggleIsCreating}
-              >
+                onClick={toggleIsCreating}>
                 Cancel
               </button>
             </div>
