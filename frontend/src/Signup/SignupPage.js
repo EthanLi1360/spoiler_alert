@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styles from "./SignupPage.module.css"; // CSS for styling the component
 import axios from "axios";
+import { getCachedBackendUrl } from "../Util";
 // Integrating with Ethan's database username/password storage instead of Firebase
 // sorry!!!! we can (and maybe should) pivot back later
 // TODO check for duplicate username
@@ -25,24 +26,31 @@ function SignupPage() {
       return;
     }
 
-    await axios
-      .post("http://127.0.0.1:5000/add_credentials", {
+    try {
+      // Use dynamic backend URL discovery
+      const backendUrl = await getCachedBackendUrl();
+      
+      const response = await axios.post(`${backendUrl}/add_credentials`, {
         username: username,
         password: password,
-      })
-      .then((response) => {
-        if (response.data.success) {
-          setSuccessMessage("Signup successful! Welcome, " + username);
-          setErrorMessage("");
-        } else {
-          setSuccessMessage("");
-          setErrorMessage("Signup failed. Duplicate username");
-        }
-      })
-      .catch((error) => {
-        setErrorMessage(error.message);
-        setSuccessMessage("");
       });
+      
+      if (response.data.success) {
+        setSuccessMessage("Signup successful! Welcome, " + username);
+        setErrorMessage("");
+      } else {
+        setSuccessMessage("");
+        setErrorMessage("Signup failed. Duplicate username");
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      setSuccessMessage("");
+      if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
+        setErrorMessage("Unable to connect to server. Please make sure the backend is running.");
+      } else {
+        setErrorMessage(error.message || "An error occurred during signup.");
+      }
+    }
     // Firebase authentication - Create user with email and password
     // createUserWithEmailAndPassword(auth, email, password)
     //   .then((userCredential) => {

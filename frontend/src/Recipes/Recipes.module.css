@@ -1,7 +1,7 @@
 .page {
     height: 100%;
     width: 100%;
-    background-color: black;
+    background-color: #1a1a1a;
     position: fixed;
     top: 0px;
     left: 0px;
@@ -87,4 +87,50 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.errorMessage {
+    background-color: #ff4444;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 10px 0;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: slideDown 0.3s ease-out;
+    max-width: 400px;
+    margin-left: 50px;
+}
+
+.closeError {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 10px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.closeError:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
