@@ -485,25 +485,27 @@ const FridgePage = () => {
             </button>
           </div>
         ) : (
-          <Spinner
-            setCurrentFridge={(value) => {
-              setFridge(value);
-              setCanOpenFridge(true);
-            }}
-          />
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Spinner
+              setCurrentFridge={(value) => {
+                setFridge(value);
+                setCanOpenFridge(true);
+              }}
+            />
+          </div>
         )}
+        {canOpenFridge && (
         <div className={styles.fridgeWrapper}>
           <div className={styles.fridgeContainer}>
             <>
-              <img
-                src={isFridgeOpen ? openFridge : closedFridge}
-                alt="Fridge"
-                className={styles.fridgeImage}
-                onClick={toggleFridge}
-                style={
-                  !canOpenFridge ? { opacity: '25%', cursor: 'default' } : {}
-                }
-              />
+              {canOpenFridge && (
+                <img
+                  src={isFridgeOpen ? openFridge : closedFridge}
+                  alt="Fridge"
+                  className={styles.fridgeImage}
+                  onClick={toggleFridge}
+                />
+              )}
               {isFridgeOpen && (
                 <>
                   <div className={styles.actionButtons}>
@@ -816,7 +818,8 @@ const FridgePage = () => {
               )}
             </div>
           )}
-        </div>
+  </div>
+  )}
       </div>
     </>
   );

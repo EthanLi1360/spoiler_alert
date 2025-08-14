@@ -81,8 +81,9 @@ export function getUserFridgeAccess(userID) {
 }
 export async function getFridgeContents(fridgeID) {
   try {
+    const backendUrl = await getCachedBackendUrl();
     const response = await fetch(
-      `http://127.0.0.1:5000/get_fridge_contents?fridgeID=` + fridgeID,
+      `${backendUrl}/get_fridge_contents?fridgeID=` + fridgeID,
       {
         method: 'GET',
         headers: {
@@ -132,18 +133,18 @@ export function getFridge(fridgeID) {
 }
 
 export async function addFridgeAccess(username, fridgeID, accessLevel) {
-  return axios
-    .post('http://127.0.0.1:5000/add_fridge_access', {
+  try {
+    const backendUrl = await getCachedBackendUrl();
+    const response = await axios.post(`${backendUrl}/add_fridge_access`, {
       username: username,
       fridgeID: fridgeID,
       accessLevel: accessLevel,
-    })
-    .then((response) => {
-      return response.data;
-    })
-    .catch((error) => {
-      console.error('There was an error adding a fridge access row\n' + error);
     });
+    return response.data;
+  } catch (error) {
+    console.error('There was an error adding a fridge access row\n' + error);
+    throw error;
+  }
 }
 
 // taken from
@@ -196,42 +197,51 @@ export default function useToken() {
  * @returns {Promise<string>} The base URL of the running backend server
  */
 export const getBackendBaseUrl = async () => {
-  const commonPorts = [5000, 5001, 3001, 8000, 8080];
-
-  for (const port of commonPorts) {
-    const baseUrl = `http://localhost:${port}`;
+  // 1) Respect explicit override when provided
+  const explicit = process.env.REACT_APP_BACKEND_URL;
+  if (explicit && explicit.trim().length > 0) {
     try {
-      // Create an AbortController for timeout functionality
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
-
-      // Test if the server is responding by hitting a simple endpoint
-      const response = await fetch(`${baseUrl}/GET_DATA`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-        },
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        console.log(`Backend detected on port ${port}`);
-        return baseUrl;
+      const res = await fetch(`${explicit}/GET_DATA`, { method: 'GET' });
+      if (res.ok) {
+        console.log(`Using explicit backend URL: ${explicit}`);
+        return explicit;
       }
-    } catch (error) {
-      // Port is not responding, try the next one
-      console.log(`Port ${port} not responding:`, error.message);
-      continue;
+    } catch (e) {
+      console.warn(`Explicit REACT_APP_BACKEND_URL unreachable: ${explicit}`, e);
     }
   }
 
-  // If no port works, default to 5000 and let the error bubble up
-  console.warn(
-    'No backend server detected on common ports, defaulting to 5000',
-  );
-  return 'http://localhost:5000';
+  // 2) Probe common ports on both localhost and 127.0.0.1
+  const hosts = ['localhost', '127.0.0.1'];
+  const ports = [5001, 5000];
+
+  for (const host of hosts) {
+    for (const port of ports) {
+      const baseUrl = `http://${host}:${port}`;
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+  const response = await fetch(`${baseUrl}/GET_DATA`, {
+          method: 'GET',
+          headers: { Accept: 'application/json' },
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          console.log(`Backend detected at ${baseUrl}`);
+          return baseUrl;
+        }
+      } catch (error) {
+        // Try next combo
+        console.log(`No response from ${baseUrl}:`, error?.message ?? 'unknown error');
+      }
+    }
+  }
+
+  // 3) Fallback to 5001 first (project default), then 5000
+  console.warn('No backend detected; falling back to http://localhost:5001');
+  return 'http://localhost:5001';
 };
 
 /**

@@ -1,6 +1,6 @@
 import styles from "./RecipeBanners.module.css";
 
-function RecipeBanners({recipes, recipeClicked, replaceRecipe, saveRecipe}) {
+function RecipeBanners({recipes, recipeClicked, replaceRecipe, saveRecipe, onUseRecipe}) {
     if (!recipes || !Array.isArray(recipes)) {
         return <div>No recipes available</div>;
     }
@@ -26,7 +26,7 @@ function RecipeBanners({recipes, recipeClicked, replaceRecipe, saveRecipe}) {
                             <div className={styles.actionButtons}>
                                 <button className={styles.actionButton} onClick={(event) => { 
                                     event.stopPropagation();
-                                    
+                                    onUseRecipe(recipe);
                                 }}>Use</button>
                                 <button className={styles.actionButton} onClick={(event) => { 
                                     event.stopPropagation();

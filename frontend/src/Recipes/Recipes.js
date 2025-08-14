@@ -16,6 +16,7 @@ function Recipes() {
     const [recipeSelected, setRecipeSelected] = useState(null);
     const [savedRecipes, setSavedRecipes] = useState([]);
     const [viewSaved, setViewSaved] = useState(false);
+    const [error, setError] = useState(null); // Add error state
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [fridges, setFridges] = useState([]);
@@ -68,29 +69,55 @@ function Recipes() {
     const onButtonClick = async () => {
         let temp = [];
         setAILoading(true);
-        for (let i = 0; i < 10 && temp.length < 3; i++) {
-            const prompt = await makePrompt(temp);
-            const result = await generate(prompt);
-            if (result != null) {
-                temp.push(result);
+        setError(null); // Clear previous errors
+        
+        try {
+            for (let i = 0; i < 10 && temp.length < 3; i++) {
+                const prompt = await makePrompt(temp);
+                const result = await generate(prompt);
+                if (result != null) {
+                    temp.push(result);
+                }
             }
+            setGeneratedRecipes(temp);
+        } catch (error) {
+            console.error("Error generating recipes:", error);
+            if (error.message === 'RATE_LIMIT_EXCEEDED') {
+                setError("Rate limit exceeded. Please wait a few minutes before generating more recipes.");
+            } else if (error.message === 'INVALID_API_KEY') {
+                setError("Invalid API key. Please check your configuration.");
+            } else {
+                setError("Failed to generate recipes. Please try again later.");
+            }
+        } finally {
+            setAILoading(false);
         }
-        setGeneratedRecipes(temp);
-        setAILoading(false);
     }
 
     const replaceRecipe = async (id) => {
-        const prompt = makePrompt(generatedRecipes);
+        const prompt = await makePrompt(generatedRecipes);
         setAILoading(true);
-        let newRecipe = await generate(prompt)
-        if (newRecipe != null) {
-            setGeneratedRecipes((prevRecipes) =>
-                prevRecipes.map((recipe) =>
-                    recipe.id === id ? newRecipe : recipe
-                )
-            );
+        setError(null); // Clear previous errors
+        
+        try {
+            let newRecipe = await generate(prompt);
+            if (newRecipe != null) {
+                setGeneratedRecipes((prevRecipes) =>
+                    prevRecipes.map((recipe) =>
+                        recipe.id === id ? newRecipe : recipe
+                    )
+                );
+            }
+        } catch (error) {
+            console.error("Error replacing recipe:", error);
+            if (error.message === 'RATE_LIMIT_EXCEEDED') {
+                setError("Rate limit exceeded. Please wait a few minutes before generating more recipes.");
+            } else {
+                setError("Failed to replace recipe. Please try again later.");
+            }
+        } finally {
+            setAILoading(false);
         }
-        setAILoading(false);
     }
 
     const saveRecipe = async (recipe) => {
@@ -149,8 +176,54 @@ function Recipes() {
         setRecipeSelected(null);
     }
 
-    const useRecipe = () => {
-        ;
+    const addRecipeToFridge = async (recipe) => {
+        // Add selected recipe ingredients to the current fridge using backend API contract
+        if (!currentFridge || !currentFridge.fridgeID) {
+            console.error("No current fridge selected");
+            setError("Please select a fridge first.");
+            return;
+        }
+
+        if (!recipe || !Array.isArray(recipe.ingredients)) {
+            console.error("Invalid recipe data");
+            setError("Invalid recipe data.");
+            return;
+        }
+
+        try {
+            const backendUrl = await getCachedBackendUrl();
+            const username = localStorage.getItem("username") || "";
+
+            // Add each ingredient to the fridge
+            for (const ingredient of recipe.ingredients) {
+                // Normalize fields from different shapes (generated vs saved)
+                const name = (ingredient.ingredient_name || ingredient.name || "").toString();
+                const rawQty = ingredient.ingredient_quantity ?? ingredient.quantity ?? 1;
+                const qty = typeof rawQty === "string" ? parseFloat(rawQty) : Number(rawQty);
+                const unit = (ingredient.units || ingredient.unit || "piece").toString();
+                const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                    .toISOString()
+                    .split("T")[0];
+
+                const payload = {
+                    fridgeID: currentFridge.fridgeID,
+                    quantity: Number.isFinite(qty) && qty > 0 ? qty : 1,
+                    unit,
+                    name,
+                    category: "Other Items", // must be one of the accepted categories on backend
+                    expirationDate,
+                    username,
+                    isInFreezer: false,
+                };
+
+                await axios.post(`${backendUrl}/add_fridge_content`, payload);
+            }
+
+            alert(`Successfully added ${recipe.recipe_name || recipe.name || "recipe"} ingredients to your fridge!`);
+        } catch (error) {
+            console.error("Error adding recipe ingredients to fridge:", error);
+            setError("Failed to add ingredients to fridge. Please try again.");
+        }
     }
 
     const toogleViewSaved = async () => {
@@ -184,14 +257,23 @@ function Recipes() {
                     {currentFridge != null ?
                         <>
                             <p className={styles.menuHeader}>{currentFridge.name}</p>
+                            {error && (
+                                <div className={styles.errorMessage}>
+                                    {error}
+                                    <button onClick={() => setError(null)} className={styles.closeError}>×</button>
+                                </div>
+                            )}
                             <button className={styles.menuItem} onClick={onButtonClick}>{AIloading ? "Generating..." : "Generate Recipes"}</button> 
                             <button className={styles.menuItem} onClick={toogleViewSaved}>{viewSaved ? "Choose new Recipes" : "Saved Recipes"}</button>
                             <button className={styles.menuItem} onClick={() => {
                                 setCurrentFridge(null);
                                 setGeneratedRecipes([]);
+                                setError(null); // Clear errors when going back
                             }}>Back</button>
                         </>
-                    : <Spinner setCurrentFridge={setCurrentFridge} />
+                                        : <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', width: '100%' }}>
+                                                <Spinner setCurrentFridge={setCurrentFridge} />
+                                            </div>
                     }
                 </div>
                 
@@ -200,7 +282,7 @@ function Recipes() {
                         (!viewSaved ?
                             (<>
                                 {generatedRecipes.length > 0 && !AIloading ?
-                                    <RecipeBanners recipes={generatedRecipes} recipeClicked={recipeClicked} replaceRecipe={replaceRecipe} saveRecipe={saveRecipe}/> : ""
+                                    <RecipeBanners recipes={generatedRecipes} recipeClicked={recipeClicked} replaceRecipe={replaceRecipe} saveRecipe={saveRecipe} onUseRecipe={addRecipeToFridge}/> : ""
                                 }
                             </>
                             ) : (
@@ -213,6 +295,7 @@ function Recipes() {
                                             <div className={styles.actionButtons}>
                                                 <button className={styles.actionButton} onClick={(event) => {
                                                     event.stopPropagation();
+                                                    addRecipeToFridge(recipe);
                                                     }} style={{ marginRight: '10px' }}>Use</button>
                                                 <button className={styles.actionButton} onClick={(event) => {
                                                     event.stopPropagation();
