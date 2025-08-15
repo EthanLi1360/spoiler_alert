@@ -1,60 +1,96 @@
 .bannerContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-    width: 80%;
-    margin-right: 5%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  width: 80%;
+  margin-right: 5%;
 }
 
 .banner {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    background-image: url("./RecipeBorder.png");
-    background-size: 100% 100%;
-    min-height: 487px;
-    overflow-y: auto;
-    max-height: 670px;
-    background-repeat: no-repeat;
-    text-align: center;
-    margin: 15px;
-    padding: 10px;
-    flex: 1;
-    max-width: 300px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  background-image: url('./RecipeBorder.png');
+  background-size: 100% 100%;
+  min-height: 487px;
+  overflow-y: auto;
+  max-height: 670px;
+  background-repeat: no-repeat;
+  text-align: center;
+  margin: 15px;
+  padding: 40px 15px 10px 15px; /* Increased top padding to avoid X button overlay */
+  flex: 1;
+  max-width: 300px;
 }
 
 .banner_text {
-    color: black;
-    margin: 3px 0;
+  color: black;
+  margin: 3px 0;
 }
 
 .cancelButton {
-    position: absolute;
-    top: 7px;
-    right: 7px;
-    background: transparent;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: black;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #ff4444;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #ff4444;
+  transition: all 0.3s ease;
+  z-index: 10; /* Ensure it's above other content */
+}
+
+.cancelButton:hover {
+  background: #ff4444;
+  color: white;
+  transform: scale(1.1);
 }
 
 .actionButtons {
-    display: flex;
-    justify-content: center;
-    gap: 45px;
-    margin-top: auto;
-    padding-bottom: 80px;
+  display: flex;
+  justify-content: center;
+  gap: 45px;
+  margin-top: auto;
+  padding-bottom: 80px;
 }
 
 .actionButton {
-    padding: 10px 20px;
-    font-size: 15px;
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.actionButton:nth-child(1) {
+  background-color: #4caf50;
+  color: white;
+}
+
+.actionButton:nth-child(1):hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+}
+
+.actionButton:nth-child(2) {
+  background-color: #2196f3;
+  color: white;
+}
+
+.actionButton:nth-child(2):hover {
+  background-color: #1976d2;
+  transform: translateY(-2px);
 }

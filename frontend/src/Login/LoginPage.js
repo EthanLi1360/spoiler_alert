@@ -1,46 +1,58 @@
-import React, { useState } from "react";
-import styles from "./LoginPage.module.css"
+import React, { useState } from 'react';
+import styles from './LoginPage.module.css';
 // import { app } from './firebaseConfig';
 // import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import useToken from "../Util";
-import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import useToken from '../Util';
+import { getCachedBackendUrl } from '../Util';
+import { Link } from 'react-router-dom';
 
 function LoginPage() {
   // let auth = getAuth();
   let navigate = useNavigate();
-  const {token, setToken} = useToken();
+  const { token, setToken } = useToken();
 
   const routeChange = (path) => {
     navigate(path);
   };
   // let googleAuthProvider = new GoogleAuthProvider();
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Dummy login validation (Replace with actual validation logic)
-    await axios
-      .post("http://127.0.0.1:5000/try_login", {
+    try {
+      // Use dynamic backend URL discovery
+      const backendUrl = await getCachedBackendUrl();
+
+      const response = await axios.post(`${backendUrl}/try_login`, {
         username: username,
         password: password,
-      })
-      .then((response) => {
-        if (response.data.success) {
-          setToken(username, response.data.token);
-          navigate("/");
-        } else {
-          setErrorMessage("Invalid username or password");
-        }
-      })
-      .catch((error) => {
-        setErrorMessage(error.message);
       });
+
+      if (response.data.success) {
+        setToken(username, response.data.token);
+        navigate('/');
+      } else {
+        setErrorMessage('Invalid username or password');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      if (
+        error.code === 'ECONNREFUSED' ||
+        error.message.includes('Network Error')
+      ) {
+        setErrorMessage(
+          'Unable to connect to server. Please make sure the backend is running.',
+        );
+      } else {
+        setErrorMessage(error.message || 'An error occurred during login.');
+      }
+    }
   };
 
   return (
@@ -73,7 +85,9 @@ function LoginPage() {
           <button type="submit" className={styles.submit}>
             Login
           </button>
-          <Link to={"/"} style={{width: "100%", flex: 1}}><button className={styles.back}>Back</button></Link>
+          <Link to={'/'} style={{ width: '100%', flex: 1 }}>
+            <button className={styles.back}>Back</button>
+          </Link>
         </div>
       </form>
     </div>
