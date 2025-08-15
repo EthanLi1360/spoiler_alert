@@ -6,9 +6,7 @@ Spoiler Alert helps you track what’s in your fridge, reduce food waste, and ma
 
 ## 🎥 Demo
 
-<!-- Drop your YouTube demo URL or embedded markdown/image thumbnail below -->
-<!-- Example: [![Demo Video](https://img.youtube.com/vi/VIDEO_ID/hqdefault.jpg)](https://youtu.be/VIDEO_ID) -->
-<!-- Placeholder intentionally left for future video insertion. -->
+[![Watch the demo](https://i.imgur.com/9g1qgDX.png)](https://youtu.be/YOLyiLElo8w)
 
 ---
 
